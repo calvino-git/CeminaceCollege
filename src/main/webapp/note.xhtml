@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="exam" value="#{noteBean.currentExamenId}" converter="javax.faces.Integer"/>
+            <f:viewAction action="#{noteBean.initNoteBean()}"/>
+        </f:metadata>
+        <ui:param name="renderFormAsterisks" value="true"/>
+        <style type="text/css">
+            .ui-datatable .ui-datatable-header {
+                text-align: left !important;
+            }
+            .ui-cell-editor-input{
+                color: black !important;
+            }
+            .ui-datatable-tablewrapper {
+                background-color: lightgrey;
+            }
+
+            th.ui-filter-column {
+                padding: 5px 2px !important;
+            }
+
+            #footer:hover {
+                opacity: .7;
+            }
+
+            #footer {
+                float: right;
+                font-size: 12px;
+                color: #3c8dbc;
+                font-weight: 500;
+            }
+
+            .ui-datatable-footer {
+                border: none;
+            }
+
+        </style>
+    </ui:define>
+    <ui:define name="title">
+        Gestion des notes
+    </ui:define>
+
+    <ui:define name="body">
+        <adm:breadcrumb title="#{empty examenBean.id ? 'Note' : ((examenBean.findExamenById(examenBean.id)).type).concat(' du ').concat((examenBean.findExamenById(examenBean.id)).mois)}" link="note.xhtml?exam=#{examenBean.id}"/>
+        <h:form id="form" prependId="false">
+            <p:focus context="@form"/>
+            <p:panel id="panel" styleClass="box-primary card" >
+
+                <p:panelGrid id="input" style="border: none" columns="5" columnClasses="ui-grid-col-3,ui-grid-col-2,ui-grid-col-2,ui-grid-col-2,ui-grid-col-3"
+                             layout="grid" styleClass="ui-fluid card">
+                    <p:outputLabel for="classe1" value="Classe "/>
+                    <p:outputLabel for="annee" value="Année "/>
+                    <p:outputLabel for="trim1" value="Trimestre "/>
+                    <p:outputLabel for="type" value="Type"/>
+                    <p:outputLabel for="disc" value="Matière"/>
+
+                    <p:autoComplete id="classe1" converter="#{classeConverter}" 
+                                    var="c" itemLabel="#{c}" itemValue="#{c}" value="#{noteBean.classe}" 
+                                    forceSelection="true" scrollHeight="200"
+                                    minQueryLength="2" queryDelay="500" dropdown="true"   
+                                    completeMethod="#{classeBean.findByLibelle}"
+                                    requiredMessage="Selectionner la classe"
+                                    required="true">
+                        <p:ajax event="itemSelect" process="classe1" update="@form" listener="#{noteBean.onClasseSelection}"/>
+                    </p:autoComplete>
+                    <p:spinner id="annee" value="#{noteBean.annee}" class="align-left" required="true" 
+                               requiredMessage="Année est obligatoire"  min="2020" max="2030"/>
+
+                    <p:selectOneMenu id="trim1" value="#{noteBean.trimestre}" 
+                                     requiredMessage="Selectionner le trimestre"
+                                     required="true">
+                        <f:selectItem itemLabel="1er Trimestre" itemValue="1"/>
+                        <f:selectItem itemLabel="2ème Trimestre" itemValue="2"/>
+                        <f:selectItem itemLabel="3ème Trimestre" itemValue="3"/>
+                        <f:selectItem itemLabel="4ème Trimestre" itemValue="4"/>
+                        <p:ajax event="itemSelect" process="classe1 annee trim1 " update="input" listener="#{noteBean.refreshExam}"/>
+                    </p:selectOneMenu>
+                    <p:selectOneMenu id="type" value="#{noteBean.type}" required="true" requiredMessage="Type est obligatoire.">
+                        <f:selectItem itemLabel="INTERRO 1" itemValue="INTERRO 1"/>
+                        <f:selectItem itemLabel="INTERRO 2" itemValue="INTERRO 2"/>
+                        <f:selectItem itemLabel="EVALUATION" itemValue="EVALUATION"/>
+                        <f:selectItem itemLabel="COMPOSITION" itemValue="COMPOSITION"/>
+                    </p:selectOneMenu>
+                    <p:autoComplete  id="disc" converter="#{disciplineConverter}" var="d" itemLabel="#{d.matiere.libelle}" 
+                                     itemValue="#{d}" value="#{noteBean.discipline}" forceSelection="true" emptyMessage="Selectionner la classe associé d'abord."
+                                     minQueryLength="2" queryDelay="500" dropdown="true"  scrollHeight="300" 
+                                     completeMethod="#{noteBean.findDisciplineClasse}" required="true" requiredMessage="Classe est obligatoire.">
+                    </p:autoComplete>
+
+                    <p:message for="classe1"/>
+                    <p:message for="annee"/>
+                    <p:message for="trim1"/>
+                    <p:message for="type" /> 
+                    <p:message for="disc"/> 
+
+                    <p:separator/>
+                    <p:separator />
+                    <p:commandButton value="Consulter" action="#{noteBean.findOrCreateExamen()}" process="input"
+                                     update="@form dateDialog" icon="fa fa-check" styleClass="btn-primary"/>
+                    <p:separator />
+                    <p:separator />
+                </p:panelGrid>
+                <p:spacer height="5px"/>
+                <p:dataTable id="note" widgetVar="noteTable" var="n" value="#{noteBean.listeNote}" rows="10" rowKey="#{n.id}" 
+                             paginator="true" selectionMode="single" sortMode="single"
+                             sortField="eleve" sortOrder="ascending" paginatorPosition="bottom" selection="#{noteBean.selection}" 
+                             paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown} {Exporters}"
+                             currentPageReportTemplate="[ {startRecord} to {endRecord} of {totalRecords} ]" rowIndexVar="x"
+                             rowsPerPageTemplate="5,10,15,20,30" emptyMessage="Aucun element">
+                    <p:autoUpdate/>
+                    <f:facet name="{Exporters}">
+                        <div style="float:right">
+                            <h:commandLink>
+                                <p:graphicImage library="images" name="excel-24px.png" width="24"/>
+                                <p:dataExporter type="xls" target="note" fileName="cars"/>
+                            </h:commandLink>
+                            <h:commandLink>
+                                <p:graphicImage library="images" name="pdf.png" width="24"/>
+                                <p:dataExporter type="pdf" target="note" fileName="Notes"  preProcessor="#{noteBean.preProcessPDF}"/>
+                            </h:commandLink>
+                        </div>
+                    </f:facet>
+                    <f:facet name="header">
+                        <div id="main-buttons">
+                            <div  class="ui-g ui-fluid">
+                                <div class="ui-sm-4 ui-g-4 ui-lg-3">
+                                    <p:outputLabel for="date" value="Epreuve du:"/>  
+                                    <p:spacer width="5px"/>
+                                    <h:outputText id="date" value="#{noteBean.examen.date}" style="width: 100%">
+                                        <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                    </h:outputText>
+                                </div>
+                                <div class="ui-sm-4  ui-g-4 ui-lg-3">
+                                    <p:outputLabel for="classe" value="Classe:"/>  
+                                    <p:spacer width="5px"/>
+                                    <h:outputText id="classe" value="#{noteBean.examen.discipline.classe.libelle}" style="width: 100%"/>
+                                </div>
+                                <div class="ui-sm-4 ui-g-4 ui-lg-3">
+                                    <p:outputLabel for="matiere" value="Matière:"/>  
+                                    <p:spacer width="5px"/>
+                                    <h:outputText id="matiere" value="#{noteBean.examen.discipline.matiere.code}" style="width: 100%"/>
+                                </div>
+                                <div class="ui-sm-4 ui-g-4 ui-lg-3"> 
+                                    <p:outputLabel for="enseignant" value="Enseignant:"/>  
+                                    <p:spacer width="5px"/>
+                                    <h:outputText id="enseignant" value="#{noteBean.examen.discipline.enseignant}" style="width: 100%"/>
+                                </div>
+                                <div class="ui-sm-4 ui-g-4 ui-lg-3">
+                                    <p:outputLabel for="eff" value="Effectif:"/>  
+                                    <p:spacer width="5px"/>
+                                    <h:outputText id="eff" value="#{noteBean.listeNote.size()}" style="width: 100%"/>
+                                </div>
+                                <div class="ui-sm-4 ui-g-4 ui-lg-3">
+                                    <p:outputLabel for="present" value="Presents:"/>  
+                                    <p:spacer width="5px"/>
+                                    <h:outputText id="present" value="#{noteBean.listeNote.stream().filter(n->n.presence.equals('PRESENT')).count()}" style="width: 100%"/>
+                                </div>
+                                <div class="ui-sm-4 ui-g-4 ui-lg-3">
+                                    <p:outputLabel for="absent" value="Absents:"/>  
+                                    <p:spacer width="5px"/>
+                                    <h:outputText id="absent" value="#{noteBean.listeNote.stream().filter(n->n.presence.equals('ABSENT')).count()}" style="width: 100%"/>
+                                </div>
+                                <div class="ui-sm-4 ui-g-4 ui-lg-3">
+                                    <p:outputLabel for="type" value="Catégorie:"/>  
+                                    <p:spacer width="5px"/>
+                                    <h:outputText id="type" value="#{noteBean.examen.type}" style="width: 100%"/>
+                                </div>
+                            </div>
+                        </div>
+                    </f:facet>
+                    <p:column headerText="#" width="5%" styleClass="align-center" >
+                        <h:outputText value="#{x+1}"/>
+                    </p:column>
+                    <p:column headerText="Nom et Prenom" sortBy="#{n.eleve}">
+                        <h:outputText value="#{n.eleve}"/>
+                    </p:column>
+                    <p:column headerText="Note" width="10%" sortBy="#{n.note}" styleClass="align-center">
+                        <h:outputText value="#{n.note}" >
+                            <f:convertNumber maxFractionDigits="2" locale="fr"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Observation" width="30%" sortBy="#{n.observation}">
+                        <h:outputText value="#{n.observation}"/>
+                    </p:column>
+                    <p:column headerText="Rang" width="10%" sortBy="#{n.rang}" styleClass="align-center">
+                        <h:outputText value="#{n.rang}"/>
+                    </p:column>
+                    <p:column headerText="Presence" width="10%" sortBy="#{n.presence}" styleClass="align-center">
+                        <h:outputText value="#{n.presence}"/>
+                    </p:column>
+                    <p:column headerText="Action" width="10%" exportable="false">
+                        <p:commandButton update="@(.ui-dialog)" styleClass="btn-info" process="@this" action="#{noteBean.setEntity(n)}"
+                                         oncomplete="PF('searchDialog').show()" icon="fa fa-edit"/>
+                        <p:commandButton update="note @(.ui-datatable)" styleClass="btn-danger" action="#{noteBean.supprimer(n)}"
+                                         icon="fa fa-trash"/>
+                    </p:column>
+                </p:dataTable>
+            </p:panel>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger box-solid">
+                <p:commandButton value="Oui" type="button" styleClass="btn-material btn-primary ui-confirmdialog-yes"
+                                 icon="fa fa-check"/>
+                <p:commandButton value="Non" type="button" styleClass="btn-material btn-danger ui-confirmdialog-no"
+                                 icon="fa fa-close"/>
+            </p:confirmDialog>
+        </h:form>
+
+        <p:dialog header="#{noteBean.entity.eleve}" widgetVar="searchDialog" dynamic="true" height="400" modal="true" appendTo="@(body)"
+                  width="500" responsive="true" draggable="false" styleClass="box-success">
+
+            <h:form>
+                <p:focus context="@form"/>
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12">
+                        <p:outputLabel value="#{noteBean.entity.examen.type} - 
+                                       #{noteBean.entity.examen.discipline.matiere.libelle} - 
+                                       Trimestre #{noteBean.entity.examen.trimestre}"/>
+                    </div>
+                    <div class="ui-g-6 ui-sm-12 ui-g-nopad">
+                        <div class="ui-g-12">
+                            <p:outputLabel for="note" value="Note"/>
+                        </div>
+                        <div class="ui-g-12">
+                            <p:inputNumber id="note" value="#{noteBean.entity.note}" style="width: 100%;" minValue="0.00" maxValue="20" validatorMessage="Note doit etre entre 0 et 20." />
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <p:outputLabel for="obs" value="Observation"/>
+                    </div>
+                    <div class="ui-g-12">
+                        <p:inputText id="obs" value="#{noteBean.entity.observation}"/>
+                    </div>
+                    <div class="ui-g-12">
+                        <p:outputLabel for="presence" value="Presence"/>
+                    </div>
+                    <div class="ui-g-12">
+                        <p:selectOneRadio id="presence" value="#{noteBean.entity.presence}">
+                            <f:selectItem itemLabel="PRESENT" itemValue="PRESENT"/>
+                            <f:selectItem itemLabel="ABSENT" itemValue="ABSENT"/>
+                            <f:selectItem itemLabel="MALADE" itemValue="MALADE"/>
+                        </p:selectOneRadio>
+                    </div>
+                </div>
+                <p:separator/>
+                <p:commandButton value="Enregistrer" update="@form @(.ui-datatable)" icon="fa fa-check" oncomplete="PF('searchDialog').hide()"
+                                 ignoreAutoUpdate="true" styleClass="btn-primary" action="#{noteBean.save}"/>
+                <p:spacer height="5"/>
+                <p:commandButton value="Clear" action="#{noteBean.clear}" process="@this"
+                                 update="@form @(.ui-datatable, .ui-tooltip)" styleClass="btn-success"
+                                 icon="fa fa-refresh"/>
+                <p:spacer height="5"/>
+                <p:commandButton value="Close" icon="fa fa-close" oncomplete="PF('searchDialog').hide()"/>
+            </h:form>
+        </p:dialog>
+        <p:dialog header="Merci de selectionner le jour de l'épreuve" class="align-center" 
+                  widgetVar="examenDialog" dynamic="true" modal="true" appendTo="@(body)"
+                  width="500" responsive="true" draggable="false" styleClass="box-success">
+            <h:form id="dateDialog" class="align-center">
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12 align-center">
+
+                        <p:datePicker id="date" inline="true" required="true" 
+                                      requiredMessage="La selection de la date est obligatoire pour #{noteBean.type}" 
+                                      value="#{noteBean.examen.date}" pattern="dd/MM/yyyy">
+                            <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            <p:ajax event="dateSelect" process="@this"/>
+                        </p:datePicker>
+                        <p:message for="date" />
+                    </div>
+                    <div class="ui-g-12">
+                        <p:commandButton value="OK" update="@form @(.ui-datatable)" icon="fa fa-check" 
+                                         oncomplete="PF('examenDialog').hide()" ignoreAutoUpdate="true" 
+                                         styleClass="btn-primary" action="#{noteBean.findOrCreateExamen()}"/>
+                    </div>
+                </div>
+            </h:form>
+        </p:dialog>
+    </ui:define>
+</ui:composition>

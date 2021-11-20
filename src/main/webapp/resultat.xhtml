@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                template="#{layoutMB.template}">
+    <ui:define name="metadata">
+        <f:metadata>
+        </f:metadata>
+        <style type="text/css">
+            .progress-group .float-right{
+                float: right!important;
+            }
+            body .ui-datatable th.ui-state-default {
+                background: #f4f4f4!important;
+            }
+            .ui-accordion .ui-accordion-content {
+                padding: 0px!important;;
+            }
+        </style>
+    </ui:define>
+    <ui:define name="head-end">
+        <ui:param name="renderBreadCrumb" value="false"/>
+    </ui:define>
+
+    <ui:define name="title">
+        <h2 class="align-center">
+            <span class="">
+                Ecole CEMINACE
+            </span>
+        </h2>
+    </ui:define>
+    <ui:define name="body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+
+                    <h:form id="form" prependId="false">
+                        <p:focus context="@form"/>
+                        <p:panel id="panel" styleClass="box-primary card">
+                            <p:panelGrid id="input" columns="3" columnClasses="ui-grid-col-4,ui-grid-col-4,ui-grid-col-4"
+                                         layout="grid" styleClass="ui-fluid card">
+                                <f:facet name="header">
+                                    RESULTAT TRIMESTRIEL PAR CLASSE
+                                </f:facet>
+                                <p:outputLabel value="Classe" for="classe"/>
+                                <p:outputLabel for="trim" value="Trimestre "/>
+                                <p:outputLabel for="annee" value="Annee "/>
+
+                                <p:autoComplete id="classe" converter="#{classeConverter}" 
+                                                var="c" itemLabel="#{c.libelle}" itemValue="#{c}" value="#{releveBean.classe}" 
+                                                forceSelection="true" scrollHeight="200"
+                                                minQueryLength="2" queryDelay="500" dropdown="true"   
+                                                completeMethod="#{classeBean.findByLibelle}"
+                                                requiredMessage="Selectionner la classe"
+                                                required="true"/>
+
+                                <p:selectOneMenu id="trim" value="#{releveBean.trimestre}" 
+                                                 requiredMessage="Selectionner le trimestre"
+                                                 required="true">
+                                    <f:selectItem itemLabel="Choisir..."/>
+                                    <f:selectItem itemLabel="1er Trimestre" itemValue="1"/>
+                                    <f:selectItem itemLabel="2ème Trimestre" itemValue="2"/>
+                                    <f:selectItem itemLabel="3ème Trimestre" itemValue="3"/>
+                                    <f:selectItem itemLabel="4ème Trimestre" itemValue="4"/>
+                                </p:selectOneMenu>
+                                <p:spinner id="annee" value="#{releveBean.annee}" class="align-left" required="true" 
+                                           requiredMessage="Année est obligatoire"  min="2020" max="2030"/>
+
+                                <p:message for="classe"/>
+                                <p:message for="trim"/>
+                                <p:message for="annee"/>
+
+                                <p:separator/>
+                                <p:commandButton value="Consulter" action="#{releveBean.genererResultat()}"
+                                                 actionListener="#{releveBean.updateRegistre}"
+                                                 update="@form" icon="fa fa-check" styleClass="btn-primary"/>
+
+                                <p:separator/>
+                            </p:panelGrid>
+                        </p:panel>
+                        <p:spacer height="5"/>
+                        <p:accordionPanel rendered="#{not empty releveBean.resultats}" >
+                            <p:tab>
+                                <f:facet name="title">
+                                    <h:outputText value="RESULTAT : COMPOSITION DU #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}"/>
+                                </f:facet>
+                                <p:dataTable id="resultatTable" widgetVar="resultatTable" var="r" value="#{releveBean.resultats}" 
+                                             resizableColumns="true" reflow="true" rowIndexVar="x"
+                                             sortBy="#{r.eleve}" sortOrder="ascending" sortMode="single" 
+                                             rendered="#{not empty releveBean.resultats}">
+                                    <p:column headerText="N°" width="5%" styleClass="align-center">
+                                        <h:outputText value="#{x+1}" />
+                                    </p:column>
+                                    <p:column headerText="Nom et prenom" width="20%" sortBy="#{r.eleve}">
+                                        <h:outputText value="#{r.eleve}"/>
+                                    </p:column>
+                                    <p:column headerText="Moyenne" styleClass="align-center" sortBy="#{r.moyenne}">
+                                        <h:outputText value="#{r.moyenne}" >
+                                            <f:convertNumber maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="Rang" styleClass="align-center" sortBy="#{r.rang}">
+                                        <h:outputText value="#{r.rang}" />
+                                    </p:column>
+                                    <p:column headerText="Observation" width="20%" styleClass="align-center">
+                                        <h:outputText value="#{r.observation}" />
+                                    </p:column>
+                                    <f:facet name="footer">
+
+                                    </f:facet>
+
+                                </p:dataTable>
+                            </p:tab>
+                            <p:tab title="REGISTRE N°II : MOYENNES EVALUATIONS - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
+                                <p:dataTable id="regstreTable" widgetVar="regstreTable" var="r" value="#{releveBean.registres}"
+                                             rowIndexVar="x" sortField="eleve" sortOrder="ascending"
+                                             sortMode="single" reflow="true" 
+                                             rendered="#{not empty releveBean.registres}" styleClass="align-center">
+                                    <f:facet name="header">
+                                        <p:commandButton  action="#{releveBean.exportEvaluation}" ajax="false" value="IMPRIMER" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
+                                    </f:facet>
+                                    <p:columnGroup type="header">
+                                        <p:row>
+                                            <p:column rowspan="2" headerText="N°"/>
+                                            <p:column rowspan="2" width="100" headerText="Nom et prenom"/>
+                                            <p:column colspan="2" headerText="Orthographe"/>
+                                            <p:column colspan="2" headerText="Anglais"/>
+                                            <p:column colspan="2" headerText="Exp. Ecrite"/>
+                                            <p:column colspan="2" headerText="Histoire-Geo"/>
+                                            <p:column colspan="2" headerText="Maths"/>
+                                            <p:column colspan="2" headerText="Phy-Chimie"/>
+                                            <p:column colspan="2" headerText="SVT"/>
+                                            <p:column colspan="2" headerText="EPS"/>
+                                            <p:column colspan="1" headerText="Total"/>
+                                            <p:column rowspan="2" headerText="Moy."/>
+                                            <p:column rowspan="2" headerText="Rang"/>
+                                        </p:row>
+                                        <p:row>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="24"/>
+                                        </p:row>
+                                    </p:columnGroup>
+                                    <p:column styleClass="align-center">
+                                        <h:outputText value="#{x+1}" />
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.eleve}"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <h:outputText value="#{r.orthographe}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.orthographe * r.orthographeCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.anglais}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column >
+                                        <h:outputText value="#{r.anglais * r.anglaisCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column >
+                                        <h:outputText value="#{r.expressionEcrite}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.expressionEcrite * r.expressionEcriteCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.histoireGeo}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.histoireGeo * r.histoireGeoCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.maths}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.maths * r.mathsCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.phyChimie}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.phyChimie * r.phyChimieCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.svt}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.svt * r.svtCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.eps}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.eps * r.epsCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.total}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.moyenne}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.rang}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </p:tab>
+                            <p:tab title="REGISTRE N°II : MOYENNES COMPOSITIONS - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
+                                <p:dataTable id="registreCompoTable" widgetVar="registreCompoTable" var="r" value="#{releveBean.registresCompo}"
+                                             rowIndexVar="x" sortField="eleve" sortOrder="ascending"
+                                             sortMode="single" reflow="true" 
+                                             rendered="#{not empty releveBean.registresCompo}" styleClass="align-center">
+                                    <f:facet name="header">
+                                        <p:commandButton  action="#{releveBean.exportComposition()}" ajax="false" value="IMPRIMER" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
+                                    </f:facet>
+                                    <p:columnGroup type="header">
+                                        <p:row>
+                                            <p:column rowspan="2" headerText="N°"/>
+                                            <p:column rowspan="2" width="100" headerText="Nom et prenom"/>
+                                             <p:column colspan="2" headerText="Orthographe"/>
+                                            <p:column colspan="2" headerText="Anglais"/>
+                                            <p:column colspan="2" headerText="Exp. Ecrite"/>
+                                            <p:column colspan="2" headerText="Histoire-Geo"/>
+                                            <p:column colspan="2" headerText="Maths"/>
+                                            <p:column colspan="2" headerText="Phy-Chimie"/>
+                                            <p:column colspan="2" headerText="SVT"/>
+                                            <p:column colspan="2" headerText="EPS"/>
+                                            <p:column colspan="1" headerText="Total"/>
+                                            <p:column rowspan="2" headerText="Moy."/>
+                                            <p:column rowspan="2" headerText="Rang"/>
+                                        </p:row>
+                                        <p:row>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="24"/>
+                                        </p:row>
+                                    </p:columnGroup>
+                                    <p:column styleClass="align-center">
+                                        <h:outputText value="#{x+1}" />
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.eleve}"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <h:outputText value="#{r.orthographe}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.orthographe * r.orthographeCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.anglais}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column >
+                                        <h:outputText value="#{r.anglais * r.anglaisCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column >
+                                        <h:outputText value="#{r.expressionEcrite}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.expressionEcrite * r.expressionEcriteCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.histoireGeo}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.histoireGeo * r.histoireGeoCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.maths}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.maths * r.mathsCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.phyChimie}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.phyChimie * r.phyChimieCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.svt}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.svt * r.svtCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.eps}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.eps * r.epsCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.total}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.moyenne}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.rang}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </p:tab>
+                            <p:tab title="REGISTRE N°III : MOYENNES TRIMESTRIELLES - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
+                                <p:dataTable id="registreTrimTable" widgetVar="registreTrimTable" var="r" value="#{releveBean.registresTrim}"
+                                             rowIndexVar="x" sortField="eleve" sortOrder="ascending"
+                                             sortMode="single" reflow="true" 
+                                             rendered="#{not empty releveBean.registresTrim}" styleClass="align-center">
+                                    <f:facet name="header">
+                                        <p:commandButton  action="#{releveBean.exportTrimestre()}" ajax="false" value="IMPRIMER" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
+                                    </f:facet>
+                                    <p:columnGroup type="header">
+                                        <p:row>
+                                            <p:column rowspan="2" headerText="N°"/>
+                                            <p:column rowspan="2" width="100" headerText="Nom et prenom"/>
+                                            <p:column colspan="2" headerText="Orthographe"/>
+                                            <p:column colspan="2" headerText="Anglais"/>
+                                            <p:column colspan="2" headerText="Exp. Ecrite"/>
+                                            <p:column colspan="2" headerText="Histoire-Geo"/>
+                                            <p:column colspan="2" headerText="Maths"/>
+                                            <p:column colspan="2" headerText="Phy-Chimie"/>
+                                            <p:column colspan="2" headerText="SVT"/>
+                                            <p:column colspan="2" headerText="EPS"/>
+                                            <p:column colspan="1" headerText="ART"/>
+                                            <p:column colspan="1" headerText="CON"/>
+                                            <p:column colspan="1" headerText="Total"/>
+                                            <p:column rowspan="2" headerText="Moy."/>
+                                            <p:column rowspan="2" headerText="Rang"/>
+                                        </p:row>
+                                        <p:row>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="nc"/>
+                                            <p:column headerText="x"/>
+                                            <p:column headerText="x1"/>
+                                            <p:column headerText="x1"/>
+                                            <p:column headerText="26"/>
+                                        </p:row>
+                                    </p:columnGroup>
+                                    <p:column styleClass="align-center">
+                                        <h:outputText value="#{x+1}" />
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.eleve}"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <h:outputText value="#{r.orthographe}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.orthographe * r.orthographeCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.anglais}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column >
+                                        <h:outputText value="#{r.anglais * r.anglaisCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column >
+                                        <h:outputText value="#{r.orthographe}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.orthographe * r.orthographeCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.histoireGeo}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.histoireGeo * r.histoireGeoCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.maths}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.maths * r.mathsCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.phyChimie}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.phyChimie * r.phyChimieCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.svt}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.svt * r.svtCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.eps}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.eps * r.epsCoef}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.art}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.con}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.total}" >
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.moyenne}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column>
+                                        <h:outputText value="#{r.rang}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </p:tab>
+                            <p:tab title="REGISTRE N°IV : BILAN PAR MATIERE ET PAR SPECIALITE - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
+                                <p:commandButton  action="#{releveBean.exportRegistreIV()}" ajax="false" value="EXPORTER" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
+                            </p:tab>
+                        </p:accordionPanel>
+
+
+
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger box-solid">
+                            <p:commandButton value="Oui" type="button" styleClass="btn-material btn-primary ui-confirmdialog-yes"
+                                             icon="fa fa-check"/>
+                            <p:commandButton value="Non" type="button" styleClass="btn-material btn-danger ui-confirmdialog-no"
+                                             icon="fa fa-close"/>
+                        </p:confirmDialog>
+                    </h:form>
+                </div><!-- /.col -->
+            </div>
+        </div>
+
+    </ui:define>
+</ui:composition>
+
