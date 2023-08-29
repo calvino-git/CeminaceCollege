@@ -19,6 +19,10 @@
                 opacity: .7;
             }
 
+            .ui-progressbar .ui-progressbar-label {
+                color: red!important;
+            }
+
             #footer {
                 float: right;
                 font-size: 12px;
@@ -44,7 +48,7 @@
         <h:form id="form" prependId="false">
             <p:focus context="@form"/>
             <p:panel id="panel" styleClass="box-primary card">
-                <p:panelGrid columns="4" columnClasses="ui-grid-col-4,ui-grid-col-4,ui-grid-col-4,align-left ui-grid-col-2"
+                <p:panelGrid columns="3" columnClasses="ui-grid-col-4,ui-grid-col-4,ui-grid-col-4"
                              layout="grid" styleClass="ui-fluid card">
                     <f:facet name="header">
                         Gestion des bulletins
@@ -53,12 +57,11 @@
                     <p:outputLabel value="Classe" for="classe"/>
                     <p:outputLabel value="Elève" for="eleve"/>
                     <p:outputLabel for="trim" value="Trimestre "/>
-                    <p:outputLabel for="annee" value="Annee "/>
 
                     <p:autoComplete id="classe" converter="#{classeConverter}" var="c" itemLabel="#{c.libelle}" itemValue="#{c}" 
                                     value="#{releveBean.classe}" forceSelection="true" groupBy="#{c.niveau}"
                                     minQueryLength="2" queryDelay="500" dropdown="true"
-                                    completeMethod="#{classeBean.findByLibelle}" scrollHeight="200"
+                                    completeMethod="#{classeBean.autoCompletion}" scrollHeight="200"
                                     requiredMessage="le Champ classe est requis."
                                     required="true" label="La classe">
                         <p:ajax event="itemSelect" process="classe" update="@form" listener="#{releveBean.onClasseSelection}"/>
@@ -76,23 +79,22 @@
                         <f:selectItem itemLabel="1er Trimestre" itemValue="1"/>
                         <f:selectItem itemLabel="2ème Trimestre" itemValue="2"/>
                         <f:selectItem itemLabel="3ème Trimestre" itemValue="3"/>
-                        <f:selectItem itemLabel="4ème Trimestre" itemValue="4"/>
                     </p:selectOneMenu>
-
-                    <p:spinner id="annee" value="#{releveBean.annee}" class="align-left" required="true" 
-                               requiredMessage="Année est obligatoire"  min="2020" max="2030"/>
 
                     <p:message for="classe"/>
                     <p:message for="eleve"/>
                     <p:message for="trim"/>
-                    <p:message for="annee"/>
 
                     <p:separator/>
-                    <p:column colspan="2">
-                        <p:commandButton value="Consulter" action="#{releveBean.genererBulletin()}"
-                                         update="@form" icon="fa fa-check" styleClass="btn-primary"/>
-                    </p:column>
+                    <p:commandButton value="Consulter" actionListener="#{releveBean.genererBulletin}" onclick="PF('pbAjax').start();PF('import').disable();"
+                                     widgetVar="import" update="@form growl" icon="fa fa-check" styleClass="btn-primary"/>
                     <p:separator/>
+
+                    <p:outputLabel id="nom" value="#{releveBean.matiere}" for="bulletin" />
+                    <p:progressBar id="bulletin" style="height: 2em!important;" widgetVar="pbAjax" ajax="true" value="#{releveBean.progressBulletin}" labelTemplate="{value}%" styleClass="animated" global="false" interval="500">
+                        <p:ajax event="complete" listener="#{releveBean.onComplete}" update="growl" oncomplete="PF('import').enable()"/>
+                    </p:progressBar>
+                    <p:growl id="growl" for="import" showDetail="true"/>
                 </p:panelGrid>
 
                 <p:panelGrid columns="1" columnClasses="ui-grid-col-12"
@@ -105,7 +107,7 @@
                         <f:facet name="header" >
                             <div  class="ui-g ui-fluid">
                                 <div class="ui-g-10">
-                                    <h:outputLabel value="Releve de note du #{releveBean.trimestre}#{releveBean.trimestre>1?'eme':'er'} trimestre #{releveBean.annee} de l'eleve #{releveBean.eleve} "/>
+                                    <h:outputLabel value="Releve de note du #{releveBean.trimestre}#{releveBean.trimestre>1?'eme':'er'} trimestre #{releveBean.classe.anneeAcademique} de l'eleve #{releveBean.eleve} "/>
                                 </div>
                                 <div class="ui-g-1 align-left">
                                     <p:commandButton action="#{releveBean.exportPDF}" ajax="false" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>

@@ -49,135 +49,131 @@
         <h:form id="form" prependId="false">
             <p:focus context="@form"/>
             <p:panel id="panel" styleClass="box-primary card">
-                <f:facet name="header">
-                    <div id="main-buttons" class="hidden-sm hidden-xs">
-                        <p:commandButton value="Enregistrer" action="#{matiereBean.save}" update="@form" 
-                                         icon="fa fa-check" styleClass="btn-primary"/>
-                        <p:spacer width="5"/>
-                        <p:commandButton value="Vider" action="#{matiereBean.clear}" process="@this"
-                                         icon="fa fa-refresh"
-                                         update="@form" resetValues="true"/>
-                        <p:spacer width="5"/>
-
-                        <p:commandButton id="del" value="Supprimer" action="#{matiereBean.remove}" process="@this"
-                                         disabled="#{matiereBean.isNew()}" update="@form" icon="fa fa-trash"
-                                         styleClass="btn-danger">
-                            <f:setPropertyActionListener value="true"
-                                                         target="#{facesContext.externalContext.flash.keepMessages}"/>
-                            <p:confirm header="Confirmation" message="Merci de confirmer la suppression." icon="ui-icon-danger"/>
-                        </p:commandButton>
-                    </div>
-                    <p:splitButton value="Enregistrer" action="#{matiereBean.save}" update="@form"
-                                   icon="fa fa-check"
-                                   styleClass="hidden-md hidden-lg btn-primary">
-                        <p:menuitem value="Vider" action="#{matiereBean.clear}"
-                                    process="@this" update="@form" rendered="#{matiereBean.isNew()}"
-                                    resetValues="true" icon="fa fa-refresh"/>
-                        <p:menuitem value="Supprimer" action="#{matiereBean.remove}" process="@this"
-                                    rendered="#{not matiereBean.isNew()}" icon="fa fa-trash">
-                            <f:setPropertyActionListener value="true"
-                                                         target="#{facesContext.externalContext.flash.keepMessages}"/>
-                            <p:confirm header="Confirmation" message="Merci de confirmer la suppression." icon="ui-icon-danger"/>
-                        </p:menuitem>
-                    </p:splitButton>
-
-                </f:facet>
-
                 <div  class="ui-g ui-fluid">
-                    <div class="ui-sm-4 ui-g-2 ui-g-nopad"> 
-                        <div class="ui-sm-12 ui-g-11">
-                            <p:outputLabel for="code" value="Code"/>
+                    <p:fieldset legend="Informations à saisir" class="ui-sm-12 ui-g-4">
+                        <div class="ui-g-12 ui-g-nopad">
+                            <div class="ui-sm-12 ui-g-4">
+                                <p:outputLabel for="code" value="Code"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-8" >
+                                <p:inputText id="code" value="#{matiereBean.entity.code}" required="true" requiredMessage="Code est obligatoire."/>
+                                <span class="help-block"> 
+                                    <p:message for="code" /> 
+                                </span> 
+                            </div>
+                        </div> 
+                        <div class="ui-g-12 ui-g-nopad"> 
+                            <div class="ui-sm-12 ui-g-4">
+                                <p:outputLabel value="Libelle" for="lib"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-8" >
+                                <p:inputText id="lib" value="#{matiereBean.entity.libelle}" required="true" requiredMessage="Libelle est obligatoire."/>
+                                <span class="help-block"> 
+                                    <p:message for="lib"/> 
+                                </span> 
+                            </div>
+                        </div>     
+                        <div class="ui-g-12 ui-g-nopad">    
+                            <div class="ui-sm-12 ui-g-4">
+                                <p:outputLabel value="Spécialité" for="spec"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-8" >
+                                <p:selectOneMenu id="spec" value="#{matiereBean.entity.specialite}" required="true" requiredMessage="Spécialité est obligatoire.">
+                                    <f:selectItem itemLabel="Choisir..."/>
+                                    <f:selectItem itemLabel="LETTRES" itemValue="LETTRES"/>
+                                    <f:selectItem itemLabel="SCIENCES" itemValue="SCIENCES"/>
+                                    <f:selectItem itemLabel="CULTURES" itemValue="CULTURES"/>
+                                </p:selectOneMenu>
+                                <span class="help-block"> 
+                                    <p:message for="spec" /> 
+                                </span>
+                            </div>
+                        </div> 
+                        <div class="ui-g-12 ui-g-nopad">
+                            <div class="ui-sm-12 ui-g-6">
+                                <p:outputLabel for="index" value="Ordre"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-6" >
+                                <p:inputNumber id="index" class="align-center" value="#{matiereBean.entity.index}" decimalPlaces="0" required="true" requiredMessage="Index est obligatoire."/>
+                                <span class="help-block"> 
+                                    <p:message for="index" />
+                                </span> 
+                            </div>
                         </div>
-                        <div class="ui-sm-12 ui-g-11" >
-                            <p:inputText id="code" value="#{matiereBean.entity.code}" required="true" requiredMessage="Code est obligatoire."/>
-                            <span class="help-block"> 
-                                <p:message for="code" /> 
-                            </span> 
+                        <div class="ui-g-12 ui-g-nopad">    
+                            <div class="ui-sm-12 ui-g-3">
+                                <p:outputLabel value="Description" for="desc"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-9" >
+                                <p:inputTextarea id="desc" value="#{matiereBean.entity.description}" required="true" requiredMessage="Description est obligatoire."/>
+                                <span class="help-block"> 
+                                    <p:message for="desc" /> 
+                                </span>
+                            </div>
                         </div>
-                    </div> 
-                    <div class="ui-sm-6 ui-g-3 ui-g-nopad"> 
-                        <div class="ui-sm-12 ui-g-11">
-                            <p:outputLabel value="Libelle" for="lib"/>
+
+                        <div id="main-buttons">
+                            <div class="ui-g-12">
+                                <p:commandButton value="Ajouter" action="#{matiereBean.insert}" update="@form"
+                                                 icon="fa fa-plus" styleClass="btn-success"/>
+                            </div>
+                            <div class="ui-g-12"> 
+                                <p:commandButton value="Mettre à jour" action="#{matiereBean.save}" update="@form" disabled="#{matiereBean.isNew()}"
+                                                 icon="fa fa-save" styleClass="btn-primary"/>
+                            </div>
+                            <div class="ui-g-12">
+                                <p:commandButton value="Vider" action="#{matiereBean.clear}" process="@this"
+                                                 icon="fa fa-refresh"
+                                                 update="@form" resetValues="true"/>
+                            </div>
+                            <div class="ui-g-12">
+
+                                <p:commandButton id="del" value="Supprimer" action="#{matiereBean.remove}" process="@this"
+                                                 disabled="#{matiereBean.isNew()}" update="@(form,.ui-datatable)" icon="fa fa-trash"
+                                                 styleClass="btn-danger">
+                                    <f:setPropertyActionListener value="true"
+                                                                 target="#{facesContext.externalContext.flash.keepMessages}"/>
+                                    <p:confirm header="Confirmation" message="Merci de confirmer la suppression." icon="ui-icon-danger"/>
+                                </p:commandButton>
+                            </div>
                         </div>
-                        <div class="ui-sm-12 ui-g-11" >
-                            <p:inputText id="lib" value="#{matiereBean.entity.libelle}" required="true" requiredMessage="Libelle est obligatoire."/>
-                            <span class="help-block"> 
-                                <p:message for="lib"/> 
-                            </span> 
-                        </div>
-                    </div>     
-                    <div class="ui-sm-6 ui-g-3 ui-g-nopad">     
-                        <div class="ui-sm-12 ui-g-11">
-                            <p:outputLabel value="Spécialité" for="spec"/>
-                        </div>
-                        <div class="ui-sm-12 ui-g-11" >
-                            <p:selectOneMenu id="spec" value="#{matiereBean.entity.specialite}" required="true" requiredMessage="Spécialité est obligatoire.">
-                                <f:selectItem itemLabel="Choisir..."/>
-                                <f:selectItem itemLabel="LETTRES" itemValue="LETTRES"/>
-                                <f:selectItem itemLabel="SCIENCES" itemValue="SCIENCES"/>
-                                <f:selectItem itemLabel="CULTURES" itemValue="CULTURES"/>
-                            </p:selectOneMenu>
-                            <span class="help-block"> 
-                                <p:message for="spec" /> 
-                            </span>
-                        </div>
-                    </div>     
-                    <div class="ui-sm-8 ui-g-4 ui-g-nopad">     
-                        <div class="ui-sm-12 ui-g-11">
-                            <p:outputLabel value="Description" for="desc"/>
-                        </div>
-                        <div class="ui-sm-12 ui-g-11" >
-                            <p:inputTextarea id="desc" value="#{matiereBean.entity.description}" required="true" requiredMessage="Description est obligatoire."/>
-                            <span class="help-block"> 
-                                <p:message for="desc" /> 
-                            </span>
-                        </div>
+                    </p:fieldset>
+                    <div class="ui-sm-12 ui-g-8">
+
+                        <p:dataTable widgetVar="matiereTable" var="m" value="#{matiereBean.list}" lazy="true" rows="15" rowKey="#{m.id}" 
+                                     paginator="true" sortMode="single" selectionMode="single"  rowIndexVar="x"
+                                     sortBy="#{m.id}" paginatorPosition="bottom" selection="#{matiereBean.selection}"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
+                                     currentPageReportTemplate="[ {startRecord} à {endRecord} sur {totalRecords} ]"
+                                     rowsPerPageTemplate="5,10,15,20,30" emptyMessage="Aucun element">
+
+                            <p:ajax event="rowSelect" listener="#{matiereBean.onRowSelect}" update="form" />
+
+                            <f:facet name="header" >
+                                Liste des matières
+                            </f:facet>
+                            <p:column headerText="N°" width="10%" styleClass="align-center">
+                                #{x+1}
+                            </p:column>
+                            <p:column headerText="Code" width="20%" sortBy="#{m.code}">
+                                #{m.code}
+                            </p:column>
+                            <p:column headerText="Libelle" width="30%" sortBy="#{m.libelle}"
+                                      >
+                                #{m.libelle}
+                            </p:column>
+                            <p:column headerText="Spécialité" width="30%" sortBy="#{m.specialite}" >
+                                #{m.specialite}
+                            </p:column>
+
+                            <p:column headerText="Ordre" width="10%" sortBy="#{m.index}" >
+                                #{m.index}
+                            </p:column>
+
+
+                        </p:dataTable>
                     </div>
                 </div>
-                <h:panelGroup id="footer" layout="block" styleClass="hidden-sm hidden-md hidden-lg">
-                    <hr/>
-                    <p:splitButton value="Enregistrer" action="#{matiereBean.save}" update="@form"
-                                   icon="fa fa-check"
-                                   styleClass="hidden-md hidden-lg btn-primary">
-                        <p:menuitem value="Vider" action="#{matiereBean.clear}"
-                                    process="@this" update="@form" rendered="#{matiereBean.isNew()}"
-                                    resetValues="true" icon="fa fa-refresh"/>
-                        <p:menuitem value="Supprimer" action="#{matiereBean.remove}" process="@this"
-                                    rendered="#{not matiereBean.isNew()}" icon="fa fa-trash">
-                            <f:setPropertyActionListener value="true"
-                                                         target="#{facesContext.externalContext.flash.keepMessages}"/>
-                            <p:confirm header="Confirmation" message="Merci de confirmer la suppression." icon="ui-icon-danger"/>
-                        </p:menuitem>
-                    </p:splitButton>
-                </h:panelGroup>
-
-                <p:dataTable widgetVar="matiereTable" var="m" value="#{matiereBean.listeMatiere}" rows="10" rowKey="#{m.id}" 
-                             paginator="true" sortMode="single" selectionMode="single"  rowIndexVar="x"
-                             sortBy="#{m.id}" paginatorPosition="bottom" selection="#{matiereBean.selection}"
-                             paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
-                             currentPageReportTemplate="[ {startRecord} to {endRecord} of {totalRecords} ]"
-                             rowsPerPageTemplate="5,10,15,20,30" emptyMessage="Aucun element">
-
-                    <p:ajax event="rowSelect" listener="#{matiereBean.onRowSelect}" update="form" />
-
-                    <f:facet name="header" >
-                        Liste des matières
-                    </f:facet>
-                    <p:column headerText="N°" width="10%" styleClass="align-center">
-                        #{x+1}
-                    </p:column>
-                    <p:column headerText="Code" width="20%" sortBy="#{m.code}">
-                        #{m.code}
-                    </p:column>
-                    <p:column headerText="Libelle" width="30%" sortBy="#{m.libelle}"
-                              >
-                        #{m.libelle}
-                    </p:column>
-                    <p:column headerText="Spécialité" width="30%" sortBy="#{m.specialite}" >
-                        #{m.specialite}
-                    </p:column>
-
-                </p:dataTable>
             </p:panel>
 
             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger box-solid">

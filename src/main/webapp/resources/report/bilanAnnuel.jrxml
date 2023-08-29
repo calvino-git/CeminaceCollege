@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.19.1.final using JasperReports Library version 6.19.1-867c00bf88cd4d784d404379d6c05e1b419e8a4c  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="bilanAnnuel" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9fc21177-1ddf-4455-8059-6f741b8b2b1d">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="CEMINACE_COLLEGE"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[IF( $F{RANG}<6, TRUE( ), FALSE( ))]]></conditionExpression>
+			<style mode="Opaque" backcolor="#EBEBEB"/>
+		</conditionalStyle>
+	</style>
+	<subDataset name="Dataset1" uuid="b322c2c3-ebdf-469a-84cc-da91f3485ca0">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="CEMINACE_LYCEE"/>
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<parameter name="classe" class="java.lang.String"/>
+		<parameter name="annee" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[select e.NOM,e.PRENOM,c.CODE CLASSE,c.LIBELLE LIB_CLASSE,a.ANNEE,
+ba.trim1 TRIM_1,
+ba.trim2 TRIM_2,
+ba.trim3 TRIM_3,
+ba.moyenne MOYENNE,
+ba.rang RANG
+from classe c, eleve e,annee_academique a,bilan_annuel ba
+where ba.classe = c.id
+and a.id = c.ANNEE_ACADEMIQUE 
+and ba.annee_academique = a.id
+and ba.eleve = e.id
+and a.annee =  $P{annee} 
+and c.code =  $P{classe} 
+order by 1]]>
+		</queryString>
+		<field name="NOM" class="java.lang.Object">
+			<property name="com.jaspersoft.studio.field.name" value="NOM"/>
+			<property name="com.jaspersoft.studio.field.label" value="NOM"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="eleve"/>
+		</field>
+		<field name="PRENOM" class="java.lang.Object">
+			<property name="com.jaspersoft.studio.field.name" value="PRENOM"/>
+			<property name="com.jaspersoft.studio.field.label" value="PRENOM"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="eleve"/>
+		</field>
+		<field name="CLASSE" class="java.lang.Object">
+			<property name="com.jaspersoft.studio.field.name" value="CLASSE"/>
+			<property name="com.jaspersoft.studio.field.label" value="CLASSE"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="classe"/>
+		</field>
+		<field name="LIB_CLASSE" class="java.lang.Object">
+			<property name="com.jaspersoft.studio.field.name" value="LIB_CLASSE"/>
+			<property name="com.jaspersoft.studio.field.label" value="LIB_CLASSE"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="classe"/>
+		</field>
+		<field name="ANNEE" class="java.lang.Object">
+			<property name="com.jaspersoft.studio.field.name" value="ANNEE"/>
+			<property name="com.jaspersoft.studio.field.label" value="ANNEE"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="annee_academique"/>
+		</field>
+		<field name="TRIM_1" class="java.lang.Object">
+			<property name="com.jaspersoft.studio.field.name" value="TRIM_1"/>
+			<property name="com.jaspersoft.studio.field.label" value="TRIM_1"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="bilanAnnuel"/>
+		</field>
+		<field name="TRIM_2" class="java.lang.Object">
+			<property name="com.jaspersoft.studio.field.name" value="TRIM_2"/>
+			<property name="com.jaspersoft.studio.field.label" value="TRIM_2"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="bilanAnnuel"/>
+		</field>
+		<field name="TRIM_3" class="java.lang.Object">
+			<property name="com.jaspersoft.studio.field.name" value="TRIM_3"/>
+			<property name="com.jaspersoft.studio.field.label" value="TRIM_3"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="bilanAnnuel"/>
+		</field>
+		<field name="MOYENNE" class="java.lang.Object">
+			<property name="com.jaspersoft.studio.field.name" value="MOYENNE"/>
+			<property name="com.jaspersoft.studio.field.label" value="MOYENNE"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="bilanAnnuel"/>
+		</field>
+		<field name="RANG" class="java.lang.Integer">
+			<property name="com.jaspersoft.studio.field.name" value="RANG"/>
+			<property name="com.jaspersoft.studio.field.label" value="RANG"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="bilanAnnuel"/>
+		</field>
+	</subDataset>
+	<parameter name="classe" class="java.lang.String"/>
+	<parameter name="annee" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select c.code,c.libelle,a.annee from classe c, annee_academique a
+where c.annee_academique = a.id
+and c.code =  $P{classe} 
+and a.annee =  $P{annee}]]>
+	</queryString>
+	<field name="CODE" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.name" value="CODE"/>
+		<property name="com.jaspersoft.studio.field.label" value="CODE"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="classe"/>
+	</field>
+	<field name="LIBELLE" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.name" value="LIBELLE"/>
+		<property name="com.jaspersoft.studio.field.label" value="LIBELLE"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="classe"/>
+	</field>
+	<field name="ANNEE" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.name" value="ANNEE"/>
+		<property name="com.jaspersoft.studio.field.label" value="ANNEE"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="annee_academique"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="110" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy">
+				<reportElement positionType="Float" x="485" y="0" width="70" height="20" uuid="77ffeae5-b596-4a26-a977-b1da72d00515">
+					<property name="net.sf.jasperreports.export.pptx.field.type" value="datetime"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="60" width="555" height="30" uuid="4ef3e5d9-ea93-4155-8e8d-d777e120f59c"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Serif" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["RESULTATS :  BILAN DES MOYENNES TRIMESTRIELLES : " + $P{annee}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="90" width="555" height="20" uuid="d94ef8bb-9e6c-4eac-b239-84c88865d3e2"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["CLASSE : " + $F{LIBELLE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="260" y="12" width="295" height="20" uuid="4bc82d5e-a420-4554-800b-1a87e6774457"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["ANNEE SCOLAIRE : " + $P{annee}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="0" y="0" width="60" height="60" uuid="1ba63b21-f90d-4544-b712-24b581d3e5e2"/>
+				<imageExpression><![CDATA["logo.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<detail>
+		<band height="60">
+			<componentElement>
+				<reportElement x="0" y="0" width="555" height="60" uuid="e4fa8245-7664-4f10-952d-15d7761abf64">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Dataset1" uuid="05372f3b-5c81-4ab5-bf9e-da5f096b2e1e">
+						<datasetParameter name="REPORT_LOCALE">
+							<datasetParameterExpression><![CDATA[$P{REPORT_LOCALE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="annee">
+							<datasetParameterExpression><![CDATA[$P{annee}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="classe">
+							<datasetParameterExpression><![CDATA[$P{classe}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:columnGroup width="555" uuid="c96c69aa-7dc3-4ccc-9d21-e354827cd700">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Colonnes [7]"/>
+						<jr:column width="25" uuid="bb4804be-476d-4f7d-a700-6035aada2776">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Colonne1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<textField>
+									<reportElement x="0" y="0" width="25" height="30" uuid="439783f2-f4ae-436b-bcd6-4f91a2ddd642"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="10" isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$P{classe}]]></textFieldExpression>
+								</textField>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="25" height="20" uuid="f54596c5-b724-4cae-b856-7e4e04cbf50a"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="200" uuid="5b2a7b88-da08-4ea8-8358-6895ef61e8b0">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Colonne2"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="200" height="30" uuid="53ff2ac4-3690-4155-8753-3de87ba467c2"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="10"/>
+									</textElement>
+									<text><![CDATA[NOMS ET PRENOMS]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="200" height="20" uuid="f0bb3049-bb37-4df6-9fe9-8e92c891125d"/>
+									<box leftPadding="2"/>
+									<textElement textAlignment="Left" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{NOM} + " " + IF(EQUALS($F{PRENOM},null),"",$F{PRENOM})]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="75" uuid="c4859d34-f19f-48bd-98cf-445702c8d104">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Colonne3"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<textField>
+									<reportElement x="0" y="0" width="75" height="30" uuid="0b3e82f6-9e7f-4c98-b300-4f86c697c541"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="10"/>
+									</textElement>
+									<textFieldExpression><![CDATA["1er\nTRIM."]]></textFieldExpression>
+								</textField>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField pattern="##,###.##" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="75" height="20" uuid="dada37f8-eec3-4761-8ced-488ae55fc325"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{TRIM_1}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="72" uuid="b163b917-d4c3-4683-a72b-26e522ff4707">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Colonne4"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<textField>
+									<reportElement x="0" y="0" width="72" height="30" uuid="ba5605b9-6bf8-4611-a4c8-73ae5acc901b"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="10"/>
+									</textElement>
+									<textFieldExpression><![CDATA["2eme\nTRIM."]]></textFieldExpression>
+								</textField>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField pattern="##,###.##" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="72" height="20" uuid="c880b85e-61b8-4599-8d89-761af53d7736"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{TRIM_2}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="71" uuid="94519158-bce5-41ce-bb05-40d6018238b8">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Colonne5"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<textField>
+									<reportElement x="0" y="0" width="71" height="30" uuid="8bdbd8fa-421b-4c2a-a248-e06b9e46adcd"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="10"/>
+									</textElement>
+									<textFieldExpression><![CDATA["3eme\nTRIM."]]></textFieldExpression>
+								</textField>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField pattern="##,###.##" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="71" height="20" uuid="11bd2aa2-504f-4e20-abd5-8cb64586a4d8"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{TRIM_3}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="72" uuid="721a7941-afd7-49f3-8711-0c47ba796a1e">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Colonne6"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="72" height="30" uuid="caaaf31d-2406-4f3f-aa22-59766b3613c3"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="10"/>
+									</textElement>
+									<text><![CDATA[MOYENNE ANNUELLE]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField pattern="##,###.##" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="72" height="20" uuid="7b68f30b-7a49-47d0-a058-21fd1009cabc"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{MOYENNE}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="afffd534-086a-42bc-ba8e-ce379fc9a93d">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Colonne7"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="55c5b350-c6cf-4ba4-8b4c-e2ee45cfc047"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="10"/>
+									</textElement>
+									<text><![CDATA[RANG]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+								<textField>
+									<reportElement mode="Transparent" x="0" y="0" width="40" height="20" backcolor="rgba(82, 204, 163, 0.0)" uuid="a98ed125-ec19-4281-a948-843655082765"/>
+									<box>
+										<pen lineWidth="0.5"/>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{RANG}+""+IF($F{RANG} == 1, "er", "e")]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:columnGroup>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="20">
+			<textField>
+				<reportElement x="0" y="0" width="480" height="20" uuid="89cf4f84-b9ad-4624-a315-eb0816584cdb"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Serif" size="8" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["RESULTATS :  BILAN DES MOYENNES TRIMESTRIELLES : " + $F{LIBELLE} + " " + $P{annee}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="485" y="0" width="70" height="20" uuid="7203ad09-3525-44dd-99ba-4ecc6db9f2a7"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

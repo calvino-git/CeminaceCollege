@@ -9,6 +9,7 @@ import com.github.adminfaces.starter.model.Eleve;
 import com.github.adminfaces.starter.service.EleveService;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -26,20 +27,17 @@ public class EleveConverter implements Serializable, Converter {
 
     @Inject
     private EleveService eleveService;
+    @Inject
+    private AnneeAcademiqueBean anneeAcademiqueBean;
 
     @Override
     public Object getAsObject(FacesContext context, UIComponent component, String value) {
-        List<Eleve> eleves = eleveService.liste();
-        for (Eleve eleve : eleves) {
-            if (eleve.toString().equals(value)) {
-                return eleve;
-            }
-        }
-        return null;
+        Optional<Eleve> optionalEleve = eleveService.eleveParAnneeEtNomComplet(anneeAcademiqueBean.getAnneeEnCours(), value);
+        return optionalEleve.orElse(null);
     }
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, Object value) {
-        return ((Eleve) value).toString();
+        return value != null ? ((Eleve) value).toString() : null;
     }
 }

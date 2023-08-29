@@ -26,10 +26,12 @@ public class ExamenConverter implements Serializable, Converter {
 
     @Inject
     private ExamenService examenService;
+    @Inject
+    AnneeAcademiqueBean anneeAcademiqueBean;
 
     @Override
     public Object getAsObject(FacesContext context, UIComponent component, String value) {
-        List<Examen> examens = examenService.liste();
+        List<Examen> examens = examenService.liste(anneeAcademiqueBean.getAnneeEnCours());
         for (Examen examen : examens) {
             if (examen.toString().equals(value)) {
                 return examen;

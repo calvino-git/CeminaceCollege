@@ -42,11 +42,12 @@ public class Niveau extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "generateurNiveau")
-    @TableGenerator(name = "generateurNiveau", table = "sqlite_sequence",
-            pkColumnName = "name", valueColumnName = "seq",
-            pkColumnValue = "niveau",
-            initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(generator = "generateurNiveau")
+//    @TableGenerator(name = "generateurNiveau", table = "sqlite_sequence",
+//            pkColumnName = "name", valueColumnName = "seq",
+//            pkColumnValue = "niveau",
+//            initialValue = 1, allocationSize = 1)
     @Basic(optional = false)
     @Column(name = "ID")
     private Integer id;

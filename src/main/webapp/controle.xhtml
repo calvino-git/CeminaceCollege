@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <ui:define name="metadata">
+        <ui:param name="title" value="Controle de bulletin"/> <!-- Automatic create breadCrumb and page title when param 'title' is provided. -->
+
+        <style type="text/css">
+            .ui-datatable .ui-datatable-header {
+                text-align: right !important;
+            }
+
+            th.ui-filter-column {
+                padding: 5px 2px !important;
+            }
+
+            #footer:hover {
+                opacity: .7;
+            }
+
+            #footer {
+                float: right;
+                font-size: 12px;
+                color: #3c8dbc;
+                font-weight: 500;
+            }
+            
+            .ui-datatable-footer {
+                border: none;
+            }
+
+        </style>
+    </ui:define>
+
+    <ui:define name="description">
+        Gestion des bulletins
+    </ui:define>
+
+    <ui:define name="body">
+
+        <h:form>
+            <p:focus context="@form"/>  
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <div id="main-buttons" >
+                        <p:commandButton value="Reinitialiser les filtres" update="@(.ui-dialog, .ui-datatable)" process="@form"
+                                         action="#{bulletinBean.clear}"
+                                         icon="fa fa-refresh"/>
+                    </div>
+
+                    <p:separator/>
+                    <p:dataTable widgetVar="controleTable" var="b" value="#{bulletinBean.bulletins}" rows="10"
+                                 rowKey="#{b.id}" paginator="true" filteredValue="#{bulletinBean.filteredValue}"
+                                 paginatorPosition="bottom" selection="#{bulletinBean.selectionList}" rowsPerPageTemplate="10,15,20,30,50"
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
+                                 currentPageReportTemplate="[ {startRecord} to {endRecord} of {totalRecords} ]">
+
+                        <p:ajax event="rowSelectCheckbox" update="@(.ui-button, .ui-confirm-dialog)"/>
+                        <p:ajax event="rowUnselectCheckbox" update="@(.ui-button, .ui-confirm-dialog)"/>
+                        <p:ajax event="rowSelect" update="@(.ui-button, .ui-confirm-dialog)"/>
+                        <p:ajax event="rowUnselect" update="@(.ui-button, .ui-confirm-dialog)"/>
+                        <p:ajax event="toggleSelect" update="@(.ui-button, .ui-confirm-dialog)"/>
+
+                        <f:facet name="header">
+                            Recherche : <p:inputNumber id="inptId" decimalPlaces="0" decimalSeparator="" thousandSeparator="" value="#{bulletinBean.id}"/>
+                            <p:spacer height="5"/>
+                            <p:commandButton id="brFind" value="OK"
+                                             action="#{bulletinBean.findBulletinById(bulletinBean.id)}"
+                                             process="@form"
+                                             update="@form"
+                                             styleClass="btn-flat bg-black btn-states"
+                                             partialSubmit="true"/>
+                        </f:facet>
+                        <p:column selectionMode="multiple" width="3%" styleClass="align-center"/>
+
+                        <p:column headerText="Année" filterBy="#{b.anneeAcademique}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu id="anneeAcademique" converter="#{anneeConverter}" value="#{bulletinBean.entity.anneeAcademique}">
+                                    <f:selectItems value="#{anneeAcademiqueBean.liste}" var="an" itemLabel="#{an.annee}" itemValue="#{an}"/>
+                                    <p:ajax event="itemSelect" process="@this" update="@none"
+                                            oncomplete="PF('controleTable').filter()"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            #{b.anneeAcademique}
+                        </p:column>
+                        <p:column headerText="Trim." width="5%" class="align-center" filterBy="#{b.trimestre}">
+                            <f:facet name="filter">
+                                <p:selectOneMenu id="trim" value="#{examenBean.entity.trimestre}" class="align-center"
+                                                 requiredMessage="Selectionner le trimestre"
+                                                 required="true">
+                                    <f:selectItem itemLabel="..."/>
+                                    <f:selectItem itemLabel="1er Trim." itemValue="1"/>
+                                    <f:selectItem itemLabel="2e Trim." itemValue="2"/>
+                                    <f:selectItem itemLabel="3e Trim." itemValue="3"/>
+                                    <p:ajax process="@this" update="@none" oncomplete="PF('controleTable').filter()"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+                            #{b.trimestre}
+                        </p:column>
+                        <p:column headerText="Classe" class="align-center" width="5%" filterBy="#{b.discipline.classe}">
+                            <f:facet name="filter">
+                                <p:autoComplete id="classe1" converter="#{classeConverter}" style="top: 0!important;"
+                                                var="c" itemLabel="#{c.code}" itemValue="#{c}" forceSelection="true" scrollHeight="200"
+                                                minQueryLength="2" queryDelay="500" dropdown="true" completeMethod="#{classeBean.autoCompletion}"
+                                                groupBy="#{c.niveau}">
+                                    <p:ajax event="itemSelect" process="@this" update="@none" oncomplete="PF('controleTable').filter()"/>
+                                </p:autoComplete>
+                            </f:facet>
+                            #{b.discipline.classe.code}
+                        </p:column>
+                        <p:column headerText="Matière" class="align-center" width="8%" filterBy="#{b.discipline.matiere}">
+                            <f:facet name="filter">
+                                <p:autoComplete  id="mat" converter="#{matiereConverter}" styleClass="mat" var="m" itemLabel="#{m.libelle}" itemValue="#{m}"
+                                                 forceSelection="true" minQueryLength="2" queryDelay="500" dropdown="true" 
+                                                 completeMethod="#{matiereBean.autoCompletion}" scrollHeight="200">
+                                    <p:ajax event="itemSelect" process="@this" update="@none" oncomplete="PF('controleTable').filter()"/>
+                                </p:autoComplete>
+                            </f:facet>
+                            #{b.discipline.matiere.code}
+                        </p:column>
+                        <p:column headerText="Eleve" width="15%" sortBy="#{b.eleve}" filterBy="#{b.eleve}"  filterMatchMode="startsWith">
+                            #{b.eleve}
+                        </p:column>
+                        <p:column headerText="Interro1" class="align-center" filterBy="#{b.interro1}">
+                            #{b.interro1}
+                        </p:column>
+                        <p:column headerText="Interro2" class="align-center" filterBy="#{b.interro2}">
+                            #{b.interro2}
+                        </p:column>
+                        <p:column headerText="Moy.Interro" class="align-right" filterBy="#{b.moyInterro}">
+                            #{b.moyInterro}
+                        </p:column>
+                        <p:column headerText="Evaluation" class="align-right" filterBy="#{b.evaluation}">
+                            #{b.evaluation}
+                        </p:column>
+                        <p:column headerText="Moy.Classe" class="align-right" filterBy="#{b.moyClasse}">
+                            #{b.moyClasse}
+                        </p:column>
+                        <p:column headerText="Composition" class="align-right" filterBy="#{b.composition}">
+                            #{b.composition}
+                        </p:column>
+                        <p:column headerText="Moy.Trim" class="align-right" filterBy="#{b.moyTrimestre}">
+                            #{b.moyTrimestre}
+                        </p:column>
+                        <p:column headerText="Coef" width="3%" class="align-right" filterBy="#{b.coef}">
+                            #{b.coef}
+                        </p:column>
+                        <p:column headerText="Moy.Trim.Coef" class="align-right" filterBy="#{b.moyTrimestreCoef}">
+                            #{b.moyTrimestreCoef}
+                        </p:column>
+                        <p:column headerText="Rang" width="3%" class="align-right" filterBy="#{b.rang}">
+                            #{b.rang}
+                        </p:column>
+                        <f:facet name="footer">
+                            <div id="footer">
+                                Critère de recherche <i class="fa fa-filter"/>
+                            </div>
+                        </f:facet>
+                    </p:dataTable>
+                </div>
+            </div>
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="box-solid box-danger">
+                <p:commandButton value="Oui" type="button" styleClass="btn-material btn-primary ui-confirmdialog-yes"
+                                 icon="fa fa-check"/>
+                <p:commandButton value="Non" type="button" styleClass="btn-material btn-danger ui-confirmdialog-no"
+                                 icon="fa fa-close"/>
+            </p:confirmDialog>
+        </h:form>
+
+
+        <p:dialog header="Search cars" widgetVar="searchDialog" dynamic="true" height="400" modal="true" appendTo="@(body)"
+                  width="500" responsive="true" draggable="false" styleClass="box-success">
+
+            <h:form>
+                <p:commandButton value="OK" update="@form @(.ui-datatable, .ui-tooltip)" icon="fa fa-check"
+                                 ignoreAutoUpdate="true" styleClass="btn-primary"/>
+                <p:spacer height="5"/>
+                <p:commandButton value="Clear" action="#{bulletinBean.clear}" process="@this"
+                                 update="@form @(.ui-datatable, .ui-tooltip)" styleClass="btn-success"
+                                 icon="fa fa-refresh"/>
+                <p:spacer height="5"/>
+                <p:commandButton value="Close" icon="fa fa-close" oncomplete="PF('searchDialog').hide()"/>
+                <p:separator/>
+
+                <div class="ui-g ui-fluid">
+                    <div class="ui-g-12">
+                        <p:outputLabel for="model" value="#{msg['label.model']}"/>
+                    </div>
+                    <div class="ui-g-12">
+                        <p:selectOneMenu id="model" value="#{bulletinBean.filter.entity.model}">
+                            <f:selectItem itemLabel="Chose a model" itemValue=""/>
+                            <f:selectItems value="#{models}" var="m" itemLabel="#{m}"
+                                           itemValue="#{m}"/>
+                        </p:selectOneMenu>
+                    </div>
+                    <div class="ui-g-12">
+                        <p:outputLabel for="name" value="#{msg['label.name']}"/>
+                    </div>
+                    <div class="ui-g-12">
+                        <p:inputText id="name" value="#{bulletinBean.filter.entity.name}"/>
+                    </div>
+
+                    <div class="ui-g-6 ui-sm-12 ui-g-nopad">
+                        <div class="ui-g-12">
+                            <p:outputLabel for="min" value="#{msg['label.minPrice']}"/>
+                        </div>
+                        <div class="ui-g-12">
+                            <p:inputNumber id="min" value="#{bulletinBean.filter.params.minPrice}"/>
+                        </div>
+                    </div>
+
+                    <div class="ui-g-6 ui-sm-12 ui-g-nopad">
+                        <div class="ui-g-12">
+                            <p:outputLabel for="max" value="#{msg['label.maxPrice']}"/>
+                        </div>
+                        <div class="ui-g-12">
+                            <p:inputNumber id="max" value="#{bulletinBean.filter.params.maxPrice}"/>
+                        </div>
+                    </div>
+                </div>
+            </h:form>
+        </p:dialog>
+
+    </ui:define>
+
+</ui:composition>

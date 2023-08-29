@@ -9,24 +9,30 @@
     <ui:define name="head">
         <title>Ceminace</title>
         <link rel="shortcut icon" type="image/x-icon" href="#{resource['favicon/favicon.ico']}"/>
-        <link rel="shortcut icon" type="image/x-icon" href="#{resource['favicon/login.jpg']}" sizes="16x16"/>
-        <link rel="shortcut icon" type="image/x-icon" href="#{resource['favicon/login.jpg']}" sizes="32x32"/>
-        <link rel="shortcut icon" type="image/x-icon" href="#{resource['favicon/login.jpg']}" sizes="96x96"/>
-        <link rel="shortcut icon" type="image/x-icon" href="#{resource['favicon/login.jpg']}" sizes="144x144"/>
-        <link rel="shortcut icon" type="image/x-icon" href="#{resource['favicon/login.jpg']}" sizes="196x196"/>
+        <link rel="shortcut icon" type="image/x-icon" href="#{resource['favicon/logo.png']}" sizes="16x16"/>
+        <link rel="shortcut icon" type="image/x-icon" href="#{resource['favicon/logo.png']}" sizes="32x32"/>
+        <link rel="shortcut icon" type="image/x-icon" href="#{resource['favicon/logo.png']}" sizes="96x96"/>
+        <link rel="shortcut icon" type="image/x-icon" href="#{resource['favicon/logo.png']}" sizes="144x144"/>
+        <link rel="shortcut icon" type="image/x-icon" href="#{resource['favicon/logo.png']}" sizes="196x196"/>
         <meta name="theme-color" content="#444"/>
         <meta name="mobile-web-app-capable" content="yes"/>
         <f:loadBundle var="msg" basename="messages"/>
         <h:outputStylesheet library="css" name="starter.css"/>
         <style type="text/css">
             .ui-datatable-tablewrapper {
-                background-color: lightgrey;
+                background-color: #f9f9f9;
             }
-            .main-sidebar{
-                width: 150px;
-            }
-            .content-wrapper{
-                margin-left: 150px;
+            button.ui-autocomplete-dropdown span.ui-icon-triangle-1-s:before {
+                font-family: 'Glyphicons Halflings';
+                color: #444;
+                position: relative;
+                font-size: 10px;
+                padding: 0 1px;
+                left: 1px;
+                font-weight: bold;
+                top: -14px!important;
+                overflow: hidden;
+                content: "\e259" !important;
             }
         </style>
     </ui:define>
@@ -36,7 +42,7 @@
     </ui:define>
 
     <ui:define name="logo-mini">
-        <p:graphicImage width="48" value="#{resource['images/login.jpg']}"/>
+        <p:graphicImage width="48" value="#{resource['images/logo.png']}"/>
     </ui:define>
 
     <ui:define name="menu">
@@ -59,8 +65,8 @@
 
     <ui:define name="footer">
         <a target="_blank"
-           href="https://localhost:8080/ceminace">
-            ANNEE SCOLAIRE 2019-2020   ---   Projet sur la gestion des notes --- CEIMINACE
+           href="https://localhost:8080/college">
+            ANNEE SCOLAIRE #{anneeAcademiqueBean.anneeEnCours}   ---   Projet sur la gestion des notes --- CEIMINACE
         </a>
 
         <div class="pull-right hidden-xs" style="color: gray">

@@ -4,10 +4,10 @@ import com.github.adminfaces.persistence.model.BaseEntity;
 import java.io.Serializable;
 import java.util.Collection;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -15,9 +15,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -34,13 +32,15 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Eleve.findByNom", query = "SELECT e FROM Eleve e WHERE e.nom = :nom"),
     @NamedQuery(name = "Eleve.findByPrenom", query = "SELECT e FROM Eleve e WHERE e.prenom = :prenom")})
 public class Eleve extends BaseEntity implements Serializable, Comparable<Eleve> {
+
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "generateurEleve")
-    @TableGenerator(name = "generateurEleve", table = "sqlite_sequence",
-            pkColumnName = "name", valueColumnName = "seq",
-            pkColumnValue = "eleve",
-            initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(generator = "generateurEleve")
+//    @TableGenerator(name = "generateurEleve", table = "sqlite_sequence",
+//            pkColumnName = "name", valueColumnName = "seq",
+//            pkColumnValue = "eleve",
+//            initialValue = 1, allocationSize = 1)
     @Basic(optional = false)
     @Column(name = "ID")
     private Integer id;
@@ -54,10 +54,10 @@ public class Eleve extends BaseEntity implements Serializable, Comparable<Eleve>
     @Column(name = "PRENOM")
     private String prenom;
 
-    @JoinColumn(name = "CLASSE",referencedColumnName = "ID")
+    @JoinColumn(name = "CLASSE", referencedColumnName = "ID")
     @ManyToOne
     private Classe classe;
-    @JoinColumn(name = "annee_academique",referencedColumnName = "ID")
+    @JoinColumn(name = "annee_academique", referencedColumnName = "ID")
     @ManyToOne
     private AnneeAcademique anneeAcademique;
     @OneToMany(mappedBy = "eleve")
@@ -85,7 +85,7 @@ public class Eleve extends BaseEntity implements Serializable, Comparable<Eleve>
         this.nom = nom;
         this.prenom = prenom;
     }
-    
+
     public Eleve(String nom) {
         this.nom = nom;
     }
@@ -98,8 +98,6 @@ public class Eleve extends BaseEntity implements Serializable, Comparable<Eleve>
     public void setId(Integer id) {
         this.id = id;
     }
-    
-    
 
     public String getNom() {
         return nom;
@@ -139,7 +137,7 @@ public class Eleve extends BaseEntity implements Serializable, Comparable<Eleve>
 
     @Override
     public String toString() {
-        return nom + " " + prenom;
+        return nom + " " + (prenom == null ? "" : prenom);
     }
 
     public boolean hasNom() {
@@ -159,7 +157,7 @@ public class Eleve extends BaseEntity implements Serializable, Comparable<Eleve>
     }
 
     public String getSexe() {
-        return sexe;
+        return sexe == null ? "" : sexe;
     }
 
     public void setSexe(String sexe) {
@@ -176,7 +174,10 @@ public class Eleve extends BaseEntity implements Serializable, Comparable<Eleve>
 
     @Override
     public int compareTo(Eleve e) {
-        return toString().compareTo(e.toString());
+        if (e == null) {
+            System.out.println(e);
+        }
+        return nom.compareTo(e.nom);
     }
 
     public Classe getClasse() {
@@ -194,7 +195,5 @@ public class Eleve extends BaseEntity implements Serializable, Comparable<Eleve>
     public void setAnneeAcademique(AnneeAcademique anneeAcademique) {
         this.anneeAcademique = anneeAcademique;
     }
-    
-    
 
 }

@@ -39,6 +39,11 @@
         <param-name>javax.faces.INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL</param-name>
         <param-value>true</param-value>
     </context-param>
+    <!-- increase buffer size to avoid JSF1095 errors -->
+    <context-param>
+        <param-name>javax.faces.FACELETS_BUFFER_SIZE</param-name>
+        <param-value>131072</param-value>
+    </context-param>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
@@ -72,9 +77,17 @@
     
     <data-source>
         <name>java:app/ceminace</name>
-        <class-name>org.sqlite.SQLiteDataSource</class-name>
-        <url>jdbc:sqlite:ceminace_college.db</url>
-        <user></user>
-        <password></password>
+        <class-name>com.mysql.cj.jdbc.MysqlDataSource</class-name>
+        <url>jdbc:mysql://127.0.0.1:3306/ceminace_college?serverTimezone=UTC</url>
+        <user>ceminace</user>
+        <password>ceminace</password>
+        <property>
+            <name>allowPublicKeyRetrieval</name>
+            <value>true</value>
+        </property>
+        <property>
+            <name>useSSL</name>
+            <value>false</value>
+        </property>
     </data-source>
 </web-app>

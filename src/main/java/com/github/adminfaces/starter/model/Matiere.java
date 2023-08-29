@@ -43,11 +43,12 @@ public class Matiere extends BaseEntity implements Serializable,Comparable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "generateurMatiere")
-    @TableGenerator(name = "generateurMatiere", table = "sqlite_sequence",
-            pkColumnName = "name", valueColumnName = "seq",
-            pkColumnValue = "matiere",
-            initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(generator = "generateurMatiere")
+//    @TableGenerator(name = "generateurMatiere", table = "sqlite_sequence",
+//            pkColumnName = "name", valueColumnName = "seq",
+//            pkColumnValue = "matiere",
+//            initialValue = 1, allocationSize = 1)
     @Column(name = "ID")
     private Integer id;
     @Column(name = "CODE")

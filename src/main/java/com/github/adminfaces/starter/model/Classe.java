@@ -16,6 +16,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -23,7 +24,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -47,11 +47,12 @@ public class Classe extends BaseEntity implements Serializable, Comparable<Class
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "generateur_classe")
-    @TableGenerator(name = "generateur_classe", table = "sqlite_sequence",
-            pkColumnName = "name", valueColumnName = "seq",
-            pkColumnValue = "classe",
-            initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(generator = "generateur_classe")
+//    @TableGenerator(name = "generateur_classe", table = "sqlite_sequence",
+//            pkColumnName = "name", valueColumnName = "seq",
+//            pkColumnValue = "classe",
+//            initialValue = 1, allocationSize = 1)
     @Basic(optional = false)
     @Column(name = "ID")
     private Integer id;
@@ -75,7 +76,7 @@ public class Classe extends BaseEntity implements Serializable, Comparable<Class
     @Size(min = 1, max = 50)
     @Column(name = "CYCLE")
     private String cycle;
-    @JoinColumn(name = "annee_academique", referencedColumnName = "ID")
+    @JoinColumn(name = "ANNEE_ACADEMIQUE", referencedColumnName = "ID")
     @ManyToOne
     private AnneeAcademique anneeAcademique;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "classe", fetch = FetchType.LAZY)
@@ -87,7 +88,7 @@ public class Classe extends BaseEntity implements Serializable, Comparable<Class
 
     //Le niveau qu'une classe est lié
     @JoinColumn(name = "NIVEAU", referencedColumnName = "ID")
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Niveau niveau;
 
     public Classe() {
@@ -169,7 +170,8 @@ public class Classe extends BaseEntity implements Serializable, Comparable<Class
 
     @XmlTransient
     public Collection<Discipline> getDisciplineCollection() {
-        return disciplineCollection.stream().sorted().collect(Collectors.toList());
+        List<Discipline> l = disciplineCollection.stream().sorted().collect(Collectors.toList());
+        return l;
     }
 
     public void setDisciplineCollection(Collection<Discipline> disciplineCollection) {

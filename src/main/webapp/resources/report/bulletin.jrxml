@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.10.0.final using JasperReports Library version 6.10.0-unknown  -->
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="bulletin" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9fc21177-1ddf-4455-8059-6f741b8b2b1d">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -93,8 +93,12 @@
 			<textField>
 				<reportElement x="0" y="50" width="555" height="30" uuid="4bc82d5e-a420-4554-800b-1a87e6774457"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{resultat}.getTrimestre()==1?$P{resultat}.getTrimestre()+"er":$P{resultat}.getTrimestre()+"e" + " - " + $P{resultat}.getAnnee()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($P{resultat}.getTrimestre()==1?$P{resultat}.getTrimestre()+"er":$P{resultat}.getTrimestre()+"e") + " Trimestre - " + $P{resultat}.getAnneeAcademique()]]></textFieldExpression>
 			</textField>
+                        <image>
+				<reportElement x="0" y="0" width="80" height="80" uuid="7487d839-acc4-469c-8587-8026172bb698"/>
+				<imageExpression><![CDATA["logo.jpg"]]></imageExpression>
+			</image>
 		</band>
 	</title>
 	<detail>
@@ -127,7 +131,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="80" height="30" uuid="6d33604d-67d0-4ce5-b60f-6fa82fddb215"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{discipline}.getMatiere().toString()]]></textFieldExpression>
@@ -146,7 +150,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="48" height="30" uuid="a38869b9-55d4-4a16-a2b8-80f1509d402a"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{interro1}]]></textFieldExpression>
@@ -165,7 +169,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="47" height="30" uuid="9407c405-604b-499b-88fe-fa1178b1bf85"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{interro2}]]></textFieldExpression>
@@ -184,7 +188,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="48" height="30" uuid="83bfab54-6f5c-43d1-b5ad-f5babdf8eecc"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{moyInterro}]]></textFieldExpression>
@@ -203,7 +207,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="47" height="30" uuid="f54596c5-b724-4cae-b856-7e4e04cbf50a"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{evaluation}]]></textFieldExpression>
@@ -222,7 +226,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="48" height="30" uuid="f0bb3049-bb37-4df6-9fe9-8e92c891125d"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{moyClasse}]]></textFieldExpression>
@@ -241,7 +245,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="48" height="30" uuid="dada37f8-eec3-4761-8ced-488ae55fc325"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{composition}]]></textFieldExpression>
@@ -260,7 +264,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="47" height="30" uuid="c880b85e-61b8-4599-8d89-761af53d7736"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{moyTrimestre}]]></textFieldExpression>
@@ -279,7 +283,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="47" height="30" uuid="11bd2aa2-504f-4e20-abd5-8cb64586a4d8"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{discipline}.getCoefficient()]]></textFieldExpression>
@@ -298,7 +302,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="48" height="30" uuid="7b68f30b-7a49-47d0-a058-21fd1009cabc"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{moyTrimestreCoef}]]></textFieldExpression>
@@ -317,7 +321,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="47" height="30" uuid="6550b8a3-6034-4fd9-8957-f936c2e71a9c"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{rang}==1?$F{rang}+"er":$F{rang}+"e"]]></textFieldExpression>

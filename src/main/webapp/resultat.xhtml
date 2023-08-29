@@ -4,7 +4,8 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
-                template="#{layoutMB.template}">
+                template="#{layoutMB.template}"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
     <ui:define name="metadata">
         <f:metadata>
         </f:metadata>
@@ -16,8 +17,13 @@
                 background: #f4f4f4!important;
             }
             .ui-accordion .ui-accordion-content {
-                padding: 0px!important;;
+                padding: 0px!important;
+                ;
             }
+            .ui-progressbar .ui-progressbar-label {
+                color:red!important;
+            }
+
         </style>
     </ui:define>
     <ui:define name="head-end">
@@ -27,7 +33,7 @@
     <ui:define name="title">
         <h2 class="align-center">
             <span class="">
-                Ecole CEMINACE
+                RESULTAT TRIMESTRIEL PAR CLASSE
             </span>
         </h2>
     </ui:define>
@@ -41,21 +47,17 @@
                         <p:panel id="panel" styleClass="box-primary card">
                             <p:panelGrid id="input" columns="3" columnClasses="ui-grid-col-4,ui-grid-col-4,ui-grid-col-4"
                                          layout="grid" styleClass="ui-fluid card">
-                                <f:facet name="header">
-                                    RESULTAT TRIMESTRIEL PAR CLASSE
-                                </f:facet>
                                 <p:outputLabel value="Classe" for="classe"/>
                                 <p:outputLabel for="trim" value="Trimestre "/>
-                                <p:outputLabel for="annee" value="Annee "/>
+                                <p:outputLabel value=""/>
 
                                 <p:autoComplete id="classe" converter="#{classeConverter}" 
                                                 var="c" itemLabel="#{c.libelle}" itemValue="#{c}" value="#{releveBean.classe}" 
-                                                forceSelection="true" scrollHeight="200"
+                                                forceSelection="true" scrollHeight="200" groupBy="#{c.niveau}"
                                                 minQueryLength="2" queryDelay="500" dropdown="true"   
-                                                completeMethod="#{classeBean.findByLibelle}"
+                                                completeMethod="#{classeBean.autoCompletion}"
                                                 requiredMessage="Selectionner la classe"
                                                 required="true"/>
-
                                 <p:selectOneMenu id="trim" value="#{releveBean.trimestre}" 
                                                  requiredMessage="Selectionner le trimestre"
                                                  required="true">
@@ -63,24 +65,19 @@
                                     <f:selectItem itemLabel="1er Trimestre" itemValue="1"/>
                                     <f:selectItem itemLabel="2ème Trimestre" itemValue="2"/>
                                     <f:selectItem itemLabel="3ème Trimestre" itemValue="3"/>
-                                    <f:selectItem itemLabel="4ème Trimestre" itemValue="4"/>
                                 </p:selectOneMenu>
-                                <p:spinner id="annee" value="#{releveBean.annee}" class="align-left" required="true" 
-                                           requiredMessage="Année est obligatoire"  min="2020" max="2030"/>
 
-                                <p:message for="classe"/>
-                                <p:message for="trim"/>
-                                <p:message for="annee"/>
-
-                                <p:separator/>
-                                <p:commandButton value="Consulter" action="#{releveBean.genererResultat()}"
+                                <p:commandButton value="Consulter" action="#{releveBean.consulterResultats()}"
                                                  actionListener="#{releveBean.updateRegistre}"
                                                  update="@form" icon="fa fa-check" styleClass="btn-primary"/>
 
-                                <p:separator/>
+                                <p:message for="classe"/>
+                                <p:message for="trim"/>
                             </p:panelGrid>
                         </p:panel>
                         <p:spacer height="5"/>
+
+
                         <p:accordionPanel rendered="#{not empty releveBean.resultats}" >
                             <p:tab>
                                 <f:facet name="title">
@@ -114,149 +111,72 @@
                                 </p:dataTable>
                             </p:tab>
                             <p:tab title="REGISTRE N°II : MOYENNES EVALUATIONS - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
-                                <p:dataTable id="regstreTable" widgetVar="regstreTable" var="r" value="#{releveBean.registres}"
+                                <p:dataTable id="regstreTable" widgetVar="regstreTable" var="r" value="#{releveBean.registresEval}"
                                              rowIndexVar="x" sortField="eleve" sortOrder="ascending"
                                              sortMode="single" reflow="true" 
-                                             rendered="#{not empty releveBean.registres}" styleClass="align-center">
+                                             rendered="#{not empty releveBean.registresEval}" styleClass="align-center">
                                     <f:facet name="header">
                                         <p:commandButton  action="#{releveBean.exportEvaluation}" ajax="false" value="IMPRIMER" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
                                     </f:facet>
+                                    <!-- Entete des colonnes  -->
                                     <p:columnGroup type="header">
                                         <p:row>
-                                            <p:column rowspan="2" headerText="N°"/>
-                                            <p:column rowspan="2" width="100" headerText="Nom et prenom"/>
-                                            <p:column colspan="2" headerText="Orthographe"/>
-                                            <p:column colspan="2" headerText="Anglais"/>
-                                            <p:column colspan="2" headerText="Exp. Ecrite"/>
-                                            <p:column colspan="2" headerText="Histoire-Geo"/>
-                                            <p:column colspan="2" headerText="Maths"/>
-                                            <p:column colspan="2" headerText="Phy-Chimie"/>
-                                            <p:column colspan="2" headerText="SVT"/>
-                                            <p:column colspan="2" headerText="EPS"/>
-                                            <p:column colspan="1" headerText="Total"/>
-                                            <p:column rowspan="2" headerText="Moy."/>
-                                            <p:column rowspan="2" headerText="Rang"/>
+                                            <p:column rowspan="2" width="2%" headerText="N°"/>
+                                            <p:column rowspan="2" width="12%" headerText="Nom et prenom"/>
+
+                                            <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
+                                                <p:column colspan="2" width="8%" headerText="#{d.matiere.libelle}" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                            </p:repeat>
+
+                                            <p:column colspan="1" width="4%" headerText="Total"/>
+                                            <p:column rowspan="2" width="3%" headerText="Moy."/>
+                                            <p:column rowspan="2" width="3%" headerText="Rang"/>
                                         </p:row>
                                         <p:row>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="24"/>
+                                            <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
+                                                <p:column headerText="nc" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                                <p:column headerText="x#{d.coefficient}" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                            </p:repeat>
+
+                                            <p:column headerText="#{releveBean.sommeCoef('EVAL')}"/>
                                         </p:row>
                                     </p:columnGroup>
+                                    <!-- Fin entete colonnes  -->
+                                    <!-- Les données des colonnes  -->
                                     <p:column styleClass="align-center">
                                         <h:outputText value="#{x+1}" />
                                     </p:column>
-                                    <p:column>
+                                    <p:column class="align-left">
                                         <h:outputText value="#{r.eleve}"/>
                                     </p:column>
 
-                                    <p:column>
-                                        <h:outputText value="#{r.orthographe}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.orthographe * r.orthographeCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.anglais}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column >
-                                        <h:outputText value="#{r.anglais * r.anglaisCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column >
-                                        <h:outputText value="#{r.expressionEcrite}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.expressionEcrite * r.expressionEcriteCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.histoireGeo}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.histoireGeo * r.histoireGeoCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.maths}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.maths * r.mathsCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.phyChimie}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.phyChimie * r.phyChimieCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.svt}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.svt * r.svtCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.eps}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.eps * r.epsCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
+                                    <c:forEach  items="#{releveBean.classe.disciplineCollection}" var="d">
+                                        <p:column rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
+                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)}" >
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
+                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)*releveBean.dataCoefCollege(r,d.matiere.code)}">
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                            </h:outputText>
+                                        </p:column>
+                                    </c:forEach>>
+
                                     <p:column>
                                         <h:outputText value="#{r.total}" >
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
                                         </h:outputText>
                                     </p:column>
                                     <p:column>
-                                        <h:outputText value="#{r.moyenne}">
+                                        <h:outputText value="#{r.total/releveBean.sommeCoef('EVAL')}">
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
                                         </h:outputText>
                                     </p:column>
                                     <p:column>
                                         <h:outputText value="#{r.rang}" />
                                     </p:column>
+                                    <!-- Les données des colonnes  -->
                                 </p:dataTable>
                             </p:tab>
                             <p:tab title="REGISTRE N°II : MOYENNES COMPOSITIONS - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
@@ -269,140 +189,62 @@
                                     </f:facet>
                                     <p:columnGroup type="header">
                                         <p:row>
-                                            <p:column rowspan="2" headerText="N°"/>
-                                            <p:column rowspan="2" width="100" headerText="Nom et prenom"/>
-                                             <p:column colspan="2" headerText="Orthographe"/>
-                                            <p:column colspan="2" headerText="Anglais"/>
-                                            <p:column colspan="2" headerText="Exp. Ecrite"/>
-                                            <p:column colspan="2" headerText="Histoire-Geo"/>
-                                            <p:column colspan="2" headerText="Maths"/>
-                                            <p:column colspan="2" headerText="Phy-Chimie"/>
-                                            <p:column colspan="2" headerText="SVT"/>
-                                            <p:column colspan="2" headerText="EPS"/>
-                                            <p:column colspan="1" headerText="Total"/>
-                                            <p:column rowspan="2" headerText="Moy."/>
-                                            <p:column rowspan="2" headerText="Rang"/>
+                                            <p:column rowspan="2" width="2%" headerText="N°"/>
+                                            <p:column rowspan="2" width="12%" headerText="Nom et prenom"/>
+
+                                            <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
+                                                <p:column colspan="2" width="8%" headerText="#{d.matiere.libelle}" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                            </p:repeat>
+
+                                            <p:column colspan="1" width="4%" headerText="Total"/>
+                                            <p:column rowspan="2" width="3%" headerText="Moy."/>
+                                            <p:column rowspan="2" width="3%" headerText="Rang"/>
                                         </p:row>
                                         <p:row>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="24"/>
+                                            <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
+                                                <p:column headerText="nc" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                                <p:column headerText="x#{d.coefficient}" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                            </p:repeat>
+
+                                            <p:column headerText="#{releveBean.sommeCoef('COMPO')}"/>
                                         </p:row>
                                     </p:columnGroup>
+                                    <!-- Fin entete colonnes  -->
+                                    <!-- Les données des colonnes  -->
                                     <p:column styleClass="align-center">
                                         <h:outputText value="#{x+1}" />
                                     </p:column>
-                                    <p:column>
+                                    <p:column class="align-left">
                                         <h:outputText value="#{r.eleve}"/>
                                     </p:column>
 
+                                    <c:forEach  items="#{releveBean.classe.disciplineCollection}" var="d">
+                                        <p:column rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
+                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)}" >
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
+                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)*releveBean.dataCoefCollege(r,d.matiere.code)}">
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                            </h:outputText>
+                                        </p:column>
+                                    </c:forEach>>
+
                                     <p:column>
-                                        <h:outputText value="#{r.orthographe}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.orthographe * r.orthographeCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.anglais}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column >
-                                        <h:outputText value="#{r.anglais * r.anglaisCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column >
-                                        <h:outputText value="#{r.expressionEcrite}" >
+                                        <h:outputText value="#{r.total-releveBean.dataCollege(r,'ART')*releveBean.dataCoefCollege(r,'ART')-releveBean.dataCollege(r,'CON')*releveBean.dataCoefCollege(r,'CON')}" >
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
                                         </h:outputText>
                                     </p:column>
                                     <p:column>
-                                        <h:outputText value="#{r.expressionEcrite * r.expressionEcriteCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.histoireGeo}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.histoireGeo * r.histoireGeoCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.maths}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.maths * r.mathsCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.phyChimie}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.phyChimie * r.phyChimieCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.svt}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.svt * r.svtCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.eps}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.eps * r.epsCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.total}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.moyenne}">
+                                        <h:outputText value="#{(r.total-releveBean.dataCollege(r,'ART')*releveBean.dataCoefCollege(r,'ART')-releveBean.dataCollege(r,'CON')*releveBean.dataCoefCollege(r,'CON'))/releveBean.sommeCoef('COMPO')}">
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
                                         </h:outputText>
                                     </p:column>
                                     <p:column>
                                         <h:outputText value="#{r.rang}" />
                                     </p:column>
+                                    <!-- Les données des colonnes  -->
                                 </p:dataTable>
                             </p:tab>
                             <p:tab title="REGISTRE N°III : MOYENNES TRIMESTRIELLES - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
@@ -415,158 +257,69 @@
                                     </f:facet>
                                     <p:columnGroup type="header">
                                         <p:row>
-                                            <p:column rowspan="2" headerText="N°"/>
-                                            <p:column rowspan="2" width="100" headerText="Nom et prenom"/>
-                                            <p:column colspan="2" headerText="Orthographe"/>
-                                            <p:column colspan="2" headerText="Anglais"/>
-                                            <p:column colspan="2" headerText="Exp. Ecrite"/>
-                                            <p:column colspan="2" headerText="Histoire-Geo"/>
-                                            <p:column colspan="2" headerText="Maths"/>
-                                            <p:column colspan="2" headerText="Phy-Chimie"/>
-                                            <p:column colspan="2" headerText="SVT"/>
-                                            <p:column colspan="2" headerText="EPS"/>
-                                            <p:column colspan="1" headerText="ART"/>
-                                            <p:column colspan="1" headerText="CON"/>
-                                            <p:column colspan="1" headerText="Total"/>
-                                            <p:column rowspan="2" headerText="Moy."/>
-                                            <p:column rowspan="2" headerText="Rang"/>
+                                            <p:column rowspan="2" width="2%" headerText="N°"/>
+                                            <p:column rowspan="2" width="12%" headerText="Nom et prenom"/>
+
+                                            <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
+                                                <p:column colspan="2" width="8%" headerText="#{d.matiere.libelle}"/>
+                                            </p:repeat>
+
+                                            <p:column colspan="1" width="4%" headerText="Total"/>
+                                            <p:column rowspan="2" width="3%" headerText="Moy."/>
+                                            <p:column rowspan="2" width="3%" headerText="Rang"/>
                                         </p:row>
                                         <p:row>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="nc"/>
-                                            <p:column headerText="x"/>
-                                            <p:column headerText="x1"/>
-                                            <p:column headerText="x1"/>
-                                            <p:column headerText="26"/>
+                                            <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
+                                                <p:column headerText="nc"/>
+                                                <p:column headerText="x#{d.coefficient}"/>
+                                            </p:repeat>
+
+                                            <p:column headerText="#{releveBean.sommeCoef('')}"/>
                                         </p:row>
                                     </p:columnGroup>
+                                    <!-- Fin entete colonnes  -->
+                                    <!-- Les données des colonnes  -->
                                     <p:column styleClass="align-center">
                                         <h:outputText value="#{x+1}" />
                                     </p:column>
-                                    <p:column>
+                                    <p:column class="align-left">
                                         <h:outputText value="#{r.eleve}"/>
                                     </p:column>
 
-                                    <p:column>
-                                        <h:outputText value="#{r.orthographe}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.orthographe * r.orthographeCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.anglais}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column >
-                                        <h:outputText value="#{r.anglais * r.anglaisCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column >
-                                        <h:outputText value="#{r.orthographe}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.orthographe * r.orthographeCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.histoireGeo}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.histoireGeo * r.histoireGeoCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.maths}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.maths * r.mathsCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.phyChimie}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.phyChimie * r.phyChimieCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.svt}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.svt * r.svtCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.eps}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.eps * r.epsCoef}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.art}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
-                                    <p:column>
-                                        <h:outputText value="#{r.con}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
-                                        </h:outputText>
-                                    </p:column>
+                                    <c:forEach  items="#{releveBean.classe.disciplineCollection}" var="d">
+                                        <p:column>
+                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)}" >
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column>
+                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)*releveBean.dataCoefCollege(r,d.matiere.code)}">
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                            </h:outputText>
+                                        </p:column>
+                                    </c:forEach>>
+
                                     <p:column>
                                         <h:outputText value="#{r.total}" >
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
                                         </h:outputText>
                                     </p:column>
                                     <p:column>
-                                        <h:outputText value="#{r.moyenne}">
+                                        <h:outputText value="#{r.total/releveBean.sommeCoef('')}">
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
                                         </h:outputText>
                                     </p:column>
                                     <p:column>
                                         <h:outputText value="#{r.rang}" />
                                     </p:column>
+                                    <!-- Les données des colonnes  -->
                                 </p:dataTable>
                             </p:tab>
                             <p:tab title="REGISTRE N°IV : BILAN PAR MATIERE ET PAR SPECIALITE - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
                                 <p:commandButton  action="#{releveBean.exportRegistreIV()}" ajax="false" value="EXPORTER" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
+                            </p:tab>
+                            <p:tab title="BILAN DES MOYENNES TRIMESTRIELLES - CLASSE DE #{releveBean.classe}">
+                                <p:commandButton  action="#{releveBean.exportBilanAnnuel()}" ajax="false" value="EXPORTER BILAN ANNUEL" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
                             </p:tab>
                         </p:accordionPanel>
 

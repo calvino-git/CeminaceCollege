@@ -18,7 +18,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -51,11 +50,12 @@ public class Bulletin extends BaseEntity implements Serializable,Comparable<Bull
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "generateurBulletin")
-    @TableGenerator(name = "generateurBulletin", table = "sqlite_sequence",
-            pkColumnName = "name", valueColumnName = "seq",
-            pkColumnValue = "bulletin",
-            initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(generator = "generateurBulletin")
+//    @TableGenerator(name = "generateurBulletin", table = "sqlite_sequence",
+//            pkColumnName = "name", valueColumnName = "seq",
+//            pkColumnValue = "bulletin",
+//            initialValue = 1, allocationSize = 1)
     @Basic(optional = false)
     @Column(name = "id")
     private Integer id;

@@ -3,7 +3,9 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:pe="http://primefaces.org/ui/extensions">
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <style type="text/css">
         #layout-menu_menu {
@@ -13,32 +15,34 @@
             margin-left: 2px;
         }
         .main-header .navbar {
-            margin-left: 150px;
+            margin-left: 230px;
         }
         .main-header .logo {
-            width: 150px;
+            width: 230px;
         }
 
     </style>
     <ul class="nav navbar-nav">
-        <!--li class="hidden-xs hidden-sm">
+        <li>
             <h:form prependId="false">
-                 <p:menuButton value="Mise en page" style="margin:10px 10px 0 0 " id="layout-menu">
-                    <p:menuitem value="Left menu (default)" disabled="#{layoutMB.leftMenuTemplate}" onclick="toggleTemplate();return false" ajax="false" icon="fa fa-list-ul"/>
-                    <p:menuitem value="Top menu" disabled="#{not layoutMB.leftMenuTemplate}" onclick="toggleTemplate();return false" ajax="false" icon="fa fa-credit-card"/>
+                <p:menuButton value="#{anneeAcademiqueBean.anneeEnCours.annee}" style="margin:10px 10px 0 0 " id="layout-menu">
+                    <c:forEach items="#{anneeAcademiqueBean.liste}" var="annee">
+                        <p:menuitem value="#{annee.annee}" action="#{anneeAcademiqueBean.onChangeSelect(annee)}" styleClass="#{annee.statut?'btn-primary':''}" update="@form" ajax="true" icon="fa fa-calendar"/>
+                    </c:forEach>
+                    <p:menuitem value="Ajouter une année" styleClass="btn-success" update="@(.ui-dialog)" oncomplete ="PF('annee_academique').show()" icon="fa fa-plus"/>
                 </p:menuButton>
             </h:form>
-        </li-->
+
+        </li>
         <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <pe:gravatar id="userImage"
-                             value="nonexisting"/>
+                <i class="fa fa-user"></i>
                 <span class="hidden-xs">#{logonMB.currentUser.toString()}</span>
             </a>
             <ul class="dropdown-menu">
                 <li class="user-header">
                     <div class="hidden-xs">
-                        <pe:gravatar style="border-radius: 10%" value="bbbebe661@gmail.com"/>
+                        <pe:letterAvatar value="#{logonMB.currentUser.toString()}" height="48" width="48" rounded="true"/>
                     </div>
                     <p>
                         #{logonMB.currentUser.toString()}
@@ -62,9 +66,57 @@
 
         <li>
             <a id="layout-setup" href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
-            
         </li>
 
     </ul>
+    <p:dialog header="Ouverture d'une nouvelle année scolaire" widgetVar="annee_academique" dynamic="true" height="500" modal="true" appendTo="@(body)"
+              width="500" responsive="true" draggable="false" styleClass="box-success">
 
+        <h:form>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-4">
+                    <p:outputLabel for="annee" value="Année"/>
+                </div>
+                <div class="ui-g-8">
+                    <p:inputMask id="annee" mask="9999-9999" value="#{anneeAcademiqueBean.entity.annee}" required="true"/>
+                </div>
+                <div class="ui-g-4">
+                    <p:outputLabel for="statut" value="Statut"/>
+                </div>
+                <div class="ui-g-8">
+                    <p:selectBooleanCheckbox id="statut" value="#{anneeAcademiqueBean.entity.statut}" required="true"/>
+                </div>
+            </div>
+            <p:separator/>
+            <p:commandButton value="Créer" update="@all" icon="fa fa-check" action="#{anneeAcademiqueBean.save}" 
+                             ignoreAutoUpdate="true" styleClass="btn-primary" oncomplete="PF('annee_academique').hide()"/>
+            <p:spacer height="5"/>
+            <p:commandButton value="Fermer" icon="fa fa-close" oncomplete="PF('annee_academique').hide()" update="@form"/>
+            <p:separator/>
+            <p:dataTable id="anneeTable" widgetVar="anneeTable" var="a" value="#{anneeAcademiqueBean.list}" rows="5" rowKey="#{a.id}" 
+                         lazy="true" paginator="true" sortBy="id" paginatorPosition="bottom" rowIndexVar="x"
+                         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         currentPageReportTemplate="[ {startRecord} à {endRecord} de {totalRecords} ]"
+                         rowsPerPageTemplate="5,6,7,8" rendered="#{not empty anneeAcademiqueBean.list}">
+
+                <p:column headerText="N°" width="10%" styleClass="align-center">
+                    #{x+1}
+                </p:column>
+                <p:column headerText="Année" styleClass="align-center" width="10px" sortBy="#{a.annee}">
+                     <span class="badge">#{a.annee}</span>
+                </p:column>
+                <p:column headerText="Statut" styleClass="align-center" width="15px" sortBy="#{a.statut}">
+                    <span class="badge" style="background-color:#{a.statut?'green':'red'};">#{a.statut?'En cours':'Cloturée'}</span>
+                </p:column>
+                <p:column headerText="Action" width="15%" styleClass="align-center">
+                    <p:commandButton action="#{anneeAcademiqueBean.supprimer(a)}" process="@this"
+                                     update="@form" icon="fa fa-trash" styleClass="btn-danger" style="width: fit-content">
+                        <f:setPropertyActionListener value="true"
+                                                     target="#{facesContext.externalContext.flash.keepMessages}"/>
+                        <p:confirm header="Confirmation" message="Merci de confirmer la suppression." icon="ui-icon-danger"/>
+                    </p:commandButton>
+                </p:column>
+            </p:dataTable>
+        </h:form>
+    </p:dialog>
 </ui:composition>

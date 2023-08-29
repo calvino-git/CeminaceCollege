@@ -10,10 +10,12 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -21,7 +23,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -42,16 +43,17 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Examen.findByType", query = "SELECT e FROM Examen e WHERE e.type = :type")})
 public class Examen extends BaseEntity implements Serializable, Comparable {
 
-    @OneToMany(mappedBy = "examen", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "examen", fetch = FetchType.LAZY, orphanRemoval = true,cascade = CascadeType.ALL)
     private List<Note> noteCollection;
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "generateurExamen")
-    @TableGenerator(name = "generateurExamen", table = "sqlite_sequence",
-            pkColumnName = "name", valueColumnName = "seq",
-            pkColumnValue = "examen",
-            initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(generator = "generateurExamen")
+//    @TableGenerator(name = "generateurExamen", table = "sqlite_sequence",
+//            pkColumnName = "name", valueColumnName = "seq",
+//            pkColumnValue = "examen",
+//            initialValue = 1, allocationSize = 1)
     @Basic(optional = false)
     @Column(name = "ID")
     private Integer id;
@@ -83,8 +85,7 @@ public class Examen extends BaseEntity implements Serializable, Comparable {
         this.id = id;
     }
 
-    public Examen(Integer id, String titre, int trimestre, String mois, String date, String type) {
-        this.id = id;
+    public Examen(int trimestre, String date, String type) {
         this.trimestre = trimestre;
         this.date = date;
         this.type = type;

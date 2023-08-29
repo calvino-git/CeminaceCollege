@@ -40,6 +40,6 @@ public class NiveauConverter implements Serializable, Converter {
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, Object value) {
-        return ((Niveau) value).getTitre();
+        return value != null ? ((Niveau) value).getTitre() : "";
     }
 }

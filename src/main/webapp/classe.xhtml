@@ -7,7 +7,6 @@
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam name="id" value="#{classeBean.id}" converter="javax.faces.Integer"/>
-            <!-- use view action if you are in a Java EE 7 server: <f:viewAction action="#{classeBean.init()}"/>-->
             <f:event type="preRenderView" listener="#{classeBean.initBean}"/>
         </f:metadata>
         <ui:param name="renderFormAsterisks" value="true"/>
@@ -45,125 +44,157 @@
     </ui:define>
 
     <ui:define name="body">
-        <adm:breadcrumb title="#{empty classeBean.id ? 'Classe' : 'Classe '.concat(classeBean.id)}" link="niveau.xhtml?id=#{classeBean.id}"/>
+        <adm:breadcrumb title="#{empty classeBean.entity.id ? 'Classe' : 'Classe '.concat(classeBean.entity.id)}" link="niveau.xhtml?id=#{classeBean.entity.id}"/>
         <h:form id="form" prependId="false">
             <p:focus context="@form"/>
             <p:panel id="panel" styleClass="box-primary card" header="Gestion de classes">
-                <div id="main-buttons">
-                    <p:commandButton value="Enregistrer" action="#{classeBean.save}" update="@form" 
-                                     icon="fa fa-check" styleClass="btn-primary"/>
-                    <p:spacer width="5"/>
-                    <p:commandButton value="Vider" action="#{classeBean.clear}" process="@this"
-                                     icon="fa fa-refresh"
-                                     update="@form" resetValues="true"/>
-                    <p:spacer width="5"/>
-
-                    <p:commandButton id="del" value="Supprimer" action="#{classeBean.remove}" process="@this"
-                                     disabled="#{classeBean.isNew()}" icon="fa fa-trash" update="@form"
-                                     styleClass="btn-danger"  oncomplete="PF('classeTable').filter()">
-                        <p:confirm header="Confirmation" message="Merci de confirmer la suppression." icon="ui-icon-danger"/>
-                    </p:commandButton>
-                </div>
 
                 <div  class="ui-g ui-fluid">
-                    <div class="ui-sm-6 ui-g-3 ui-g-nopad"> 
-                        <div class="ui-sm-8 ui-g-7">
-                            <p:outputLabel for="code" value="Code"/>
+                    <div class="ui-sm-12 ui-g-3">
+                        <div class="ui-g-12 ui-g-nopad"> 
+                            <div class="ui-sm-12 ui-g-5">
+                                <p:outputLabel for="code" value="Code"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-7" >
+                                <p:inputText id="code" value="#{classeBean.entity.code}" required="true" requiredMessage="Code est obligatoire."/>
+                                <span class="help-block"> 
+                                    <p:message for="code" /> 
+                                </span> 
+                            </div>
                         </div>
-                        <div class="ui-sm-8 ui-g-7" >
-                            <p:inputText id="code" value="#{classeBean.entity.code}" required="true" requiredMessage="Code est obligatoire."/>
-                            <span class="help-block"> 
-                                <p:message for="code" /> 
-                            </span> 
+                        <div class="ui-g-12 ui-g-nopad" >
+                            <div class="ui-sm-12 ui-g-5">
+                                <p:outputLabel value="Libelle" for="lib"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-7" >
+                                <p:inputText id="lib" value="#{classeBean.entity.libelle}" required="true" requiredMessage="Libelle est obligatoire."/>
+                                <span class="help-block"> 
+                                    <p:message for="lib"/> 
+                                </span> 
+                            </div>
+                        </div>  
+                        <div class="ui-sm-12 ui-g-nopad"> 
+                            <div class="ui-sm-12 ui-g-5">
+                                <p:outputLabel value="Cycle" for="cycle"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-7" >
+                                <p:selectOneMenu id="cycle" value="#{classeBean.entity.cycle}" required="true" requiredMessage="Cycle est obligatoire.">
+                                    <f:selectItem itemLabel="LYCEE" itemValue="LYCEE"/>
+                                    <f:selectItem itemLabel="COLLEGE" itemValue="COLLEGE"/>
+                                    <f:selectItem itemLabel="PRIMAIRE" itemValue="PRIMAIRE"/>
+                                </p:selectOneMenu>
+                                <span class="help-block"> 
+                                    <p:message for="cycle" /> 
+                                </span>
+                            </div>
                         </div>
-                        
-                        <div class="ui-sm-12 ui-g-11">
-                            <p:outputLabel value="Libelle" for="lib"/>
+                        <div class="ui-g-12 ui-g-nopad" >
+                            <div class="ui-sm-12 ui-g-5">
+                                <p:outputLabel value="Niveau" for="niveau"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-7" >
+                                <p:selectOneMenu id="niveau" converter="#{niveauConverter}"  value="#{classeBean.entity.niveau}" required="true" requiredMessage="Cycle est obligatoire.">
+                                    <f:selectItems  value="#{niveauBean.listeNiveaux}" var="n" itemLabel="#{n.titre}" itemValue="#{n}"/>
+                                </p:selectOneMenu>
+                                <span class="help-block"> 
+                                    <p:message for="niveau" /> 
+                                </span>
+                            </div>
                         </div>
-                        <div class="ui-sm-12 ui-g-11" >
-                            <p:inputText id="lib" value="#{classeBean.entity.libelle}" required="true" requiredMessage="Libelle est obligatoire."/>
-                            <span class="help-block"> 
-                                <p:message for="lib"/> 
-                            </span> 
+                        <div class="ui-sm-12 ui-g-nopad">     
+                            <div class="ui-sm-12 ui-g-5">
+                                <p:outputLabel value="Année scolaire" for="anneeAcademique"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-7" >
+                                <p:selectOneMenu id="anneeAcademique" converter="#{anneeConverter}" value="#{classeBean.entity.anneeAcademique}" required="true" requiredMessage="Année est obligatoire.">
+                                    <f:selectItems value="#{anneeAcademiqueBean.liste}" var="an" itemLabel="#{an.annee}" itemValue="#{an}"/>
+                                </p:selectOneMenu>
+                                <span class="help-block"> 
+                                    <p:message for="anneeAcademique" /> 
+                                </span>
+                            </div>
                         </div>
-                    </div>  
-                    <div class="ui-sm-6 ui-g-3 ui-g-nopad"> 
-                        <div class="ui-sm-12 ui-g-12">
-                            <p:outputLabel value="Cycle" for="cycle"/>
+                        <div class="ui-sm-12 ui-g-nopad">     
+                            <div class="ui-sm-12 ui-g-5">
+                                <p:outputLabel value="Description" for="desc"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-7" >
+                                <p:inputTextarea id="desc" value="#{classeBean.entity.description}" required="true" requiredMessage="Description est obligatoire."/>
+                                <span class="help-block"> 
+                                    <p:message for="desc" /> 
+                                </span>
+                            </div>
                         </div>
-                        <div class="ui-sm-12 ui-g-12" >
-                            <p:selectOneMenu id="cycle" value="#{classeBean.entity.cycle}" required="true" requiredMessage="Cycle est obligatoire.">
-                                <f:selectItem itemLabel="LYCEE" itemValue="LYCEE"/>
-                                <f:selectItem itemLabel="COLLEGE" itemValue="COLLEGE"/>
-                                <f:selectItem itemLabel="PRIMAIRE" itemValue="PRIMAIRE"/>
-                            </p:selectOneMenu>
-                            <span class="help-block"> 
-                                <p:message for="cycle" /> 
-                            </span>
-                        </div>
-                        
-                        <div class="ui-sm-12 ui-g-12">
-                            <p:outputLabel value="Niveau" for="niveau"/>
-                        </div>
-                        <div class="ui-sm-12 ui-g-12" >
-                            <p:selectOneMenu id="niveau" converter="#{niveauConverter}"  value="#{classeBean.entity.niveau}" required="true" requiredMessage="Cycle est obligatoire.">
-                                <f:selectItems  value="#{niveauBean.listeNiveaux}" var="n" itemLabel="#{n.titre}" itemValue="#{n}"/>
-                            </p:selectOneMenu>
-                            <span class="help-block"> 
-                                <p:message for="niveau" /> 
-                            </span>
-                        </div>
-                    </div>     
-                    <div class="ui-sm-8 ui-g-6 ui-g-nopad">     
-                        <div class="ui-sm-12 ui-g-12">
-                            <p:outputLabel value="Description" for="desc"/>
-                        </div>
-                        <div class="ui-sm-12 ui-g-12" >
-                            <p:inputTextarea id="desc"  value="#{classeBean.entity.description}" required="true" requiredMessage="Description est obligatoire."/>
-                            <span class="help-block"> 
-                                <p:message for="desc" /> 
-                            </span>
+
+
+                        <div id="main-buttons">
+                            <div class="ui-g-12">
+                                <p:commandButton value="Ajouter" action="#{classeBean.insert}" update="@form"
+                                                 icon="fa fa-plus" styleClass="btn-success"/>
+                            </div>
+                            <div class="ui-g-12"> 
+                                <p:commandButton value="Mettre à jour" action="#{classeBean.save}" update="@form" disabled="#{classeBean.isNew()}"
+                                                 icon="fa fa-save" styleClass="btn-primary"/>
+                            </div>
+                            <div class="ui-g-12">
+                                <p:commandButton value="Vider" action="#{classeBean.clear}" process="@this"
+                                                 icon="fa fa-refresh"
+                                                 update="@form" resetValues="true"/>
+                            </div>
                         </div>
                     </div>
+                    <div class="ui-sm-12 ui-g-9 ">
+                        <p:dataTable widgetVar="classeTable" var="c" value="#{classeBean.list}" lazy="true" rows="10" rowKey="#{c.id}" 
+                                     paginator="true" sortMode="single" selectionMode="single" rowIndexVar="x"
+                                     paginatorPosition="bottom" selection="#{classeBean.selection}"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
+                                     currentPageReportTemplate="[ {startRecord} à {endRecord} de {totalRecords} ]"
+                                     rowsPerPageTemplate="5,10,15,20,30" emptyMessage="Aucun element">
+
+                            <p:ajax event="rowSelect" listener="#{classeBean.onRowSelect}" update="form" />
+
+                            <p:column headerText="N°" width="5%" styleClass="align-center">
+                                #{x+1}
+                            </p:column>
+                            <p:column headerText="Code" width="10%" sortBy="#{c.code}">
+                                #{c.code}
+                            </p:column>
+                            <p:column headerText="Libelle" width="15%" sortBy="#{c.libelle}">
+                                #{c.libelle}
+                            </p:column>
+                            <p:column headerText="Niveau" width="15%" sortBy="#{c.niveau}" filterBy="#{c.niveau}">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu id="niveau" converter="#{niveauConverter}"  value="#{classeBean.filter.entity.niveau}" >
+                                        <f:selectItem itemLabel="TOUT" noSelectionOption=""/>
+                                        <f:selectItems  value="#{niveauBean.listeNiveaux}" var="n" itemLabel="#{n.titre}" itemValue="#{n}"/>
+                                        <p:ajax event="valueChange" process="@this" oncomplete="PF('classeTable').filter()"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                #{c.niveau.titre}
+                            </p:column>
+                            <p:column headerText="Description" width="20%" sortBy="#{c.description}" >
+                                #{c.description}
+                            </p:column>
+                            <p:column headerText="Effectif(M)" width="10%" class="align-center">
+                                #{c.effectifMale}
+                            </p:column>
+                            <p:column headerText="Effectif(F)" width="10%" class="align-center">
+                                #{c.effectifFemelle}
+                            </p:column>
+                            <p:column headerText="Effectif" width="10%" class="align-center">
+                                #{eleveBean.nbrEleveParClasse(c)}
+                            </p:column>
+                            <p:column headerText="Supp." width="5%" class=" align-center">
+                                <p:commandLink action="#{classeBean.supprimer(c)}" process="@this"
+                                               update="@form" styleClass="fa fa-trash btn-danger">
+                                    <f:setPropertyActionListener value="true"
+                                                                 target="#{facesContext.externalContext.flash.keepMessages}"/>
+                                    <p:confirm header="Confirmation" message="Merci de confirmer la suppression." icon="ui-icon-danger"/>
+                                </p:commandLink>
+                            </p:column>
+                        </p:dataTable>
+                    </div>
                 </div>
-
-                <p:dataTable widgetVar="classeTable" var="c" value="#{classeBean.classes}" rows="10" rowKey="#{c.id}" 
-                             paginator="true" sortMode="single" selectionMode="single" rowIndexVar="x"
-                             paginatorPosition="bottom" selection="#{classeBean.selection}"
-                             paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
-                             currentPageReportTemplate="[ {startRecord} à {endRecord} de {totalRecords} ]"
-                             rowsPerPageTemplate="5,10,15,20,30" emptyMessage="Aucun element">
-
-                    <p:ajax event="rowSelect" listener="#{classeBean.onRowSelect}" update="form" />
-
-                    <f:facet name="header" >
-                        Liste des classes
-                    </f:facet>
-                    <p:column headerText="N°" width="5%" styleClass="align-center">
-                        #{x+1}
-                    </p:column>
-                    <p:column headerText="Code" width="10%" sortBy="#{c.code}">
-                        #{c.code}
-                    </p:column>
-                    <p:column headerText="Libelle" width="15%" sortBy="#{c.libelle}">
-                        #{c.libelle}
-                    </p:column>
-                    <p:column headerText="Niveau" width="15%" sortBy="#{c.niveau.titre}">
-                        #{c.niveau.titre}
-                    </p:column>
-                    <p:column headerText="Description" width="20%" sortBy="#{c.description}" >
-                        #{c.description}
-                    </p:column>
-                    <p:column headerText="Effectif(M)" width="10%" class="align-center">
-                        #{c.effectifMale}
-                    </p:column>
-                    <p:column headerText="Effectif(F)" width="10%" class="align-center">
-                        #{c.effectifFemelle}
-                    </p:column>
-                    <p:column headerText="Effectif" width="10%" class="align-center">
-                        #{c.effectifTotal}
-                    </p:column>
-                </p:dataTable>
             </p:panel>
 
             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger box-solid">

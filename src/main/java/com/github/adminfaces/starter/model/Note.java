@@ -18,7 +18,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -40,11 +39,12 @@ public class Note extends BaseEntity implements Serializable,Comparable<Note> {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "generateurNote")
-    @TableGenerator(name = "generateurNote", table = "sqlite_sequence",
-            pkColumnName = "name", valueColumnName = "seq",
-            pkColumnValue = "note",
-            initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(generator = "generateurNote")
+//    @TableGenerator(name = "generateurNote", table = "sqlite_sequence",
+//            pkColumnName = "name", valueColumnName = "seq",
+//            pkColumnValue = "note",
+//            initialValue = 1, allocationSize = 1)
     @Basic(optional = false)
     @Column(name = "ID")
     private Integer id;
@@ -61,7 +61,7 @@ public class Note extends BaseEntity implements Serializable,Comparable<Note> {
     private String presence;
 
     
-    @JoinColumn(name = "ELEVE")
+    @JoinColumn(name = "ELEVE", referencedColumnName = "ID")
     @ManyToOne(optional = false)
     private Eleve eleve;
     @JoinColumn(name = "EXAMEN", referencedColumnName = "ID")
@@ -138,7 +138,7 @@ public class Note extends BaseEntity implements Serializable,Comparable<Note> {
 
     @Override
     public String toString() {
-        return "com.github.adminfaces.starter.model.Note[ id=" + id + " ]";
+        return "[Note <b>"+ eleve + "</b> " + examen;
     }
 
     public boolean hasEleve() {

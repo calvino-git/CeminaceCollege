@@ -1,257 +1,229 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.github.adminfaces.starter.bean;
 
 import com.github.adminfaces.persistence.bean.BeanService;
 import com.github.adminfaces.persistence.bean.CrudMB;
 import static com.github.adminfaces.persistence.bean.CrudMB.addDetailMsg;
 import static com.github.adminfaces.persistence.util.Messages.addDetailMessage;
+import com.github.adminfaces.starter.model.AnneeAcademique;
 import com.github.adminfaces.starter.model.Classe;
 import com.github.adminfaces.starter.model.Discipline;
 import com.github.adminfaces.starter.model.Eleve;
 import com.github.adminfaces.starter.model.Examen;
+import com.github.adminfaces.starter.model.Examen_;
+import com.github.adminfaces.starter.model.Matiere;
 import com.github.adminfaces.starter.model.Note;
 import com.github.adminfaces.starter.service.DisciplineService;
+import com.github.adminfaces.starter.service.EleveService;
 import com.github.adminfaces.starter.service.ExamenService;
 import com.github.adminfaces.starter.service.NoteService;
 import com.github.adminfaces.template.exception.BusinessException;
 import static com.github.adminfaces.template.util.Assert.has;
-import com.lowagie.text.BadElementException;
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.Rectangle;
-import java.io.IOException;
 
 import javax.inject.Named;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.RequestScoped;
+import java.util.logging.Logger;
 import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Produces;
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.RowEditEvent;
 import org.primefaces.event.SelectEvent;
-import org.primefaces.model.SortOrder;
 
-/**
- * @author rmpestano
- */
 @Named
-@ViewScoped
+@SessionScoped
 @BeanService(NoteService.class)//use annotation instead of setter
 public class NoteBean extends CrudMB<Note> implements Serializable {
 
     @Inject
+    AnneeAcademiqueBean anneeAcademiqueBean;
+
+    @Inject
     NoteService noteService;
+    @Inject
+    EleveService eleveService;
     @Inject
     ExamenService examenService;
     @Inject
     DisciplineService disciplineService;
 
-    private List<Note> listeNote;
-    private List<Examen> examenClasse;
-    private List<Examen> listExamen;
-
     private Integer trimestre;
-    private Integer annee;
-    private int currentExamenId;
+    private AnneeAcademique anneeAcademique;
     private String type;
 
     private Discipline discipline;
     private Classe classe;
     private Examen examen;
+    private Matiere matiere;
+    private String date;
 
-    @PostConstruct
     public void initNoteBean() {
         if (FacesContext.getCurrentInstance().isPostback()) {
             return;
         }
-//        examen = currentExamenId != 0 ? examenService.findById(currentExamenId) : null;
-        log.log(Level.CONFIG, "Examen ID : {0}", currentExamenId);
+//        examen = examenBean.getSelection();
         update();
-        listeNote = noteService.listeParExamen(examen);
+//        listeNote = noteService.notesParExamen(examen);
     }
 
-    @Override
-    public Note save() {
-        Note note = super.save();
-        update();
-        return note;
-    }
-
-    public void onClasseSelection(SelectEvent event){
-        log.info(event.getObject().toString());
-    }
-    
-    public void refreshExam(SelectEvent event) {
-        Integer trim = (Integer) event.getObject();
-        examenClasse = examenService.listeParClasseTrimestre(classe, trim, annee);
-    }
-
-    public void arrangerParNote() {
-//        entity.setExamen(exa);
-//        filter.setEntity(entity);
-//        list.setFilter(filter);
-//        List<Note> liste = list.load(0, list.getRowCount(), "rang", SortOrder.ASCENDING, null);
-
-        Comparator<Note> comp = (o1, o2) -> {
-            return o2.getNote().compareTo(o1.getNote());
-        };
-
-        int i = 0;
-        listeNote.sort(comp);
-        for (Note n : listeNote) {
-            n.setRang(++i);
-            noteService.update(n);
-        }
-
-    }
-
-    public Collection<Eleve> listEleveParClasse() {
-        return entity.getExamen().getDiscipline().getClasse().getEleveCollection();
-    }
-
-    public int nbrNoteParExamen(Examen examen) {
-        return noteService.listeParExamen(examen).size();
-    }
-
-    public void findExamen(int examenId) {
-        examen = examenService.findById(examenId);
+    public List<Discipline> autoCompletion(String query) {
+        List<Discipline> disciplines = disciplineService.disciplinesParClasse(classe);
+        return disciplines;
     }
 
     public void findOrCreateExamen() {
-        listExamen = examenService.listeParDisciplineTrimestreAnnee(discipline, trimestre, annee, type);
-        if (listExamen.isEmpty()) {
+        Optional<Discipline> disciplineOptional = disciplineService.disciplineParMatiereEtClasse(classe, matiere);
+        if (disciplineOptional.isPresent()) {
+            discipline = disciplineOptional.get();
+            examen = examenService.criteria()
+                    .eq(Examen_.discipline, discipline)
+                    .eq(Examen_.trimestre, trimestre)
+                    .eq(Examen_.type, type)
+                    .getOptionalResult();
             if (!has(examen)) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 examen = new Examen();
-            }
-            if (examen.hasId()) {
-                examen.setId(null);
-                examen.setDate(null);
-                examen.setNoteCollection(null);
-            }
-
-            examen.setAnnee(annee);
-            examen.setType(type);
-            examen.setTrimestre(trimestre);
-            examen.setDiscipline(discipline);
-
-            if (examen.hasDate()) {
+                examen.setAnneeAcademique(classe.getAnneeAcademique());
+                examen.setType(type);
+                examen.setDate(sdf.format(new Date()));
+                examen.setTrimestre(trimestre);
+                examen.setDiscipline(discipline);
                 examenService.saveOrUpdate(examen);
-                listExamen.add(examen);
-            } else {
-                PrimeFaces.current().executeScript("PF('examenDialog').show()");
+                addDetailMessage("Epreuve <b>" + type + "</b> Trim <b>" + trimestre + " " + discipline + "</b> n'existait pas mais a été créé.", FacesMessage.SEVERITY_WARN);
             }
-        } else if (listExamen.size() == 1) {
-            examen = listExamen.get(0);
             update();
-        } else {
-            PrimeFaces.current().executeScript("PF('examenDialog').show()");
+        }else{
+            addDetailMessage("Matiere <b>" + matiere + "</b> n'existait pas en  " + classe, FacesMessage.SEVERITY_WARN);
         }
     }
 
-    public List<Discipline> findDisciplineClasse(String query) {
-        List<Discipline> disciplines = disciplineService.getLibelle(query);
-        return disciplines.stream()
-                .filter(d -> d.getClasse().equals(classe))
-                .collect(Collectors.toList());
-    }
-
     public void update() {
-        if (has(classe) && has(annee) && has(trimestre) && has(examen) && examen.hasId()) {
-            if (examen.getNoteCollection().isEmpty()) {
-                classe.getEleveCollection().forEach(e -> {
-                    Note note = new Note();
-                    note.setNote(0.0);
-                    note.setObservation("A MODIFIER");
-                    note.setPresence("PRESENT");
-                    note.setRang(0);
-                    note.setEleve(e);
-                    note.setExamen(examen);
+        if (!has(examen) && has(discipline) && has(trimestre) && has(type)) {
+            examen = examenService.criteria()
+                    .eq(Examen_.discipline, discipline)
+                    .eq(Examen_.trimestre, trimestre)
+                    .eq(Examen_.type, type)
+                    .getOptionalResult();
+        }
+        if (has(classe) && has(examen) && examen.hasId()) {
+            List<Eleve> eleves = eleveService.listeParClasse(classe);
+            if (examen.getNoteCollection().size() != eleves.size()) {
+                eleves.forEach(ce -> {
+                    entity = new Note();
+                    entity.setNote(0.0);
+                    entity.setObservation("A MODIFIER");
+                    entity.setPresence("PRESENT");
+                    entity.setRang(0);
+                    entity.setEleve(ce);
+                    entity.setExamen(examen);
+                    entity.setAnneeAcademique(examen.getAnneeAcademique());
                     try {
-                        noteService.insert(note);
-                    } catch (BusinessException ex) {
+                        save();
+                    } catch (BusinessException be) {
+                        log.logp(Level.WARNING, be.getFieldId(), be.getSummary(), be.getDetail());
                     }
                 });
 
             }
         }
-        if (examen != null && examen.getId() != null && examen.getId() != 0) {
-            if ((examen.getId() == currentExamenId && currentExamenId != 0) || (examen.getId() != currentExamenId && currentExamenId == 0)) {
-                entity.setExamen(examen);
-                filter.setEntity(entity);
-            }
-            if (examen.getId() != currentExamenId && currentExamenId != 0) {
-                examen = examenService.findById(currentExamenId);
-                entity.setExamen(examen);
-                filter.setEntity(entity);
-            }
-        } else {
-            if (currentExamenId != 0) {
-                examen = examenService.findById(currentExamenId);
-                entity.setExamen(examen);
-                filter.setEntity(entity);
-                discipline = examen.getDiscipline();
-                classe = discipline.getClasse();
-                annee = examen.getAnnee();
-                trimestre = examen.getTrimestre();
-                type = examen.getType();
 
-            }
+//        if (has(classe)) {
+//            if (examen.getNoteCollection().size() != classe.getEleveCollection().size()) {
+////                Note notExistent = null;
+//                for (Eleve ce : classe.getEleveCollection()) {
+//                    Eleve e = ce;
+//                    List<Note> notExistent = noteService.listeNoteParExamenEleve(examen, e);
+//                    if (notExistent.isEmpty()) {
+//                        Note note = new Note();
+//                        note.setNote(0.0);
+//                        note.setObservation("A MODIFIER");
+//                        note.setPresence("PRESENT");
+//                        note.setRang(0);
+//                        note.setEleve(ce);
+//                        note.setAnneeAcademique(examen.getAnneeAcademique());
+//                        note.setExamen(examen);
+//                        setEntity(note);
+//                        super.save();
+//                    }
+//                }
+//            }
+//        }
+        arrangerParNote();
+        filter.getEntity().setExamen(examen);
+
+        if (has(discipline) && has(trimestre) && has(type)) {
+            examen = examenService.criteria()
+                    .eq(Examen_.discipline, discipline)
+                    .eq(Examen_.trimestre, trimestre)
+                    .eq(Examen_.type, type)
+                    .getOptionalResult();
         }
-
-        if (has(classe)) {
-            if (examen.getNoteCollection().size() != classe.getEleveCollection().size()) {
-                Optional notExistent = null;
-                for (Eleve e : classe.getEleveCollection()) {
-                    notExistent = examen.getNoteCollection().stream()
-                            .filter(n -> n.getEleve().equals(e))
-                            .findAny();
-                    if (!notExistent.isPresent()) {
-                        Note note = new Note();
-                        note.setNote(0.0);
-                        note.setObservation("A MODIFIER");
-                        note.setPresence("PRESENT");
-                        note.setRang(0);
-                        note.setEleve(e);
-                        note.setExamen(examen);
-                        try {
-                            noteService.insert(note);
-                        } catch (BusinessException ex) {
-                        }
-                    }
-                }
-            }
-            filter.setFirst(0).setPageSize(classe.getEffectifTotal());
-            listeNote = noteService.paginate(filter);
-            arrangerParNote();
-        }
-
     }
 
-    public void findNoteById(Integer id) {
-        if (id == null) {
-            throw new BusinessException("Provide Note ID to load");
+    public void onExamenClick(Examen e) {
+        log.log(Level.INFO, "{0} charg\u00e9 aves succ\u00e8s", e.toString());
+        examen = e;
+        classe = e.getDiscipline().getClasse();
+        trimestre = e.getTrimestre();
+        discipline = e.getDiscipline();
+        type = e.getType();
+        update();
+    }
+
+    @Produces
+    @Named("nombreEleve")
+    public Long nombreEleve() {
+        Long nombre = noteService.nombreEleveParExamen(examen);
+        return nombre;
+    }
+
+    @Produces
+    @Named("nombreElevePresent")
+    public Long nombreElevePresent() {
+        Long nombre = noteService.nombreElevePresentParExamen(examen);
+        return nombre;
+    }
+
+    @Produces
+    @Named("nombreEleveAbsent")
+    public Long nombreEleveAbsent() {
+        Long nombre = noteService.nombreEleveAbsentParExamen(examen);
+        return nombre;
+    }
+
+    @Produces
+    @Named("nombreEleveMalade")
+    public Long nombreEleveMalade() {
+        Long nombre = noteService.nombreEleveMaladeParExamen(examen);
+        return nombre;
+    }
+
+    public void onClasseSelection(SelectEvent event) {
+        log.info(event.getObject().toString());
+    }
+
+    public void arrangerParNote() {
+        Comparator<Note> comp = (o1, o2) -> {
+            return o2.getNote().compareTo(o1.getNote());
+        };
+
+        int i = 0;
+        List<Note> notes = noteService.notesParExamen(examen);
+
+        notes.sort(comp);
+        for (Note n : notes) {
+            n.setRang(++i);
+            noteService.update(n);
         }
-        Note noteFound = noteService.findById(id);
-        if (noteFound == null) {
-            throw new BusinessException(String.format("No note found with id %s", id));
-        }
-        selectionList.add(noteFound);
-        getFilter().addParam("id", id);
+
     }
 
     public void delete() {
@@ -265,24 +237,6 @@ public class NoteBean extends CrudMB<Note> implements Serializable {
         clear();
     }
 
-    public void preProcessPDF(Object document) throws IOException, BadElementException, DocumentException {
-        Document pdf = (Document) document;
-        Rectangle rectangle = new Rectangle(PageSize.A4.getTop(), PageSize.A4.getRight());
-        pdf.setPageSize(rectangle);
-
-        pdf.open();
-        String titre = entity.getExamen().getType() + "-"
-                + entity.getExamen().getDiscipline().getMatiere().getLibelle()
-                + " Trimestre " + entity.getExamen().getTrimestre();
-
-        Phrase phrase = new Phrase(titre);
-        Paragraph paragraph = new Paragraph(phrase);
-        paragraph.setAlignment("center");
-        pdf.add(paragraph);
-        pdf.add(new Paragraph(" "));
-        pdf.addTitle(titre);
-    }
-
     public void supprimer(Note note) {
         setEntity(note);
         remove();
@@ -293,48 +247,10 @@ public class NoteBean extends CrudMB<Note> implements Serializable {
         arrangerParNote();
     }
 
-    public String getSearchCriteria() {
-        StringBuilder sb = new StringBuilder(21);
-
-        Examen examenParam = null;
-        Note noteFilter = filter.getEntity();
-
-        Integer idParam = null;
-        if (filter.hasParam("id")) {
-            idParam = filter.getIntParam("id");
-        }
-
-        if (has(idParam)) {
-            sb.append("<b>id</b>: ").append(idParam).append(", ");
-        }
-
-        if (filter.hasParam("examen")) {
-            examenParam = (Examen) filter.getParam("examen");
-        } else if (has(noteFilter) && noteFilter.getExamen() != null) {
-            examenParam = noteFilter.getExamen();
-        }
-
-        if (has(examenParam)) {
-            sb.append("<b>examen</b>: ").append(examenParam.getDiscipline().getMatiere().getLibelle()).append(", ");
-        }
-
-        int commaIndex = sb.lastIndexOf(",");
-
-        if (commaIndex != -1) {
-            sb.deleteCharAt(commaIndex);
-        }
-
-        if (sb.toString().trim().isEmpty()) {
-            return "No search criteria";
-        }
-
-        return sb.toString();
-    }
-
     @Override
     public void afterRemove() {
         try {
-            addDetailMsg("Note " + entity.getId()
+            addDetailMsg("Note " + entity
                     + " removed successfully");
             clear();
             sessionFilter.clear(NoteBean.class.getName());//removes filter saved in session for CarListMB.
@@ -345,30 +261,18 @@ public class NoteBean extends CrudMB<Note> implements Serializable {
 
     @Override
     public void afterInsert() {
-        addDetailMsg("Note " + entity.getId() + " created successfully");
+        addDetailMsg("Note " + entity + " ajouté ");
     }
 
     @Override
     public void afterUpdate() {
-        addDetailMsg("Note " + entity.getId() + " a été mise à jour.");
+        addDetailMsg("Note " + entity + " a été mise à jour.");
     }
 
     public void onRowEdited(RowEditEvent event) {
         Note note = (Note) event.getObject();
         System.out.println("Note : " + note.getId());
         noteService.update(note);
-    }
-
-    public int getCurrentExamenId() {
-        return currentExamenId;
-    }
-
-    public void setCurrentExamenId(int currentExamenId) {
-        this.currentExamenId = currentExamenId;
-    }
-
-    public List<Note> getListeNote() {
-        return listeNote;
     }
 
     public Examen getExamen() {
@@ -395,20 +299,12 @@ public class NoteBean extends CrudMB<Note> implements Serializable {
         this.classe = classe;
     }
 
-    public List<Examen> getExamenClasse() {
-        return examenClasse;
+    public AnneeAcademique getAnneeAcademique() {
+        return anneeAcademique;
     }
 
-    public void setExamenClasse(List<Examen> examenClasse) {
-        this.examenClasse = examenClasse;
-    }
-
-    public Integer getAnnee() {
-        return annee;
-    }
-
-    public void setAnnee(Integer annee) {
-        this.annee = annee;
+    public void setAnneeAcademique(AnneeAcademique anneeAcademique) {
+        this.anneeAcademique = anneeAcademique;
     }
 
     public Discipline getDiscipline() {
@@ -427,12 +323,32 @@ public class NoteBean extends CrudMB<Note> implements Serializable {
         this.type = type;
     }
 
-    public List<Examen> getListExamen() {
-        return listExamen;
+    public String getDate() {
+        return date;
     }
 
-    public void setListExamen(List<Examen> listExamen) {
-        this.listExamen = listExamen;
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public Collection<Eleve> listEleveParClasse() {
+        return entity.getExamen().getDiscipline().getClasse().getEleveCollection();
+    }
+
+    public int nbrNoteParExamen(Examen examen) {
+        return noteService.notesParExamen(examen).size();
+    }
+
+    public void findExamen(int examenId) {
+        examen = examenService.findById(examenId);
+    }
+
+    public Matiere getMatiere() {
+        return matiere;
+    }
+
+    public void setMatiere(Matiere matiere) {
+        this.matiere = matiere;
     }
 
 }

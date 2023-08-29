@@ -6,10 +6,15 @@ package com.github.adminfaces.starter.service;
 
 import com.github.adminfaces.persistence.model.Filter;
 import com.github.adminfaces.persistence.service.CrudService;
+import com.github.adminfaces.starter.model.AnneeAcademique;
 import com.github.adminfaces.starter.model.Bulletin;
 import com.github.adminfaces.starter.model.Bulletin_;
+import com.github.adminfaces.starter.model.Classe;
 import com.github.adminfaces.starter.model.Discipline;
+import com.github.adminfaces.starter.model.Discipline_;
 import com.github.adminfaces.starter.model.Eleve;
+import com.github.adminfaces.starter.model.Eleve_;
+import com.github.adminfaces.starter.model.Matiere;
 import com.github.adminfaces.template.exception.BusinessException;
 import org.apache.deltaspike.data.api.criteria.Criteria;
 
@@ -18,7 +23,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import static com.github.adminfaces.template.util.Assert.has;
-import java.util.Optional;
+import javax.inject.Inject;
+import org.apache.deltaspike.data.impl.criteria.QueryCriteria;
 
 /**
  * @author rmpestano
@@ -26,15 +32,41 @@ import java.util.Optional;
 @Stateless
 public class BulletinService extends CrudService<Bulletin, Integer> implements Serializable {
 
+    @Inject
+    EleveRepository eleveRepository;
+
     @Override
     protected Criteria<Bulletin, Bulletin> configRestrictions(Filter<Bulletin> filter) {
 
-        Criteria<Bulletin, Bulletin> criteria = criteria();
-
+        Criteria<Bulletin, Bulletin> bulletinCriteria = criteria();
+        Criteria<Discipline, Discipline> disciplineCriteria = new QueryCriteria(Discipline.class, Discipline.class, entityManager);
+        Criteria<Eleve, Eleve> eleveCriteria = new QueryCriteria(Eleve.class, Eleve.class, entityManager);
         //create restrictions based on parameters map
-//        if (filter.hasParam("id")) {
-//            criteria.eq(Bulletin_.id, filter.getIntParam("id"));
-//        }
+        if (filter.hasParam("anneeAcademique")) {
+            bulletinCriteria.eq(Bulletin_.anneeAcademique, filter.getParam("anneeAcademique", AnneeAcademique.class));
+        }
+        if (filter.hasParam("anneeAcademique")) {
+            bulletinCriteria.eq(Bulletin_.discipline, filter.getParam("discipline", Discipline.class));
+        }
+        if (filter.hasParam("trimestre")) {
+            bulletinCriteria.eq(Bulletin_.trimestre, filter.getIntParam("trimestre"));
+        }
+
+        if (filter.hasParam("discipline.classe") || filter.hasParam("discipline.matiere")) {
+            if (filter.hasParam("classe")) {
+                disciplineCriteria.eq(Discipline_.classe, filter.getParam("discipline.classe", Classe.class));
+            }
+            if (filter.hasParam("matiere")) {
+                disciplineCriteria.eq(Discipline_.matiere, filter.getParam("discipline.matiere", Matiere.class));
+            }
+            bulletinCriteria.join(Bulletin_.discipline, disciplineCriteria);
+        }
+
+        if (filter.hasParam("eleve")) {
+            eleveCriteria.likeIgnoreCase(Eleve_.nom, filter.getStringParam("eleve"));
+            eleveCriteria.likeIgnoreCase(Eleve_.prenom, filter.getStringParam("eleve"));
+            bulletinCriteria.join(Bulletin_.eleve, eleveCriteria);
+        }
 //
 //        if (filter.hasParam("minPrice") && filter.hasParam("maxPrice")) {
 //            criteria.between(Bulletin_.price, filter.getDoubleParam("minPrice"), filter.getDoubleParam("maxPrice"));
@@ -59,7 +91,7 @@ public class BulletinService extends CrudService<Bulletin, Integer> implements S
 //                criteria.likeIgnoreCase(Bulletin_.name, "%" + filterEntity.getName() + "%");
 //            }
 //        }
-        return criteria;
+        return bulletinCriteria;
     }
 
     @Override
@@ -103,23 +135,40 @@ public class BulletinService extends CrudService<Bulletin, Integer> implements S
                 .getResultList();
     }
 
-    public List<Bulletin> bulletinParEleveEtClasse(Eleve eleve, Integer trimestre, Integer annee) {
+    public List<Bulletin> bulletinsParEleveEtTrimestre(Eleve eleve, Integer trimestre/*, AnneeAcademique annee*/) {
         return criteria()
                 .eq(Bulletin_.eleve, eleve)
                 .eq(Bulletin_.trimestre, trimestre)
-                .eq(Bulletin_.annee, annee)
-                .orderAsc(Bulletin_.eleve)
+                //                .eq(Bulletin_.anneeAcademique, annee)
+                .orderAsc(Bulletin_.discipline)
                 .getResultList();
     }
-    
-    public Bulletin exists(Eleve eleve, Integer trimestre, Integer annee,Discipline discipline) {
-        Bulletin bulletin = criteria()
+
+    public List<Bulletin> bulletinsAyantEleveSupprime() {
+        return eleveRepository.bulletinsAyantEleveSupprime();
+    }
+
+    public List<Bulletin> liste() {
+        return criteria().getResultList();
+    }
+
+    public List<Bulletin> exists(Eleve eleve, Integer trimestre, Discipline discipline) {
+        List<Bulletin> bulletin = criteria()
                 .eq(Bulletin_.eleve, eleve)
                 .eq(Bulletin_.trimestre, trimestre)
-                .eq(Bulletin_.annee, annee)
+                //                .eq(Bulletin_.anneeAcademique, annee)
                 .eq(Bulletin_.discipline, discipline)
-                .getOptionalResult();
-        return bulletin ;
+                .getResultList();
+        return bulletin;
+    }
+
+    public List<Bulletin> bulletinParEleveEtClasse(Eleve eleve, Integer trimestre, AnneeAcademique annee) {
+        return criteria()
+                .eq(Bulletin_.eleve, eleve)
+                .eq(Bulletin_.trimestre, trimestre)
+                .eq(Bulletin_.anneeAcademique, annee)
+                .orderAsc(Bulletin_.eleve)
+                .getResultList();
     }
 
 }

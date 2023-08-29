@@ -18,6 +18,10 @@
                 background-color: lightgrey;
             }
 
+            .ui-progressbar .ui-progressbar-label {
+                color: red!important;
+            }
+
             #footer:hover {
                 opacity: .7;
             }
@@ -46,7 +50,7 @@
         <h:form id="form" prependId="false">
             <p:focus context="@form"/>
             <p:panel id="panel" styleClass="box-primary card">
-                <p:panelGrid columns="4" columnClasses="ui-grid-col-4,ui-grid-col-4,ui-grid-col-4,ui-grid-col-4"
+                <p:panelGrid columns="3" columnClasses="ui-grid-col-4,ui-grid-col-4,ui-grid-col-4"
                              layout="grid" styleClass="ui-fluid card">
                     <f:facet name="header">
                         Selectionner la classe, la matière, le trimestre et l'année
@@ -54,16 +58,15 @@
                     <p:outputLabel value="Classe" for="classe"/>
                     <p:outputLabel value="Matière" for="matiere"/>
                     <p:outputLabel for="trim" value="Trimestre "/>
-                    <p:outputLabel for="annee" value="Annee "/>
                     <p:autoComplete id="classe" converter="#{classeConverter}" var="c" itemLabel="#{c.libelle}" itemValue="#{c}" value="#{releveBean.classe}" forceSelection="true"
-                                    minQueryLength="2" queryDelay="500" dropdown="true"
-                                    completeMethod="#{classeBean.findByLibelle}" scrollHeight="200"
+                                    minQueryLength="2" queryDelay="500" dropdown="true" groupBy="#{c.niveau}"
+                                    completeMethod="#{classeBean.autoCompletion}" scrollHeight="200"
                                     requiredMessage="le Champ classe est requis."
                                     required="true" label="La classe"/>
 
                     <p:autoComplete id="matiere" converter="#{matiereConverter}" var="m" itemLabel="#{m.libelle}" itemValue="#{m}" value="#{releveBean.matiere}" forceSelection="true"
-                                    minQueryLength="2" queryDelay="500" dropdown="true" 
-                                    completeMethod="#{matiereBean.findByLibelle}" scrollHeight="200"
+                                    minQueryLength="2" queryDelay="500" dropdown="true"  groupBy="#{m.specialite}"
+                                    completeMethod="#{matiereBean.autoCompletion}" scrollHeight="200"
                                     requiredMessage="Le champ matière est requis."
                                     required="true" label="La matière"/>
 
@@ -71,85 +74,86 @@
                         <f:selectItem itemLabel="1er Trimestre" itemValue="1"/>
                         <f:selectItem itemLabel="2ème Trimestre" itemValue="2"/>
                         <f:selectItem itemLabel="3ème Trimestre" itemValue="3"/>
-                        <f:selectItem itemLabel="4ème Trimestre" itemValue="4"/>
                     </p:selectOneMenu>
-                    
-                    <p:spinner id="annee" value="#{releveBean.annee}" class="align-left" required="true" 
-                               requiredMessage="Année est obligatoire"  min="2020" max="2030"/>
 
                     <p:separator/>
-                    <p:column colspan="2">
-                        <p:commandButton value="Calculer" action="#{releveBean.genererReleveParMatiere()}"
-                                         update="@form" icon="fa fa-check" styleClass="btn-primary"/>
+                    <p:commandButton value="Calculer" action="#{releveBean.calculerReleveParClasseEtMatiereEtTrimestre()}"
+                                     widgetVar="import" update="@form growl" icon="fa fa-check" styleClass="btn-primary"/>
+                    <p:separator/>
+                    <p:growl id="growl" for="import" showDetail="true"/>
+                </p:panelGrid>
+
+                <p:separator rendered="#{not empty releveBean.bulletinsParDisciplineTrimestreOrdreEleve}"/> 
+
+                <p:dataTable widgetVar="bullTable" var="b" value="#{releveBean.bulletinsParDisciplineTrimestreOrdreEleve}" reflow="true"
+                             paginator="true" rows="20" rowIndexVar="x" sortBy="#{b.eleve}" sortOrder="ascending"
+                             paginatorTemplate="{Titre} {CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown} {Exporters}"
+                             sortMode="single" currentPageReportTemplate="[ {startRecord} à {endRecord} de {totalRecords}]"
+                             rowsPerPageTemplate="10,15,20,30,50" rendered="#{not empty releveBean.bulletinsParDisciplineTrimestreOrdreEleve}">
+
+                    <f:facet name="Titre" >
+                        <h:outputLabel value="Releve de note du #{releveBean.trimestre}#{releveBean.trimestre>1?'eme':'er'} trimestre #{releveBean.classe.anneeAcademique} de  #{releveBean.classe.code} "/>
+                    </f:facet>
+                    <f:facet name="header" >
+                        <p:commandButton action="#{releveBean.exportRelevePDF()}" ajax="false" icon="fa fa-fw fa-file-pdf-o" value="Exporter en PDF" styleClass="btn-danger"/>
+                    </f:facet>
+                    <p:column headerText="N°" width="5%" styleClass="align-center">
+                        #{x+1}
                     </p:column>
-                    <p:separator/>
-                </p:panelGrid>
-
-                <p:separator rendered="#{not empty releveBean.releveParMatiere}"/>
-
-                <p:panelGrid columns="1" columnClasses="ui-grid-col-12"
-                             layout="grid" styleClass="ui-fluid card">
-                    <p:dataTable widgetVar="bullTable" var="b" value="#{releveBean.releveParMatiere}" reflow="true"
-                                 paginator="true" rows="30" rowIndexVar="x" sortField="eleve" sortOrder="ascending"
-                                 sortMode="single" currentPageReportTemplate="[ {startRecord} à {endRecord} de {totalRecords} ]"
-                                 rendered="#{not empty releveBean.releveParMatiere}">
-
-                        <f:facet name="header" >
-                            Relevé de note du trimestre #{releveBean.trimestre}
-                        </f:facet>
-                        <p:column headerText="N°" width="5%" styleClass="align-center">
-                            #{x+1}
-                        </p:column>
-                        <p:column headerText="Nom et prenom" sortBy="#{b.eleve}" width="20%">
-                            #{b.eleve}
-                        </p:column>
-                        <p:column headerText="INTERRO 1" styleClass="align-center">
-                            <h:outputText value="#{b.interro1}">
-                                <f:convertNumber maxFractionDigits="2" locale="fr"/>
-                            </h:outputText>
-                        </p:column>
-                        <p:column headerText="INTERRO 2" styleClass="align-center">
-                            <h:outputText value="#{b.interro2}">
-                                <f:convertNumber maxFractionDigits="2" locale="fr"/>
-                            </h:outputText>
-                        </p:column>
-                        <p:column headerText="MOY. INTERRO" styleClass="align-center">
-                            <h:outputText value="#{b.moyInterro}">
-                                <f:convertNumber maxFractionDigits="4" locale="fr"/>
-                            </h:outputText>
-                        </p:column>
-                        <p:column headerText="EVAL." sortBy="#{b.evaluation}" styleClass="align-center">
-                            <h:outputText value="#{b.evaluation}">
-                                <f:convertNumber maxFractionDigits="2" locale="fr"/>
-                            </h:outputText>
-                        </p:column>
-                        <p:column headerText="MOY. CLASSE" styleClass="align-center">
-                            <h:outputText value="#{b.moyClasse}">
-                                <f:convertNumber maxFractionDigits="4" locale="fr"/>
-                            </h:outputText>
-                        </p:column>
-                        <p:column headerText="COMP" sortBy="#{b.composition}" styleClass="align-center">
-                            <h:outputText value="#{b.composition}">
-                                <f:convertNumber maxFractionDigits="2" locale="fr"/>
-                            </h:outputText>
-                        </p:column>
-                        <p:column headerText="MOY. TRIMESTRE" styleClass="align-center">
-                            <h:outputText value="#{b.moyTrimestre}">
-                                <f:convertNumber maxFractionDigits="4" locale="fr"/>
-                            </h:outputText>
-                        </p:column>
-                        <p:column headerText="Coef." width="5%" styleClass="align-center">
-                            <h:outputText value="#{b.coef}">
-                                <f:convertNumber maxFractionDigits="4" locale="fr"/>
-                            </h:outputText>
-                        </p:column>
-                        <p:column headerText="MOY. TRIM. x Coef." sortBy="#{b.moyTrimestreCoef}"  styleClass="align-center">
-                            <h:outputText value="#{b.moyTrimestreCoef}">
-                                <f:convertNumber maxFractionDigits="2" locale="fr"/>
-                            </h:outputText>
-                        </p:column>
-                    </p:dataTable>
-                </p:panelGrid>
+                    <p:column headerText="Nom et prenom" sortBy="#{b.eleve}" width="20%">
+                        #{b.eleve}
+                    </p:column>
+                    <p:column headerText="Interro 1" sortBy="#{b.interro1}" styleClass="align-center">
+                        <h:outputText value="#{b.interro1}">
+                            <f:convertNumber maxFractionDigits="2" locale="fr"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Interro 2" sortBy="#{b.interro2}" styleClass="align-center">
+                        <h:outputText value="#{b.interro2}">
+                            <f:convertNumber maxFractionDigits="2" locale="fr"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="MOY. INTERRO" sortBy="#{b.moyInterro}" styleClass="align-center">
+                        <h:outputText value="#{b.moyInterro}">
+                            <f:convertNumber maxFractionDigits="4" locale="fr"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="EVAL." sortBy="#{b.evaluation}" styleClass="align-center">
+                        <h:outputText value="#{not empty b.evaluation ? b.evaluation:'MALADE'}">
+                            <f:convertNumber maxFractionDigits="2" locale="fr"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="MOY. CLASSE" sortBy="#{b.moyClasse}" styleClass="align-center">
+                        <h:outputText value="#{b.moyClasse}">
+                            <f:convertNumber maxFractionDigits="4" locale="fr"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="COMP" sortBy="#{b.composition}" styleClass="align-center">
+                        <h:outputText value="#{not empty b.composition ? b.composition:'MALADE'}">
+                            <f:convertNumber maxFractionDigits="2" locale="fr"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="MOY. TRIMESTRE" sortBy="#{b.moyTrimestre}" styleClass="align-center">
+                        <h:outputText value="#{b.moyTrimestre}" >
+                            <f:convertNumber maxFractionDigits="4" locale="fr"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Coef." width="5%" styleClass="align-center">
+                        <h:outputText value="#{b.coef}">
+                            <f:convertNumber maxFractionDigits="4" locale="fr"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="MOY. TRIM. x Coef." sortBy="#{b.moyTrimestreCoef}"  styleClass="align-center">
+                        <h:outputText value="#{b.moyTrimestreCoef}">
+                            <f:convertNumber maxFractionDigits="2" locale="fr"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Rang/Moy. Trim" width="5%" sortBy="#{b.rang}"  styleClass="align-center">
+                        <h:outputText value="#{b.rang}">
+                            <f:convertNumber maxFractionDigits="2" locale="fr"/>
+                        </h:outputText>
+                    </p:column>
+                </p:dataTable>
             </p:panel>
 
             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger box-solid">

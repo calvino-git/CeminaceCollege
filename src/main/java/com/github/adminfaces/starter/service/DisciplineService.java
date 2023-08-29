@@ -6,11 +6,13 @@ package com.github.adminfaces.starter.service;
 
 import com.github.adminfaces.persistence.model.Filter;
 import com.github.adminfaces.persistence.service.CrudService;
+import com.github.adminfaces.starter.model.AnneeAcademique;
 import com.github.adminfaces.starter.model.Classe;
 import com.github.adminfaces.starter.model.Discipline;
 import com.github.adminfaces.starter.model.Discipline_;
 import com.github.adminfaces.starter.model.Matiere;
 import com.github.adminfaces.template.exception.BusinessException;
+import static com.github.adminfaces.template.util.Assert.has;
 import org.apache.deltaspike.data.api.criteria.Criteria;
 
 import javax.ejb.Stateless;
@@ -18,13 +20,8 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.List;
 
-import static com.github.adminfaces.template.util.Assert.has;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-/**
- * @author rmpestano
- */
 @Stateless
 public class DisciplineService extends CrudService<Discipline, Integer> implements Serializable {
 
@@ -32,7 +29,25 @@ public class DisciplineService extends CrudService<Discipline, Integer> implemen
     protected DisciplineRepository repo;//you can create repositories to extract complex queries from your service
 
     @Override
+    protected Criteria<Discipline, Discipline> configRestrictions(Filter<Discipline> filter) {
+        Criteria<Discipline, Discipline> criteria = criteria();
+        if (has(filter.getEntity())) {
+            if (filter.getEntity().hasMatiere()) {
+                criteria.eq(Discipline_.matiere, filter.getEntity().getMatiere());
+            }
+            if (filter.getEntity().hasClasse()) {
+                criteria.eq(Discipline_.classe, filter.getEntity().getClasse());
+            }
+            if (has(filter.getEntity().getAnneeAcademique())) {
+                criteria.eq(Discipline_.anneeAcademique, filter.getEntity().getAnneeAcademique());
+            }
+        }
+        return criteria;
+    }
+
+    @Override
     public void beforeInsert(Discipline discipline) {
+        discipline.setAnneeAcademique(discipline.getClasse().getAnneeAcademique());
         validate(discipline);
     }
 
@@ -44,23 +59,21 @@ public class DisciplineService extends CrudService<Discipline, Integer> implemen
     public void validate(Discipline discipline) {
         BusinessException be = new BusinessException();
         if (!discipline.hasMatiere()) {
-            be.addException(new BusinessException("La matière est obligatoire."));
+            be.addException(new BusinessException("Matière est obligatoire."));
         }
         if (!discipline.hasEnseignant()) {
-            be.addException(new BusinessException("L'enseignant est obligatoire."));
+            be.addException(new BusinessException("Enseignant est obligatoire."));
         }
         if (!discipline.hasClasse()) {
-            be.addException(new BusinessException("La discipline est obligatoire."));
+            be.addException(new BusinessException("Classe est obligatoire."));
         }
         if (count(criteria()
                 .eq(Discipline_.matiere, discipline.getMatiere())
-                .eq(Discipline_.enseignant, discipline.getEnseignant())
                 .eq(Discipline_.classe, discipline.getClasse())
                 .notEq(Discipline_.id, discipline.getId())) > 0) {
 
             be.addException(new BusinessException("La discipline " + discipline.getMatiere().getLibelle()
-                    + " de la classe " + discipline.getClasse().getLibelle() + " enseigné par  "
-                    + discipline.getEnseignant() + "  existe déjà."));
+                    + " de la classe " + discipline.getClasse().getLibelle() + "  existe déjà."));
         }
 
         if (has(be.getExceptionList())) {
@@ -68,21 +81,25 @@ public class DisciplineService extends CrudService<Discipline, Integer> implemen
         }
     }
 
-    public List<Discipline> liste() {
-        return repo.liste();
+    public List<Discipline> liste(AnneeAcademique anneeAcademique) {
+        List<Discipline> list = criteria()
+                .eq(Discipline_.anneeAcademique, anneeAcademique)
+                .distinct()
+                .getResultList();
+        return list;
     }
-    
-    public Optional<Discipline> findByClasseMatiere(Classe classe, Matiere matiere){
+
+    public Optional<Discipline> disciplineParMatiereEtClasse(Classe classe, Matiere matiere) {
         return repo.disciplineParMatiereEtClasse(matiere, classe);
     }
 
-    public List<Discipline> getLibelle(String query) {
-        List<Discipline> list = criteria()
-                .distinct()
-                .getResultList();
-        return list.stream()
-                .filter(d -> d.getClasse().toString().contains(query)
-                || d.getMatiere().toString().contains(query))
-                .collect(Collectors.toList());
+    public List<Discipline> disciplinesParMatiereOuClasse(AnneeAcademique anneeAcademique, String query) {
+        List<Discipline> result = repo.disciplinesParMatiereOuClasse(anneeAcademique, "%" + query + "%");
+        return result;
+    }
+
+    public List<Discipline> disciplinesParClasse(Classe c) {
+        List<Discipline> result = repo.disciplinesParClasse(c);
+        return result;
     }
 }

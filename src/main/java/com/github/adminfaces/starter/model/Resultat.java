@@ -21,9 +21,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  *
  * @author calviniloki
@@ -37,24 +37,25 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Resultat.findByTrimestre", query = "SELECT r FROM Resultat r WHERE r.trimestre = :trimestre"),
     @NamedQuery(name = "Resultat.findByMoyenne", query = "SELECT r FROM Resultat r WHERE r.moyenne = :moyenne"),
     @NamedQuery(name = "Resultat.findByRang", query = "SELECT r FROM Resultat r WHERE r.rang = :rang")})
-public class Resultat extends BaseEntity implements Comparable<Object>,Serializable {
+public class Resultat extends BaseEntity implements Comparable<Object>, Serializable {
 
     @Size(max = 255)
     @Column(name = "observation")
     private String observation;
 
     @Id
-    @GeneratedValue(generator = "generateurResultat")
-    @TableGenerator(name = "generateurResultat", table = "sqlite_sequence",
-            pkColumnName = "name", valueColumnName = "seq",
-            pkColumnValue = "resultat",
-            initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(generator = "generateurResultat")
+//    @TableGenerator(name = "generateurResultat", table = "sqlite_sequence",
+//            pkColumnName = "name", valueColumnName = "seq",
+//            pkColumnValue = "resultat",
+//            initialValue = 1, allocationSize = 1)
     @Basic(optional = false)
     @Column(name = "id")
     private Long id;
     @Column(name = "trimestre")
     private Integer trimestre;
-    @JoinColumn(name = "annee_academique",referencedColumnName = "ID")
+    @JoinColumn(name = "annee_academique", referencedColumnName = "ID")
     @ManyToOne
     private AnneeAcademique anneeAcademique;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
@@ -105,7 +106,7 @@ public class Resultat extends BaseEntity implements Comparable<Object>,Serializa
     }
 
     public Double getMoyenne() {
-        return moyenne;
+        return moyenne == null ? 0.0 : moyenne;
     }
 
     public void setMoyenne(Double moyenne) {
@@ -152,7 +153,7 @@ public class Resultat extends BaseEntity implements Comparable<Object>,Serializa
     public String toString() {
         NumberFormat nf = DecimalFormat.getInstance(Locale.FRANCE);
         nf.setMaximumFractionDigits(2);
-        return "Moyenne: " + nf.format(moyenne) + " Rang : " + rang + (rang==1?"er":"eme");
+        return "Moyenne: " + nf.format(moyenne) + " Rang : " + rang + (rang == 1 ? "er" : "eme");
     }
 
     public Classe getClasse() {

@@ -3,6 +3,7 @@
                 xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui" xmlns:adm="http://github.com/adminfaces"
                 template="#{layoutMB.template}">
+
     <ui:define name="metadata">
         <f:metadata>
             <f:event type="preRenderView" listener="#{eleveBean.initBean}"/>
@@ -51,124 +52,119 @@
             <p:focus context="@form"/>
             <p:panel id="panel" styleClass="box-primary card" header="Gestion d'elèves">
                 <div  class="ui-g ui-fluid">
-                    <div class="ui-sm-6 ui-g-3 ui-g-nopad"> 
-                        <div class="ui-sm-12 ui-g-11">
-                            <p:outputLabel value="Nom" for="nom"/>
+                    <p:fieldset legend="Informations à saisir" class="ui-sm-12 ui-g-4">
+                        <div class="ui-g-12 ui-g-nopad"> 
+                            <div class="ui-sm-12 ui-g-4">
+                                <p:outputLabel value="Noms et prenoms" for="nom"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-8" >
+                                <p:inputText id="nom" value="#{eleveBean.entity.nom}" required="true" requiredMessage="Nom Complet est obligatoire."/>
+                                <span class="help-block"> 
+                                    <p:message for="nom"/> 
+                                </span> 
+                            </div>
                         </div>
-                        <div class="ui-sm-12 ui-g-11" >
-                            <p:inputText id="nom" value="#{eleveBean.entity.nom}" required="true" requiredMessage="Nom est obligatoire."/>
-                            <span class="help-block"> 
-                                <p:message for="nom"/> 
-                            </span> 
+                        <div class="ui-g-12 ui-g-nopad">     
+                            <div class="ui-sm-12 ui-g-4">
+                                <p:outputLabel value="Sexe" for="sexe"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-8" >
+                                <p:selectOneRadio id="sexe" value="#{eleveBean.entity.sexe}" required="true" requiredMessage="Sexe est obligatoire.">
+                                    <f:selectItem itemLabel="Male" itemValue="M"/>
+                                    <f:selectItem itemLabel="Femelle" itemValue="F"/>
+                                </p:selectOneRadio>
+                                <span class="help-block"> 
+                                    <p:message for="sexe" /> 
+                                </span>
+                            </div>
                         </div>
-                    </div>     
-                    <div class="ui-sm-6 ui-g-3 ui-g-nopad">     
-                        <div class="ui-sm-12 ui-g-11">
-                            <p:outputLabel value="Prenom" for="prenom"/>
+                        <div class="ui-g-12 ui-g-nopad">     
+                            <div class="ui-sm-12 ui-g-4">
+                                <p:outputLabel value="Classe" for="classe"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-8" >
+                                <p:autoComplete id="classe" converter="#{classeConverter}" value="#{eleveBean.entity.classe}"
+                                                var="c" itemLabel="#{c.libelle}" itemValue="#{c}" forceSelection="true" scrollHeight="200"
+                                                minQueryLength="2" queryDelay="500" dropdown="true" completeMethod="#{classeBean.autoCompletion}"
+                                                groupBy="#{c.niveau}" requiredMessage="Selectionner la classe" required="true">
+                                </p:autoComplete>
+                                <span class="help-block"> 
+                                    <p:message for="classe" /> 
+                                </span>
+                            </div>
                         </div>
-                        <div class="ui-sm-12 ui-g-11" >
-                            <p:inputText id="prenom" value="#{eleveBean.entity.prenom}" required="true" requiredMessage="Prénom est obligatoire."/>
-                            <span class="help-block"> 
-                                <p:message for="prenom" /> 
-                            </span>
+
+
+                        <div id="main-buttons">
+                            <div class="ui-g-12 ">
+                                <p:commandButton value="Ajouter" action="#{eleveBean.insert}" update="@form"
+                                                 icon="fa fa-plus" styleClass="btn-success"/>
+                            </div>
+                            <div class="ui-g-12 "> 
+                                <p:commandButton value="Mettre à jour" action="#{eleveBean.save}" update="@form" disabled="#{eleveBean.isNew()}"
+                                                 icon="fa fa-save" styleClass="btn-primary"/>
+                            </div>
+                            <div class="ui-g-12 ">
+                                <p:commandButton value="Vider" action="#{eleveBean.clear}" process="@this"
+                                                 icon="fa fa-refresh"
+                                                 update="@form" resetValues="true"/>
+                            </div>
+                            <div class="ui-g-12 ">
+                                <p:commandButton id="del" value="Supprimer" action="#{eleveBean.remove}" process="@this"
+                                                 disabled="#{eleveBean.isNew()}" update="@form" icon="fa fa-trash"
+                                                 styleClass="btn-danger" oncomplete="PF('eleveTable').filter()">
+                                    <p:confirm header="Confirmation" message="Merci de confirmer la suppression." icon="ui-icon-danger"/>
+                                </p:commandButton>
+                            </div>
                         </div>
-                    </div> 
-                    <div class="ui-sm-6 ui-g-3 ui-g-nopad">     
-                        <div class="ui-sm-12 ui-g-11">
-                            <p:outputLabel value="Sexe" for="sexe"/>
-                        </div>
-                        <div class="ui-sm-12 ui-g-11" >
-                            <p:selectOneRadio id="sexe" value="#{eleveBean.entity.sexe}" required="true" requiredMessage="Sexe est obligatoire.">
-                                <f:selectItem itemLabel="Male" itemValue="M"/>
-                                <f:selectItem itemLabel="Femelle" itemValue="F"/>
-                            </p:selectOneRadio>
-                            <span class="help-block"> 
-                                <p:message for="sexe" /> 
-                            </span>
-                        </div>
-                    </div>
-                    <div class="ui-sm-8 ui-g-3 ui-g-nopad">     
-                        <div class="ui-sm-12 ui-g-11">
-                            <p:outputLabel value="Classe" for="classe"/>
-                        </div>
-                        <div class="ui-sm-12 ui-g-11" >
-                            <p:autoComplete id="classe" converter="#{classeConverter}" value="#{eleveBean.entity.classe}"
-                                            var="c" itemLabel="#{c.libelle}" itemValue="#{c}" forceSelection="true" scrollHeight="200"
-                                            minQueryLength="2" queryDelay="500" dropdown="true" completeMethod="#{classeBean.findByLibelle}"
-                                            groupBy="#{c.niveau}" requiredMessage="Selectionner la classe" required="true">
-                            </p:autoComplete>
-                            <span class="help-block"> 
-                                <p:message for="classe" /> 
-                            </span>
-                        </div>
+                    </p:fieldset>
+                    <div class="ui-sm-12 ui-g-8">
+                        <p:dataTable id="eleve" widgetVar="eleveTable" var="e" value="#{eleveBean.list}" rows="10" rowKey="#{e.id}"
+                                     paginator="true" sortMode="single" selectionMode="single" rowIndexVar="x" lazy="true"
+                                     sortBy="#{e.nom}" paginatorPosition="bottom" selection="#{eleveBean.selection}"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
+                                     currentPageReportTemplate="[ {startRecord} à {endRecord} de {totalRecords} ]"
+                                     rowsPerPageTemplate="5,10,15,30,50" emptyMessage="Aucun element">
+
+                            <p:ajax event="rowSelect" listener="#{eleveBean.onRowSelect}" update="@form" />
+
+                            <p:column headerText="N°" width="5%" styleClass="align-center">
+                                #{x+1}
+                            </p:column>
+                            <p:column headerText="Noms et prénoms" width="40%" sortBy="#{e.nom}" filterBy="#{e.nom}">
+                                #{e.nom} #{e.prenom}
+                            </p:column>
+                            <p:column headerText="Sexe" width="10%" sortBy="#{e.sexe}" filterBy="#{e.sexe}" filterMatchMode="exact">
+                                <f:facet name="filter">
+                                    <p:selectOneButton onchange="PF('eleveTable').filter()">
+                                        <f:selectItem itemLabel="M" itemValue="M"/>
+                                        <f:selectItem itemLabel="F" itemValue="F"/>
+                                    </p:selectOneButton>
+                                </f:facet>
+                                #{e.sexe}
+                            </p:column>
+                            <p:column headerText="Classe" sortBy="#{e.classe}" filterBy="#{e.classe}" filterMatchMode="equals">
+                                <f:facet name="filter">
+                                    <p:autoComplete id="classe1" converter="#{classeConverter}" value="#{eleveBean.filter.entity.classe}"
+                                                    var="c" itemLabel="#{c.libelle}" itemValue="#{c}" forceSelection="true" scrollHeight="200"
+                                                    minQueryLength="2" queryDelay="500" dropdown="true" completeMethod="#{classeBean.autoCompletion}"
+                                                    groupBy="#{c.niveau}">
+                                        <p:ajax event="itemSelect" oncomplete="PF('eleveTable').filter()"/>
+                                    </p:autoComplete>
+                                </f:facet>
+                                #{e.classe}
+                            </p:column>
+                            <p:column headerText="Supp." width="10%" class=" align-center">
+                                <p:commandLink action="#{eleveBean.supprimer(e)}" process="@this"
+                                               update="@form" styleClass="fa fa-trash btn-danger">
+                                    <f:setPropertyActionListener value="true"
+                                                                 target="#{facesContext.externalContext.flash.keepMessages}"/>
+                                    <p:confirm header="Confirmation" message="Merci de confirmer la suppression." icon="ui-icon-danger"/>
+                                </p:commandLink>
+                            </p:column>
+                        </p:dataTable>
                     </div>
                 </div>
-
-                <div id="main-buttons" class="ui-g ui-fluid hidden-sm hidden-xs">
-                    <div class="ui-sm-6 ui-g-2 "> 
-                        <p:commandButton value="Mettre à jour" action="#{eleveBean.save}" update="@form"
-                                         icon="fa fa-save" styleClass="btn-primary"/>
-                    </div>
-                    <div class="ui-sm-6 ui-g-2 ">
-                        <p:commandButton value="Ajouter" action="#{eleveBean.insert}" update="@form"
-                                         icon="fa fa-plus" styleClass="btn-primary"/>
-                    </div>
-                    <div class="ui-sm-6 ui-g-2 ">
-                        <p:commandButton value="Vider" action="#{eleveBean.clear}" process="@this"
-                                         icon="fa fa-refresh"
-                                         update="@form" resetValues="true"/>
-                    </div>
-                    <div class="ui-sm-6 ui-g-2 ">
-                        <p:commandButton id="del" value="Supprimer" action="#{eleveBean.remove}" process="@this"
-                                         disabled="#{eleveBean.isNew()}" update="@form" icon="fa fa-trash"
-                                         styleClass="btn-danger" oncomplete="PF('eleveTable').filter()">
-                            <p:confirm header="Confirmation" message="Merci de confirmer la suppression." icon="ui-icon-danger"/>
-                        </p:commandButton>
-                    </div>
-                </div>
-
-                <p:dataTable id="eleve" widgetVar="eleveTable" var="e" value="#{eleveBean.liste}" rows="10" rowKey="#{e.id}"
-                             paginator="true" sortMode="single" selectionMode="single" rowIndexVar="x"
-                             sortBy="#{e.nom}" paginatorPosition="bottom" selection="#{eleveBean.selection}"
-                             paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
-                             currentPageReportTemplate="[ {startRecord} à {endRecord} de {totalRecords} ]"
-                             rowsPerPageTemplate="5,10,15,20,30" emptyMessage="Aucun element">
-
-                    <p:ajax event="rowSelect" listener="#{eleveBean.onRowSelect}" update="@form" />
-
-                    <f:facet name="header">
-                        Liste des élèves
-                    </f:facet>
-                    <p:column headerText="N°" width="5%" styleClass="align-center">
-                        #{x+1}
-                    </p:column>
-                    <p:column headerText="Nom" width="30%" sortBy="#{e.nom}" filterBy="#{e.nom}">
-                        #{e.nom}
-                    </p:column>
-                    <p:column headerText="Prénom" width="30%" sortBy="#{e.prenom}" filterBy="#{e.prenom}">
-                        #{e.prenom}
-                    </p:column>
-                    <p:column headerText="Sexe" width="10%" sortBy="#{e.sexe}" filterBy="#{e.sexe}" filterMatchMode="exact">
-                        <f:facet name="filter">
-                            <p:selectOneButton onchange="PF('eleveTable').filter()">
-                                <f:selectItem itemLabel="M" itemValue="M"/>
-                                <f:selectItem itemLabel="F" itemValue="F"/>
-                            </p:selectOneButton>
-                        </f:facet>
-                        #{e.sexe}
-                    </p:column>
-                    <p:column headerText="Classe" width="30%" sortBy="#{e.classe}" filterBy="#{e.classe}" filterMatchMode="equals">
-                        <f:facet name="filter">
-                            <p:autoComplete id="classe1" converter="#{classeConverter}"
-                                            var="c" itemLabel="#{c.libelle}" itemValue="#{c}" forceSelection="true" scrollHeight="200"
-                                            minQueryLength="2" queryDelay="500" dropdown="true" completeMethod="#{classeBean.findByLibelle}"
-                                            groupBy="#{c.niveau}">
-                                <p:ajax event="itemSelect" oncomplete="PF('eleveTable').filter()"/>
-                            </p:autoComplete>
-                        </f:facet>
-                        #{e.classe}
-                    </p:column>
-                </p:dataTable>
             </p:panel>
 
             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger box-solid">

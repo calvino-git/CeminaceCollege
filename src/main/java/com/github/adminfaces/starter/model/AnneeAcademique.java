@@ -13,13 +13,15 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -28,7 +30,7 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author calviniloki
  */
 @Entity
-@Table(name = "annee_academique")
+@Table(name = "ANNEE_ACADEMIQUE")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "AnneeAcademique.findAll", query = "SELECT a FROM AnneeAcademique a"),
@@ -38,9 +40,9 @@ import javax.xml.bind.annotation.XmlTransient;
 public class AnneeAcademique extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Id
+     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @NotNull
     @Column(name = "ID")
     private Integer id;
     @Basic(optional = false)
@@ -52,13 +54,13 @@ public class AnneeAcademique extends BaseEntity implements Serializable {
     @Column(name = "STATUT")
     private boolean statut;
     
-    @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.LAZY)
     private List<Eleve> eleveList;
-    @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.LAZY)
     private List<Bulletin> bulletinList;
-    @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.LAZY)
     private List<Classe> classeList;
-    @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.LAZY)
     private List<Discipline> disciplineList;
 
     public AnneeAcademique() {

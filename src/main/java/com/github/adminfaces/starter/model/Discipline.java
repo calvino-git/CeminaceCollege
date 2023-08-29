@@ -22,7 +22,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -42,11 +41,13 @@ public class Discipline extends BaseEntity implements Serializable, Comparable{
 
     private static final long serialVersionUID = 1L;
     @Id
-@GeneratedValue(generator = "generateurDiscipline")
-    @TableGenerator(name = "generateurDiscipline", table = "sqlite_sequence",
-            pkColumnName = "name", valueColumnName = "seq",
-            pkColumnValue = "discipline",
-            initialValue = 1, allocationSize = 1)    @Basic(optional = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//@GeneratedValue(generator = "generateurDiscipline")
+//    @TableGenerator(name = "generateurDiscipline", table = "sqlite_sequence",
+//            pkColumnName = "name", valueColumnName = "seq",
+//            pkColumnValue = "discipline",
+//            initialValue = 1, allocationSize = 1)    
+    @Basic(optional = false)
     @Column(name = "ID")
     private Integer id;
     @Basic(optional = false)
@@ -167,7 +168,7 @@ public class Discipline extends BaseEntity implements Serializable, Comparable{
 
     @Override
     public String toString() {
-        return "id=" + id + " " + classe + " " + matiere;
+        return classe.getCode() + " " + matiere.getLibelle();
     }
 
     public boolean hasMatiere() {
@@ -184,7 +185,7 @@ return classe != null && classe.hasCode() && !"".equals(classe.getCode().trim())
 
     @Override
     public int compareTo(Object o) {
-        return this.matiere.compareTo(((Discipline) o).matiere);
+        return this.matiere.getIndex().compareTo(((Discipline) o).matiere.getIndex());
     }
 
 }

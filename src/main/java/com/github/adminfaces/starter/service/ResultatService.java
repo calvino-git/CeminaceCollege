@@ -6,6 +6,7 @@ package com.github.adminfaces.starter.service;
 
 import com.github.adminfaces.persistence.model.Filter;
 import com.github.adminfaces.persistence.service.CrudService;
+import com.github.adminfaces.starter.model.AnneeAcademique;
 import com.github.adminfaces.starter.model.Classe;
 import com.github.adminfaces.starter.model.Resultat;
 import com.github.adminfaces.starter.model.Resultat_;
@@ -18,12 +19,15 @@ import java.io.Serializable;
 import java.util.List;
 
 import static com.github.adminfaces.template.util.Assert.has;
+import javax.inject.Inject;
 
 /**
  * @author rmpestano
  */
 @Stateless
 public class ResultatService extends CrudService<Resultat, Integer> implements Serializable {
+    @Inject
+    EleveRepository eleveRepository;
 
     @Override
     protected Criteria<Resultat, Resultat> configRestrictions(Filter<Resultat> filter) {
@@ -102,22 +106,25 @@ public class ResultatService extends CrudService<Resultat, Integer> implements S
                 .getResultList();
     }
 
-    public List<Resultat> resultatParClasse(Classe classe, Integer trimestre, Integer annee) {
+    public List<Resultat> resultatParClasseEtTrimestre(Classe classe, Integer trimestre) {
         return criteria()
                 .eq(Resultat_.classe, classe)
                 .eq(Resultat_.trimestre, trimestre)
-                .eq(Resultat_.annee, annee)
+//                .eq(Resultat_.anneeAcademique, anneeAcademique)
                 .getResultList();
     }
 
-    public Resultat exists(Classe classe, Integer trimestre, Integer annee, Eleve eleve) {
+    public Resultat exists(Classe classe, Integer trimestre, Eleve eleve) {
         Resultat resultat = criteria()
                 .eq(Resultat_.classe, classe)
                 .eq(Resultat_.trimestre, trimestre)
-                .eq(Resultat_.annee, annee)
                 .eq(Resultat_.eleve, eleve)
                 .getOptionalResult();
         return resultat;
+    }
+
+    public List<Resultat> resultatsAyantEleveSupprime() {
+        return eleveRepository.resultatsAyantEleveSupprime();
     }
 
 }

@@ -7,23 +7,15 @@ package com.github.adminfaces.starter.bean;
 import com.github.adminfaces.persistence.bean.BeanService;
 import com.github.adminfaces.persistence.bean.CrudMB;
 import static com.github.adminfaces.persistence.bean.CrudMB.addDetailMsg;
-import com.github.adminfaces.persistence.service.CrudService;
-import com.github.adminfaces.persistence.service.Service;
 import com.github.adminfaces.starter.model.Matiere;
 import static com.github.adminfaces.persistence.util.Messages.addDetailMessage;
 import com.github.adminfaces.starter.service.MatiereService;
-import com.github.adminfaces.template.exception.BusinessException;
-import static com.github.adminfaces.template.util.Assert.has;
 import org.omnifaces.cdi.ViewScoped;
-import org.omnifaces.util.Faces;
-
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
 import javax.annotation.PostConstruct;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import org.primefaces.event.SelectEvent;
 
@@ -37,13 +29,14 @@ public class MatiereBean extends CrudMB<Matiere> implements Serializable {
 
     @Inject
     MatiereService matiereService;
-    
-    private List<Matiere> listeMatiere;
 
-    
     @PostConstruct
     public void initBean() {
-        listeMatiere = matiereService.liste();
+    }
+
+    public void insert() {
+        entity.setId(null);
+        save();
     }
 
     public List<String> getSpecialite(String query) {
@@ -51,30 +44,10 @@ public class MatiereBean extends CrudMB<Matiere> implements Serializable {
         return result;
     }
 
-    public List<Matiere> findByLibelle(String query){
+    public List<Matiere> autoCompletion(String query) {
         return matiereService.getLibelle(query);
     }
-    public List<Matiere> getListeMatiere() {
-        listeMatiere = matiereService.liste();
-        return listeMatiere;
-    }
-
-    public void setListeMatiere(List<Matiere> listeMatiere) {
-        this.listeMatiere = listeMatiere;
-    }
-
-    public void findMatiereById(Integer id) {
-        if (id == null) {
-            throw new BusinessException("Merci de Matiere ID ");
-        }
-        Matiere matiereFound = matiereService.findById(id);
-        if (matiereFound == null) {
-            throw new BusinessException(String.format("Aucune matiere avec id %s", id));
-        }
-        selectionList.add(matiereFound);
-        getFilter().addParam("id", id);
-    }
-
+    
     public void delete() {
         int numMatiere = 0;
         for (Matiere selectedMatiere : selectionList) {
@@ -85,6 +58,7 @@ public class MatiereBean extends CrudMB<Matiere> implements Serializable {
         addDetailMessage(numMatiere + " matiere supprimée");
         clear();
     }
+
     @Override
     public void afterRemove() {
         try {

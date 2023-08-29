@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <ui:define name="metadata">
+        <ui:param name="renderFormAsterisks" value="true"/>
+        <style type="text/css">
+            .ui-datatable .ui-datatable-header {
+                text-align: left !important;
+            }
+            .ui-cell-editor-input{
+                color: black !important;
+            }
+            .ui-datatable-tablewrapper {
+                background-color: lightgrey;
+            }
+
+            th.ui-filter-column {
+                padding: 5px 2px !important;
+            }
+
+            #footer:hover {
+                opacity: .7;
+            }
+
+            #footer {
+                float: right;
+                font-size: 12px;
+                color: #3c8dbc;
+                font-weight: 500;
+            }
+
+            .ui-datatable-footer {
+                border: none;
+            }
+            .label {
+                width:20%;
+                padding:4px;
+            }
+
+            .value {
+                width:80%;
+                padding:4px;
+            }
+
+            .grid {
+                width:100%;
+            }
+
+            .error {
+                color: red;
+            }
+
+            .outputLabel {
+                font-weight: bold;
+            }
+
+            .grid {
+                width:33%;
+                padding:4px;
+            }
+            .logo {
+                width: 5%;
+            }
+            .detail {
+                width: 85%;
+                padding-left: 25px;
+            }
+        </style>
+    </ui:define>
+    <ui:define name="title">
+        Importation des élèves 
+    </ui:define>
+
+    <ui:define name="body">
+        <adm:breadcrumb title="#{empty examenBean.id ? 'Note' : ((examenBean.findExamenById(examenBean.id)).type).concat(' du ').concat((examenBean.findExamenById(examenBean.id)).mois)}" link="note.xhtml?exam=#{examenBean.id}"/>
+        <h:form id="form">
+            <p:wizard flowListener="#{importBean.onFlowProcess}" nextLabel="Suivant"  backLabel="Retour" style="padding:10px" styleClass="box box-solide box-primary"> 
+                <p:tab id="debut" title="Choisir la classe">
+                    <p:separator/>
+                    <div  class="ui-g ui-fluid">
+                        <div class="ui-sm-6 ui-g-3 ui-g-nopad">     
+                            <div class="ui-sm-12 ui-g-12">
+                                <p:outputLabel value="Année académique" for="anneeAcademique"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-12" >
+                                <p:selectOneMenu id="anneeAcademique" converter="#{anneeConverter}" value="#{importBean.anneeAcademique}" required="true" requiredMessage="Année est obligatoire.">
+                                    <f:selectItems value="#{anneeAcademiqueBean.liste}" var="an" itemLabel="#{an.annee}" itemValue="#{an}"/>
+                                </p:selectOneMenu>
+                                <span class="help-block"> 
+                                    <p:message for="anneeAcademique" /> 
+                                </span>
+                            </div>
+                        </div>
+                        <div class="ui-sm-8 ui-g-3 ui-g-nopad">     
+                            <div class="ui-sm-12 ui-g-11">
+                                <p:outputLabel value="Classe" for="classe"/>
+                            </div>
+                            <div class="ui-sm-12 ui-g-11" >
+                                <p:autoComplete id="classe" converter="#{classeConverter}" value="#{importBean.classe}"
+                                                var="c" itemLabel="#{c.libelle}" itemValue="#{c}" forceSelection="true" scrollHeight="200"
+                                                minQueryLength="2" queryDelay="500" dropdown="true" completeMethod="#{classeBean.autoCompletion}"
+                                                groupBy="#{c.niveau}" requiredMessage="Selectionner la classe" required="true" > 
+                                </p:autoComplete>
+                                <span class="help-block"> 
+                                    <p:message for="classe" /> 
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </p:tab>
+
+                <p:tab id="excel" title="Importer le fichier" >
+                    <p:separator/>
+                    <p:growl id="growl" for="import" showDetail="true"/>
+
+                    <p:fileUpload style="border-width: 0px;padding: 5px" label="Fichier" fileUploadListener="#{importBean.insertData}" skinSimple="true" dragDropSupport="true" auto="true" 
+                                  onstart="showBar()" oncomplete="hideBar();PF('bar1').show()" onerror="PF('bar2').show()" update="@form"
+                                  sizeLimit="1000000000" value="#{importBean.file}" allowTypes="/(\.|\/)(xlsx)$/"
+                                  invalidFileMessage="Fichier incorrect.Choisir un fichier EXCEL au format XLSX.">
+                        <h:outputLabel value="#{importBean.file.fileName}"/>
+                    </p:fileUpload>
+                    <div class="ui-fluid ui-g ui-g-nopad">
+                        <div class="ui-g-4">
+                            <p:selectOneListbox rendered="#{not empty importBean.selectListOfClasse}" label="Selectionner manuellement la classe correspondant à #{importBean.classe.code}" value="#{importBean.selectedClasse}" >
+                                <f:selectItems value="#{importBean.selectListOfClasse}" var="str" itemLabel="#{str}" itemValue="#{str}"/>
+                                <p:ajax event="valueChange" listener="#{importBean.onValueChange}" process="@this" update="@form"/>
+                            </p:selectOneListbox>
+                        </div>
+                        <div class="ui-g-8">
+                            <p:dataList value="#{importBean.eleves}" var="e" rowIndexVar="x" itemType="none" rendered="#{not empty importBean.eleves}" 
+                                        paginator="true" rows="10" rowsPerPageTemplate="5,10,20" pageLinks="5"
+                                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
+                                <f:facet name="header">
+                                    Import de la liste des elèves de la classe <b>#{importBean.classe}</b> au titre de l'année <b>#{importBean.anneeAcademique}</b>
+                                </f:facet>
+                                <h:panelGrid columns="2" border="0" columnClasses="detail,logo"
+                                             style="width:98%;border-bottom: 1px solid #A8A8A8;padding: 25px;border-bottom-color: var(--input-border-color, #A8A8A8);">
+                                    <h:outputText value="#{x+1}. #{e}"/>
+
+                                    <p:commandLink update="@form" title="View Detail">
+                                        <h:outputText styleClass="ui-icon fa fa-search" style="margin:0 auto;" />
+                                        <f:setPropertyActionListener value="#{e}" target="#{dataGridView.selectedCar}" />
+                                    </p:commandLink>
+                                </h:panelGrid>
+                            </p:dataList>
+                        </div>
+                    </div>
+                </p:tab>
+
+                <p:tab id="fin" title="Terminer">
+                    <p:separator/>
+                    <div  class="ui-g ui-fluid">
+                        <div class="ui-sm-12 ui-g-3">
+                            <p:outputLabel id="nom" value="#{importBean.nom}" for="eleve" />
+                        </div>
+                        <p:dataList value="#{importBean.eleves}" var="e" rowIndexVar="x" itemType="none" rendered="#{not empty importBean.eleves}" 
+                                    paginator="true" rows="10" rowsPerPageTemplate="5,10,20" pageLinks="5" widgetVar="listeEleve"
+                                    paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
+                            <f:facet name="header">
+                                Import de la liste des elèves de la classe <b>#{importBean.classe}</b> au titre de l'année <b>#{importBean.anneeAcademique}</b>
+                            </f:facet>
+                            <h:panelGrid columns="2" border="0" columnClasses="detail,logo"
+                                         style="width:98%;border-bottom: 1px solid #A8A8A8;padding: 25px;border-bottom-color: var(--input-border-color, #A8A8A8);">
+                                <h:outputText value="#{x+1}. #{e}"/>
+
+                                <p:commandLink update="@form" title="View Detail">
+                                    <h:outputText styleClass="ui-icon fa fa-search" style="margin:0 auto;" />
+                                    <f:setPropertyActionListener value="#{e}" target="#{dataGridView.selectedCar}" />
+                                </p:commandLink>
+                            </h:panelGrid>
+                        </p:dataList>
+                        <div class="ui-sm-12 ui-g-7 ui-g-nopad">   
+                            <div class="ui-sm-12 ui-g-12" >
+                                <p:progressBar id="eleve" style="height: 2em!important;" widgetVar="pbAjax" ajax="true" value="#{importBean.progress}" labelTemplate="{value}%" styleClass="animated" global="false" interval="500">
+                                    <p:ajax event="complete" listener="#{importBean.onComplete}" update="growl" oncomplete="PF('import').enable()"/>
+                                </p:progressBar>
+                            </div>
+                        </div>
+                        <div class="ui-sm-12 ui-g-2 ui-g-nopad">
+                            <div class="ui-sm-12 ui-g-12" >
+                                <p:commandButton value="Importer" style="height: 2em!important;" onclick="PF('pbAjax').start();PF('import').disable();" actionListener="#{importBean.longRunning}" update="growl" process="@this" widgetVar="import"/>
+                            </div>
+                        </div>
+                    </div>
+                </p:tab>
+            </p:wizard>
+
+        </h:form>
+    </ui:define>
+</ui:composition>

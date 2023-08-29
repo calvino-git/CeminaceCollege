@@ -7,6 +7,7 @@
                 template="#{layoutMB.template}">
     <ui:define name="metadata">
         <f:metadata>
+            <f:event type="preRenderView" listener="#{appDataCollege.update(anneeAcademiqueBean.anneeEnCours)}"/>
         </f:metadata>
         <style type="text/css">
             .progress-group .float-right{
@@ -16,7 +17,8 @@
                 background: #f4f4f4!important;
             }
             .ui-accordion .ui-accordion-content {
-                padding: 0px!important;;
+                padding: 0px!important;
+                ;
             }
         </style>
     </ui:define>
@@ -29,37 +31,44 @@
             <span class="">
                 Ecole CEMINACE
             </span>
+            <span class="">
+                <b>COLLEGE</b>
+            </span>
+        </h2>
+        <h2 class="align-center">
+            <span class="">
+                ANNEE ACADEMIQUE <b>#{anneeAcademiqueBean.anneeEnCours.annee}</b>
+            </span>
         </h2>
     </ui:define>
     <ui:define name="body">
         <div class="container-fluid">
             <div class="row ">
-                <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="col-lg-4 col-md-4 col-sm-12">
                     <!-- small box -->
                     <div class="small-box bg-aqua">
                         <div class="inner container-fluid" style="height: 170px;">
                             <h3 class="row">
-                                <h:outputText style="font-size: 25px" value="#{lists.eleves.size()}">
+                                <h:outputText style="font-size: 25px" value="#{appDataCollege.nombreEleve}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
-                                </h:outputText> <span style="font-size: 25px;">Eleves au COLLEGE</span>
+                                </h:outputText> <span style="font-size: 25px;">Eleves</span>
                             </h3>
                             <h:panelGrid width="70%" border="0" columns="2">
                                 <h:outputText style="font-size: 20px;" value="Garcon   "/>
-                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{lists.nombreEleveM}">
+                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{appDataCollege.nombreEleveM}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                                 <h:outputText style="font-size: 20px;" value="Fille   "/>
-                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{lists.nombreEleveF}">
+                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{appDataCollege.nombreEleveF}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                             </h:panelGrid>
                         </div>
                         <div class="icon" style="font-size: 80px;">
-                            <i class="fa fa-ship"></i>
-                            <h1 style="text-align: center;font-family: 'Impact';font-size: 45px;margin-top: 0px;margin-bottom: 0px;">2020</h1>
+                            <i class="fa fa-user align-right" ></i>
+                            <h1 style="text-align: right;font-family: 'Impact';font-size: 45px;margin-top: 0px;margin-bottom: 0px;">College</h1>
                         </div>
-                        <h:link class="small-box-footer" value="Détails" outcome="#" >
-                        </h:link>
+                        <a href="#" class="small-box-footer">COLLEGE<i class="fa fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
                 <!-- /.col -->
@@ -69,7 +78,7 @@
                             <h3 class="row" >
                                 <h:outputText style="font-size: 25px" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
-                                </h:outputText> <span style="font-size: 25px"> Eleves en 6EME</span>
+                                </h:outputText> <span style="font-size: 25px"> Eleves</span>
                             </h3>
                             <h:panelGrid width="70%" border="0" columns="2">
                                 <h:outputText style="font-size: 20px;" value="Garcon"/>
@@ -84,10 +93,10 @@
 
                         </div>
                         <div class="icon" style="font-size: 80px;">
-                            <i class="fa fa-cubes"></i>
-                            <h1 style="text-align: center;font-family: 'Impact';font-size: 45px;margin-top: 0px;margin-bottom: 0px;">2020</h1>
+                            <i class="fa fa-user align-right" ></i>
+                            <h1 style="text-align: right;font-family: 'Impact';font-size: 45px;margin-top: 0px;margin-bottom: 0px;">6e</h1>
                         </div>
-                        <a href="#" class="small-box-footer">Détails <i class="fa fa-arrow-circle-right"></i></a>
+                        <a href="#" class="small-box-footer">6EME<i class="fa fa-arrow-circle-right"></i></a>
                     </div>
                     <!-- /.info-box -->
                 </div>
@@ -102,7 +111,7 @@
                             <h3 class="row" >
                                 <h:outputText style="font-size: 25px" value="#{nombreEleveCinquieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
-                                </h:outputText> <span style="font-size: 25px">Eleves en 5EME</span>
+                                </h:outputText> <span style="font-size: 25px">Eleves</span>
                             </h3>
                             <h:panelGrid width="70%" border="0" columns="2">
                                 <h:outputText style="font-size: 20px;" value="Garcon"/>
@@ -117,10 +126,10 @@
 
                         </div>
                         <div class="icon" style="font-size: 80px;">
-                            <i class="fa fa-fw fa-balance-scale"></i>
-                            <h1 style="text-align: center;font-family: 'Impact';font-size: 45px;margin-top: 0px;margin-bottom: 0px;">2020</h1>
+                            <i class="fa fa-user align-right" ></i>
+                            <h1 style="text-align: right;font-family: 'Impact';font-size: 45px;margin-top: 0px;margin-bottom: 0px;">5e</h1>
                         </div>
-                        <a href="#" class="small-box-footer">Détails <i class="fa fa-arrow-circle-right"></i></a>
+                        <a href="#" class="small-box-footer">5EME <i class="fa fa-arrow-circle-right"></i></a>
                     </div>
                     <!-- /.info-box -->
                 </div>
@@ -131,7 +140,7 @@
                             <h3 class="row" >
                                 <h:outputText style="font-size: 25px" value="#{nombreEleveQuatrieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
-                                </h:outputText> <span style="font-size: 25px">Eleve en 4EME</span>
+                                </h:outputText> <span style="font-size: 25px">Eleves</span>
                             </h3>
                             <h:panelGrid width="70%" border="0" columns="2">
                                 <h:outputText style="font-size: 20px;" value="Garcon"/>
@@ -147,10 +156,10 @@
                         </div>
 
                         <div class="icon" style="font-size: 80px;">
-                            <i class="fa fa-money" ></i>
-                            <h1 style="text-align: center;font-family: 'Impact';font-size: 45px;margin-top: 0px;margin-bottom: 0px;">2020</h1>
+                            <i class="fa fa-user align-right" ></i>
+                            <h1 style="text-align: right;font-family: 'Impact';font-size: 45px;margin-top: 0px;margin-bottom: 0px;">4e</h1>
                         </div>
-                        <a href="#" class="small-box-footer">Détails <i class="fa fa-arrow-circle-right"></i></a>
+                        <a href="#" class="small-box-footer">4EME<i class="fa fa-arrow-circle-right"></i></a>
                     </div>
                     <!-- /.info-box -->
                 </div>
@@ -160,7 +169,7 @@
                             <h3 class="row" >
                                 <h:outputText style="font-size: 25px" value="#{nombreEleveTroisieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
-                                </h:outputText> <span style="font-size: 25px">Eleve en 3EME</span>
+                                </h:outputText> <span style="font-size: 25px">Eleves</span>
                             </h3>
                             <h:panelGrid width="70%" border="0" columns="2">
                                 <h:outputText style="font-size: 20px;" value="Garcon"/>
@@ -176,10 +185,10 @@
                         </div>
 
                         <div class="icon" style="font-size: 80px;">
-                            <i class="fa fa-money" ></i>
-                            <h1 style="text-align: center;font-family: 'Impact';font-size: 45px;margin-top: 0px;margin-bottom: 0px;">2020</h1>
+                            <i class="fa fa-user align-right" ></i>
+                            <h1 style="text-align: right;font-family: 'Impact';font-size: 45px;margin-top: 0px;margin-bottom: 0px;">3e</h1>
                         </div>
-                        <a href="#" class="small-box-footer">Détails <i class="fa fa-arrow-circle-right"></i></a>
+                        <a href="#" class="small-box-footer">3EME<i class="fa fa-arrow-circle-right"></i></a>
                     </div>
                     <!-- /.info-box -->
                 </div>
@@ -188,4 +197,3 @@
 
     </ui:define>
 </ui:composition>
-

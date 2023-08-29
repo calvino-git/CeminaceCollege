@@ -6,9 +6,7 @@
 package com.github.adminfaces.starter.bean;
 
 import com.github.adminfaces.starter.model.Discipline;
-import com.github.adminfaces.starter.model.Matiere;
 import com.github.adminfaces.starter.service.DisciplineService;
-import com.github.adminfaces.starter.service.MatiereService;
 import java.io.Serializable;
 import java.util.List;
 import javax.enterprise.context.SessionScoped;
@@ -27,14 +25,16 @@ import javax.inject.Named;
 public class DisciplineConverter implements Serializable, Converter {
 
     @Inject
-    private DisciplineService service;
+    private DisciplineService disciplineService;
+    @Inject
+    AnneeAcademiqueBean anneeAcademiqueBean;
 
     @Override
     public Object getAsObject(FacesContext context, UIComponent component, String value) {
-        List<Discipline> discs = service.liste();
-        for (Discipline disc : discs) {
-            if ((disc.getMatiere().getCode() + " " + disc.getClasse().getCode()).equals(value)) {
-                return disc;
+        List<Discipline> disciplines = disciplineService.liste(anneeAcademiqueBean.getAnneeEnCours());
+        for (Discipline d : disciplines) {
+            if (d.toString().equals(value)) {
+                return d;
             }
         }
         return null;
@@ -42,7 +42,6 @@ public class DisciplineConverter implements Serializable, Converter {
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, Object value) {
-        Discipline disc = (Discipline) value;
-        return disc.getMatiere().getCode() + " " + disc.getClasse().getCode();
+        return value != null ? value.toString() : "";
     }
 }
