@@ -114,11 +114,6 @@
                                                  icon="fa fa-save" styleClass="btn-primary"/>
                             </div>
                             <div class="ui-g-12">
-                                <p:commandButton value="Vider" action="#{disciplineBean.clear}" process="@this"
-                                                 icon="fa fa-refresh"
-                                                 update="@form" resetValues="true"/>
-                            </div>
-                            <div class="ui-g-12">
 
                                 <p:commandButton id="del" value="Supprimer" action="#{disciplineBean.remove}" process="@this"
                                                  disabled="#{disciplineBean.isNew()}" update="@(form,.ui-datatable)" icon="fa fa-trash"

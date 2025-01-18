@@ -13,6 +13,7 @@ import com.github.adminfaces.starter.model.Examen;
 import com.github.adminfaces.starter.model.Note;
 import com.github.adminfaces.starter.model.RegistreCollege;
 import com.github.adminfaces.starter.model.RegistreLycee;
+
 import javax.ejb.Stateless;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,14 +26,13 @@ import javax.inject.Inject;
 
 @Stateless
 public class UpdateService implements Serializable {
-
     @Inject
     ExamenService examenService;
     private double total;
-    
+
     @Inject
     BulletinService bulletinService;
-    
+
     @Inject
     BssService bssService;
     @Inject
@@ -43,13 +43,13 @@ public class UpdateService implements Serializable {
     BslLyceeService bslLyceeService;
     @Inject
     BscLyceeService bscLyceeService;
-    
+
     private int coef;
-    
+
     private double totalLettre;
     private double totalScience;
     private double totalCulture;
-    
+
     private int p1;
     private int p2;
     private int p3;
@@ -58,99 +58,102 @@ public class UpdateService implements Serializable {
         List<RegistreCollege> registres = new ArrayList<>();
 
         classe.getEleveCollection().forEach(eleve -> {
-            RegistreCollege registre = new RegistreCollege();
-            registre.setEleve(eleve);
-            registre.setAnneeAcademique(classe.getAnneeAcademique());
-            registre.setTrimestre(trimestre);
+            RegistreCollege registreCollege = new RegistreCollege();
+            registreCollege.setEleve(eleve);
+            registreCollege.setAnneeAcademique(classe.getAnneeAcademique());
+            registreCollege.setTrimestre(trimestre);
+            System.out.println("Recherche des bulletins de l'eleve :" + eleve + " [ Trim : " + trimestre + "]");
             List<Bulletin> bulletins = bulletinService.bulletinsParEleveEtTrimestre(eleve, trimestre);
             total = 0.0;
             coef = 0;
-            bulletins.stream().filter(b -> b.getMoyTrimestre() != null).forEach(b -> {
-                if (b.getDiscipline().getMatiere().getCode().equals("ORTH")) {
+            if (!bulletins.isEmpty()) {
+                bulletins.stream().filter(b -> b.getMoyTrimestre() != null).forEach(b -> {
+                    System.out.println(b);
+                    if (b.getDiscipline().getMatiere().getCode().equals("ORTH")) {
+                        registreCollege.setOrthographe(b.getMoyTrimestre());
+                        registreCollege.setOrthographeCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getOrthographe() * registreCollege.getOrthographeCoef();
+                        coef += registreCollege.getOrthographeCoef();
+                    }
+                    if (b.getDiscipline().getMatiere().getCode().equals("EXP.ECR.")) {
+                        registreCollege.setExpressionEcrite(b.getMoyTrimestre());
+                        registreCollege.setExpressionEcriteCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getExpressionEcrite() * registreCollege.getExpressionEcriteCoef();
+                        coef += registreCollege.getExpressionEcriteCoef();
+                    }
+                    if (b.getDiscipline().getMatiere().getCode().equals("ANGLAIS")) {
 
-                    registre.setOrthographe(b.getMoyTrimestre());
-                    registre.setOrthographeCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getOrthographe() * registre.getOrthographeCoef();
-                    coef += registre.getOrthographeCoef();
-                }
-                if (b.getDiscipline().getMatiere().getCode().equals("EXP.ECR.")) {
-                    registre.setExpressionEcrite(b.getMoyTrimestre());
-                    registre.setExpressionEcriteCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getExpressionEcrite() * registre.getExpressionEcriteCoef();
-                    coef += registre.getExpressionEcriteCoef();
-                }
-                if (b.getDiscipline().getMatiere().getCode().equals("ANGLAIS")) {
+                        registreCollege.setAnglais(b.getMoyTrimestre());
+                        registreCollege.setAnglaisCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getAnglais() * registreCollege.getAnglaisCoef();
+                        coef += registreCollege.getAnglaisCoef();
+                    }
+                    if (b.getDiscipline().getMatiere().getCode().equals("ESP")) {
 
-                    registre.setAnglais(b.getMoyTrimestre());
-                    registre.setAnglaisCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getAnglais() * registre.getAnglaisCoef();
-                    coef += registre.getAnglaisCoef();
-                }
-                if (b.getDiscipline().getMatiere().getCode().equals("ESP")) {
+                        registreCollege.setEspagnol(b.getMoyTrimestre());
+                        registreCollege.setEspagnolCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getEspagnol() * registreCollege.getEspagnolCoef();
+                        coef += registreCollege.getEspagnolCoef();
+                    }
+                    if (b.getDiscipline().getMatiere().getCode().equals("IC")) {
+                        registreCollege.setInstructionCivique(b.getMoyTrimestre());
+                        registreCollege.setInstructionCiviqueCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getInstructionCivique() * registreCollege.getInstructionCiviqueCoef();
+                        coef += registreCollege.getInstructionCiviqueCoef();
+                    }
+                    if (b.getDiscipline().getMatiere().getCode().equals("HG")) {
+                        registreCollege.setHistoireGeo(b.getMoyTrimestre());
+                        registreCollege.setHistoireGeoCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getHistoireGeo() * registreCollege.getHistoireGeoCoef();
+                        coef += registreCollege.getHistoireGeoCoef();
+                    }
+                    if (b.getDiscipline().getMatiere().getCode().equals("MATHS")) {
 
-                    registre.setEspagnol(b.getMoyTrimestre());
-                    registre.setEspagnolCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getEspagnol() * registre.getEspagnolCoef();
-                    coef += registre.getEspagnolCoef();
-                }
-                if (b.getDiscipline().getMatiere().getCode().equals("IC")) {
-                    registre.setInstructionCivique(b.getMoyTrimestre());
-                    registre.setInstructionCiviqueCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getInstructionCivique() * registre.getInstructionCiviqueCoef();
-                    coef += registre.getInstructionCiviqueCoef();
-                }
-                if (b.getDiscipline().getMatiere().getCode().equals("HG")) {
-                    registre.setHistoireGeo(b.getMoyTrimestre());
-                    registre.setHistoireGeoCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getHistoireGeo() * registre.getHistoireGeoCoef();
-                    coef += registre.getHistoireGeoCoef();
-                }
-                if (b.getDiscipline().getMatiere().getCode().equals("MATHS")) {
+                        registreCollege.setMaths(b.getMoyTrimestre());
+                        registreCollege.setMathsCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getMaths() * registreCollege.getMathsCoef();
+                        coef += registreCollege.getMathsCoef();
+                    }
+                    if (b.getDiscipline().getMatiere().getCode().equals("PC")) {
 
-                    registre.setMaths(b.getMoyTrimestre());
-                    registre.setMathsCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getMaths() * registre.getMathsCoef();
-                    coef += registre.getMathsCoef();
-                }
-                if (b.getDiscipline().getMatiere().getCode().equals("PC")) {
+                        registreCollege.setPhyChimie(b.getMoyTrimestre());
+                        registreCollege.setPhyChimieCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getPhyChimie() * registreCollege.getPhyChimieCoef();
+                        coef += registreCollege.getPhyChimieCoef();
+                    }
+                    if (b.getDiscipline().getMatiere().getCode().equals("SVT")) {
 
-                    registre.setPhyChimie(b.getMoyTrimestre());
-                    registre.setPhyChimieCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getPhyChimie() * registre.getPhyChimieCoef();
-                    coef += registre.getPhyChimieCoef();
-                }
-                if (b.getDiscipline().getMatiere().getCode().equals("SVT")) {
+                        registreCollege.setSvt(b.getMoyTrimestre());
+                        registreCollege.setSvtCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getSvt() * registreCollege.getSvtCoef();
+                        coef += registreCollege.getSvtCoef();
+                    }
+                    if (b.getDiscipline().getMatiere().getCode().equals("EPS")) {
 
-                    registre.setSvt(b.getMoyTrimestre());
-                    registre.setSvtCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getSvt() * registre.getSvtCoef();
-                    coef += registre.getSvtCoef();
-                }
-                if (b.getDiscipline().getMatiere().getCode().equals("EPS")) {
+                        registreCollege.setEps(b.getMoyTrimestre());
+                        registreCollege.setEpsCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getEps() * registreCollege.getEpsCoef();
+                        coef += registreCollege.getEpsCoef();
+                    }
+                    if (b.getDiscipline().getMatiere().getCode().equals("ART")) {
 
-                    registre.setEps(b.getMoyTrimestre());
-                    registre.setEpsCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getEps() * registre.getEpsCoef();
-                    coef += registre.getEpsCoef();
-                }
-                if (b.getDiscipline().getMatiere().getCode().equals("ART")) {
+                        registreCollege.setArt(b.getMoyTrimestre());
+                        registreCollege.setArtCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getArt() * registreCollege.getArtCoef();
+                        coef += registreCollege.getArtCoef();
+                    }
+                    if (b.getDiscipline().getMatiere().getCode().equals("CON")) {
 
-                    registre.setArt(b.getMoyTrimestre());
-                    registre.setArtCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getArt() * registre.getArtCoef();
-                    coef += registre.getArtCoef();
-                }
-                if (b.getDiscipline().getMatiere().getCode().equals("CON")) {
-
-                    registre.setCon(b.getMoyTrimestre());
-                    registre.setConCoef(b.getDiscipline().getCoefficient());
-                    total += registre.getCon() * registre.getConCoef();
-                    coef += registre.getConCoef();
-                }
-            });
-            registre.setTotal(total);
-            registre.setMoyenne(total / coef);
-            registres.add(registre);
+                        registreCollege.setCon(b.getMoyTrimestre());
+                        registreCollege.setConCoef(b.getDiscipline().getCoefficient());
+                        total += registreCollege.getCon() * registreCollege.getConCoef();
+                        coef += registreCollege.getConCoef();
+                    }
+                });
+            }
+            registreCollege.setTotal(total);
+            registreCollege.setMoyenne(total / coef);
+            registres.add(registreCollege);
         });
         Comparator<RegistreCollege> comp = (o1, o2) -> {
             Double d = o2.getMoyenne() - o1.getMoyenne();
@@ -171,7 +174,9 @@ public class UpdateService implements Serializable {
             r.setRang(++i);
         }
         registres.sort((r1, r2) -> r1.getEleve().compareTo(r2.getEleve()));
+
         return registres;
+
     }
 
     public List<RegistreCollege> updateRegistreCollege(Classe classe, Integer trimestre, String type) {
@@ -189,82 +194,102 @@ public class UpdateService implements Serializable {
                 if (e.getDiscipline().getMatiere().getCode().equals("ORTH")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    registre.setOrthographe(n.get().getNote());
-                    registre.setOrthographeCoef(e.getDiscipline().getCoefficient());
-                    total += registre.getOrthographe() * registre.getOrthographeCoef();
-                    coef += registre.getOrthographeCoef();
+                    if (n.isPresent()) {
+                        registre.setOrthographe(n.get().getNote());
+                        registre.setOrthographeCoef(e.getDiscipline().getCoefficient());
+                        total += registre.getOrthographe() * registre.getOrthographeCoef();
+                        coef += registre.getOrthographeCoef();
+                    }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("ANGLAIS")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    registre.setAnglais(n.get().getNote());
-                    registre.setAnglaisCoef(e.getDiscipline().getCoefficient());
-                    total += registre.getAnglais() * registre.getAnglaisCoef();
-                    coef += registre.getAnglaisCoef();
+                    if (n.isPresent()) {
+                        registre.setAnglais(n.get().getNote());
+                        registre.setAnglaisCoef(e.getDiscipline().getCoefficient());
+                        total += registre.getAnglais() * registre.getAnglaisCoef();
+                        coef += registre.getAnglaisCoef();
+                    }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("ESP")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    registre.setEspagnol(n.get().getNote());
-                    registre.setEspagnolCoef(e.getDiscipline().getCoefficient());
-                    total += registre.getEspagnol() * registre.getEspagnolCoef();
-                    coef += registre.getEspagnolCoef();
+                    if (n.isPresent()) {
+                        registre.setEspagnol(n.get().getNote());
+                        registre.setEspagnolCoef(e.getDiscipline().getCoefficient());
+                        total += registre.getEspagnol() * registre.getEspagnolCoef();
+                        coef += registre.getEspagnolCoef();
+                    }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("EXP.ECR.")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    registre.setExpressionEcrite(n.get().getNote());
-                    registre.setExpressionEcriteCoef(e.getDiscipline().getCoefficient());
-                    total += registre.getExpressionEcrite() * registre.getExpressionEcriteCoef();
-                    coef += registre.getExpressionEcriteCoef();
+                    if (n.isPresent()) {
+                        registre.setExpressionEcrite(n.get().getNote());
+                        registre.setExpressionEcriteCoef(e.getDiscipline().getCoefficient());
+                        total += registre.getExpressionEcrite() * registre.getExpressionEcriteCoef();
+                        coef += registre.getExpressionEcriteCoef();
+                    }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("IC")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    registre.setInstructionCivique(n.get().getNote());
-                    registre.setInstructionCiviqueCoef(e.getDiscipline().getCoefficient());
-                    total += registre.getInstructionCivique() * registre.getInstructionCiviqueCoef();
-                    coef += registre.getInstructionCiviqueCoef();
+                    if (n.isPresent()) {
+                        registre.setInstructionCivique(n.get().getNote());
+                        registre.setInstructionCiviqueCoef(e.getDiscipline().getCoefficient());
+                        total += registre.getInstructionCivique() * registre.getInstructionCiviqueCoef();
+                        coef += registre.getInstructionCiviqueCoef();
+                    }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("HG")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    registre.setHistoireGeo(n.get().getNote());
-                    registre.setHistoireGeoCoef(e.getDiscipline().getCoefficient());
-                    total += registre.getHistoireGeo() * registre.getHistoireGeoCoef();
-                    coef += registre.getHistoireGeoCoef();
+                    if (n.isPresent()) {
+                        registre.setHistoireGeo(n.get().getNote());
+                        registre.setHistoireGeoCoef(e.getDiscipline().getCoefficient());
+                        total += registre.getHistoireGeo() * registre.getHistoireGeoCoef();
+                        coef += registre.getHistoireGeoCoef();
+                    }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("MATHS")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    registre.setMaths(n.get().getNote());
-                    registre.setMathsCoef(e.getDiscipline().getCoefficient());
-                    total += registre.getMaths() * registre.getMathsCoef();
-                    coef += registre.getMathsCoef();
+                    if (n.isPresent()) {
+                        registre.setMaths(n.get().getNote());
+                        registre.setMathsCoef(e.getDiscipline().getCoefficient());
+                        total += registre.getMaths() * registre.getMathsCoef();
+                        coef += registre.getMathsCoef();
+                    }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("PC")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    registre.setPhyChimie(n.get().getNote());
-                    registre.setPhyChimieCoef(e.getDiscipline().getCoefficient());
-                    total += registre.getPhyChimie() * registre.getPhyChimieCoef();
-                    coef += registre.getPhyChimieCoef();
+                    if (n.isPresent()) {
+                        registre.setPhyChimie(n.get().getNote());
+                        registre.setPhyChimieCoef(e.getDiscipline().getCoefficient());
+                        total += registre.getPhyChimie() * registre.getPhyChimieCoef();
+                        coef += registre.getPhyChimieCoef();
+                    }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("SVT")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    registre.setSvt(n.get().getNote());
-                    registre.setSvtCoef(e.getDiscipline().getCoefficient());
-                    total += registre.getSvt() * registre.getSvtCoef();
-                    coef += registre.getSvtCoef();
+                    if (n.isPresent()) {
+                        registre.setSvt(n.get().getNote());
+                        registre.setSvtCoef(e.getDiscipline().getCoefficient());
+                        total += registre.getSvt() * registre.getSvtCoef();
+                        coef += registre.getSvtCoef();
+                    }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("EPS")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    registre.setEps(n.get().getNote());
-                    registre.setEpsCoef(e.getDiscipline().getCoefficient());
-                    total += registre.getEps() * registre.getEpsCoef();
-                    coef += registre.getEpsCoef();
+                    if (n.isPresent()) {
+                        registre.setEps(n.get().getNote());
+                        registre.setEpsCoef(e.getDiscipline().getCoefficient());
+                        total += registre.getEps() * registre.getEpsCoef();
+                        coef += registre.getEpsCoef();
+                    }
                 }
 
 //                if (e.getDiscipline().getMatiere().getCode().equals("ART")) {
@@ -423,7 +448,8 @@ public class UpdateService implements Serializable {
                     bscs.add(bsc);
 
                 }
-            };
+            }
+            ;
 
             Comparator<BilanParSpecialiteLettreCollege> comp1 = (o1, o2) -> {
                 try {
@@ -505,9 +531,8 @@ public class UpdateService implements Serializable {
         Logger.getGlobal().log(Level.WARNING, "Fin de l'operation des bilans : {0} {1}", new Object[]{classe.getCode(), classe.getAnneeAcademique().getAnnee()});
 //        return map;
     }
-    
-    
-    
+
+
     public List<RegistreLycee> updateRegistreLycee(Classe classe, AnneeAcademique annee, Integer trimestre, String type) {
         List<RegistreLycee> registres = new ArrayList<>();
 
@@ -530,11 +555,13 @@ public class UpdateService implements Serializable {
                         if (b.getComposition() != null && type.equals("COMPO")) {
                             registre.setFrancais(b.getComposition());
                             registre.setFrancaisCoef(b.getComposition() * b.getDiscipline().getCoefficient());
-                        };
+                        }
+                        ;
                         if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                             registre.setFrancais(b.getMoyTrimestre());
                             registre.setFrancaisCoef(b.getMoyTrimestreCoef());
-                        };
+                        }
+                        ;
                         if (registre.getFrancaisCoef() != null) {
                             total += registre.getFrancaisCoef();
                         }
@@ -549,11 +576,13 @@ public class UpdateService implements Serializable {
                         if (b.getComposition() != null && type.equals("COMPO")) {
                             registre.setAnglais(b.getComposition());
                             registre.setAnglaisCoef(b.getComposition() * b.getDiscipline().getCoefficient());
-                        };
+                        }
+                        ;
                         if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                             registre.setAnglais(b.getMoyTrimestre());
                             registre.setAnglaisCoef(b.getMoyTrimestreCoef());
-                        };
+                        }
+                        ;
                         if (registre.getAnglaisCoef() != null) {
                             total += registre.getAnglaisCoef();
                         }
@@ -566,11 +595,13 @@ public class UpdateService implements Serializable {
                         if (b.getComposition() != null && type.equals("COMPO")) {
                             registre.setEspagnol(b.getComposition());
                             registre.setEspagnolCoef(b.getComposition() * b.getDiscipline().getCoefficient());
-                        };
+                        }
+                        ;
                         if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                             registre.setEspagnol(b.getMoyTrimestre());
                             registre.setEspagnolCoef(b.getMoyTrimestreCoef());
-                        };
+                        }
+                        ;
                         if (registre.getEspagnolCoef() != null) {
                             total += registre.getEspagnolCoef();
                         }
@@ -583,11 +614,13 @@ public class UpdateService implements Serializable {
                         if (b.getComposition() != null && type.equals("COMPO")) {
                             registre.setPhilo(b.getComposition());
                             registre.setPhiloCoef(b.getComposition() * b.getDiscipline().getCoefficient());
-                        };
+                        }
+                        ;
                         if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                             registre.setPhilo(b.getMoyTrimestre());
                             registre.setPhiloCoef(b.getMoyTrimestreCoef());
-                        };
+                        }
+                        ;
                         if (registre.getPhiloCoef() != null) {
                             total += registre.getPhiloCoef();
                         }
@@ -600,11 +633,13 @@ public class UpdateService implements Serializable {
                         if (b.getComposition() != null && type.equals("COMPO")) {
                             registre.setHistoireGeo(b.getComposition());
                             registre.setHistoireGeoCoef(b.getComposition() * b.getDiscipline().getCoefficient());
-                        };
+                        }
+                        ;
                         if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                             registre.setHistoireGeo(b.getMoyTrimestre());
                             registre.setHistoireGeoCoef(b.getMoyTrimestreCoef());
-                        };
+                        }
+                        ;
                         if (registre.getHistoireGeoCoef() != null) {
                             total += registre.getHistoireGeoCoef();
                         }
@@ -617,11 +652,13 @@ public class UpdateService implements Serializable {
                         if (b.getComposition() != null && type.equals("COMPO")) {
                             registre.setMaths(b.getComposition());
                             registre.setMathsCoef(b.getComposition() * b.getDiscipline().getCoefficient());
-                        };
+                        }
+                        ;
                         if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                             registre.setMaths(b.getMoyTrimestre());
                             registre.setMathsCoef(b.getMoyTrimestreCoef());
-                        };
+                        }
+                        ;
                         if (registre.getMathsCoef() != null) {
                             total += registre.getMathsCoef();
                         }
@@ -634,11 +671,13 @@ public class UpdateService implements Serializable {
                         if (b.getComposition() != null && type.equals("COMPO")) {
                             registre.setPhyChimie(b.getComposition());
                             registre.setPhyChimieCoef(b.getComposition() * b.getDiscipline().getCoefficient());
-                        };
+                        }
+                        ;
                         if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                             registre.setPhyChimie(b.getMoyTrimestre());
                             registre.setPhyChimieCoef(b.getMoyTrimestreCoef());
-                        };
+                        }
+                        ;
                         if (registre.getPhyChimieCoef() != null) {
                             total += registre.getPhyChimieCoef();
                         }
@@ -651,11 +690,13 @@ public class UpdateService implements Serializable {
                         if (b.getComposition() != null && type.equals("COMPO")) {
                             registre.setSvt(b.getComposition());
                             registre.setSvtCoef(b.getComposition() * b.getDiscipline().getCoefficient());
-                        };
+                        }
+                        ;
                         if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                             registre.setSvt(b.getMoyTrimestre());
                             registre.setSvtCoef(b.getMoyTrimestreCoef());
-                        };
+                        }
+                        ;
                         if (registre.getSvtCoef() != null) {
                             total += registre.getSvtCoef();
                         }
@@ -668,11 +709,13 @@ public class UpdateService implements Serializable {
                         if (b.getComposition() != null && type.equals("COMPO")) {
                             registre.setEps(b.getComposition());
                             registre.setEpsCoef(b.getComposition() * b.getDiscipline().getCoefficient());
-                        };
+                        }
+                        ;
                         if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                             registre.setEps(b.getMoyTrimestre());
                             registre.setEpsCoef(b.getMoyTrimestreCoef());
-                        };
+                        }
+                        ;
                         if (registre.getEpsCoef() != null) {
                             total += registre.getEpsCoef();
                         }
@@ -689,7 +732,8 @@ public class UpdateService implements Serializable {
                         if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                             registre.setArt(b.getMoyTrimestre());
                             registre.setArtCoef(b.getMoyTrimestreCoef());
-                        };
+                        }
+                        ;
                         if (registre.getArtCoef() != null) {
                             total += registre.getArtCoef();
                         }
@@ -706,7 +750,8 @@ public class UpdateService implements Serializable {
                         if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                             registre.setCon(b.getMoyTrimestre());
                             registre.setConCoef(b.getMoyTrimestreCoef());
-                        };
+                        }
+                        ;
 
                         if (registre.getConCoef() != null) {
                             total += registre.getConCoef();
@@ -717,10 +762,12 @@ public class UpdateService implements Serializable {
                     }
                     if (b.getComposition() != null && type.equals("COMPO") && !b.getDiscipline().getMatiere().getCode().equals("ART") && !b.getDiscipline().getMatiere().getCode().equals("CON")) {
                         coef += b.getDiscipline().getCoefficient();
-                    };
+                    }
+                    ;
                     if (b.getMoyTrimestre() != null && type.equals("TRIM")) {
                         coef += b.getDiscipline().getCoefficient();
-                    };
+                    }
+                    ;
                 });
                 registre.setTotal(total);
                 registre.setMoyenne(total / coef);
@@ -972,7 +1019,8 @@ public class UpdateService implements Serializable {
                     bscs.add(bsc);
 
                 }
-            };
+            }
+            ;
 
             Comparator<BilanParSpecialiteLettreLycee> comp1 = (o1, o2) -> {
                 try {

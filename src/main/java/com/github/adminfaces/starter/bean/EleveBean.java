@@ -41,7 +41,7 @@ public class EleveBean extends CrudMB<Eleve> implements Serializable {
     public void initBean() {
 //        init();
         filter.getEntity().setAnneeAcademique(anneeAcademiqueBean.getAnneeEnCours());
-//        log.log(Level.INFO, "Nombre d''\u00e9l\u00e8ves : {0}", liste.size());
+        log.log(Level.INFO, "Nombre d''\u00e9l\u00e8ves : {0}",filter.getEntity().getAnneeAcademique() );
     }
 
     public int nbrEleveParClasse(Classe classe) {

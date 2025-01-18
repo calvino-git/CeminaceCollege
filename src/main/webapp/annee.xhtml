@@ -91,9 +91,6 @@
                             <p:spacer width="5"/>
                             <p:commandButton value="Mettre à jour" action="#{anneeAcademiqueBean.save}" update="@form" disabled="#{anneeAcademiqueBean.isNew()}"
                                              icon="fa fa-save" styleClass="btn-primary"/>
-                            <p:spacer width="5"/>
-                            <p:commandButton value="Vider les champs" action="#{anneeAcademiqueBean.clear}" process="@this"
-                                             icon="fa fa-refresh" update="@form" resetValues="true"/>
                         </div>
                     </div>
                     <div class="ui-sm-12 ui-g-8">

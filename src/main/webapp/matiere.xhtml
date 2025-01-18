@@ -122,11 +122,6 @@
                                                  icon="fa fa-save" styleClass="btn-primary"/>
                             </div>
                             <div class="ui-g-12">
-                                <p:commandButton value="Vider" action="#{matiereBean.clear}" process="@this"
-                                                 icon="fa fa-refresh"
-                                                 update="@form" resetValues="true"/>
-                            </div>
-                            <div class="ui-g-12">
 
                                 <p:commandButton id="del" value="Supprimer" action="#{matiereBean.remove}" process="@this"
                                                  disabled="#{matiereBean.isNew()}" update="@(form,.ui-datatable)" icon="fa fa-trash"

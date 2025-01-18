@@ -136,11 +136,6 @@
                                 <p:commandButton value="Mettre à jour" action="#{classeBean.save}" update="@form" disabled="#{classeBean.isNew()}"
                                                  icon="fa fa-save" styleClass="btn-primary"/>
                             </div>
-                            <div class="ui-g-12">
-                                <p:commandButton value="Vider" action="#{classeBean.clear}" process="@this"
-                                                 icon="fa fa-refresh"
-                                                 update="@form" resetValues="true"/>
-                            </div>
                         </div>
                     </div>
                     <div class="ui-sm-12 ui-g-9 ">

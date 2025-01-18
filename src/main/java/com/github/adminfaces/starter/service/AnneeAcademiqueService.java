@@ -38,7 +38,7 @@ public class AnneeAcademiqueService extends CrudService<AnneeAcademique, Integer
     private List<Discipline> disciplines;
 
     public AnneeAcademique anneeEnCours() {
-        return criteria().eq(AnneeAcademique_.statut, true).getSingleResult();
+        return criteria().eq(AnneeAcademique_.statut, true).getOptionalResult();
     }
 
     public List<AnneeAcademique> liste() {

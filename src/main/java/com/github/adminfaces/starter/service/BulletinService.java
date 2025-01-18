@@ -23,7 +23,9 @@ import java.io.Serializable;
 import java.util.List;
 
 import static com.github.adminfaces.template.util.Assert.has;
+
 import javax.inject.Inject;
+
 import org.apache.deltaspike.data.impl.criteria.QueryCriteria;
 
 /**
@@ -34,6 +36,8 @@ public class BulletinService extends CrudService<Bulletin, Integer> implements S
 
     @Inject
     EleveRepository eleveRepository;
+    @Inject
+    DisciplineRepository disciplineRepository;
 
     @Override
     protected Criteria<Bulletin, Bulletin> configRestrictions(Filter<Bulletin> filter) {
@@ -106,23 +110,29 @@ public class BulletinService extends CrudService<Bulletin, Integer> implements S
 
     public void validate(Bulletin bulletin) {
         BusinessException be = new BusinessException();
-//        if (!bulletin.hasModel()) {
-//            be.addException(new BusinessException("Bulletin model cannot be empty"));
-//        }
-//        if (!bulletin.hasName()) {
-//            be.addException(new BusinessException("Bulletin name cannot be empty"));
-//        }
-//
-//        if (!has(bulletin.getPrice())) {
-//            be.addException(new BusinessException("Bulletin price cannot be empty"));
-//        }
-//
-//        if (count(criteria()
-//                .eqIgnoreCase(Bulletin_.name, bulletin.getName())
-//                .notEq(Bulletin_.id, bulletin.getId())) > 0) {
-//
-//            be.addException(new BusinessException("Bulletin name must be unique"));
-//        }
+        if (!has(bulletin.getDiscipline())) {
+            be.addException(new BusinessException("Bulletin Discipline cannot be empty"));
+        }
+        if (!has(bulletin.getAnneeAcademique())) {
+            be.addException(new BusinessException("Bulletin AnneeAcademique cannot be empty"));
+        }
+
+        if (!has(bulletin.getDiscipline().getMatiere())) {
+            be.addException(new BusinessException("Bulletin Discipline Matiere cannot be empty"));
+        }
+        if (!has(bulletin.getDiscipline().getClasse())) {
+            be.addException(new BusinessException("Bulletin Discipline Classe cannot be empty"));
+        }
+
+        if (count(criteria()
+                .eq(Bulletin_.discipline, bulletin.getDiscipline())
+                .eq(Bulletin_.eleve, bulletin.getEleve())
+                .eq(Bulletin_.anneeAcademique, bulletin.getAnneeAcademique())
+                .eq(Bulletin_.trimestre, bulletin.getTrimestre())
+                .notEq(Bulletin_.id, bulletin.getId())) > 0) {
+
+            be.addException(new BusinessException("Bulletin name must be unique"));
+        }
 
         if (has(be.getExceptionList())) {
             throw be;
@@ -146,6 +156,9 @@ public class BulletinService extends CrudService<Bulletin, Integer> implements S
 
     public List<Bulletin> bulletinsAyantEleveSupprime() {
         return eleveRepository.bulletinsAyantEleveSupprime();
+    }
+    public List<Bulletin> bulletinAyantDisciplineOrphelin() {
+        return disciplineRepository.bulletinAyantDisciplineOrphelin();
     }
 
     public List<Bulletin> liste() {

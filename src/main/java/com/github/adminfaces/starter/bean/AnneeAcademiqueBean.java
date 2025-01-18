@@ -10,6 +10,7 @@ import com.github.adminfaces.starter.model.AnneeAcademique;
 import com.github.adminfaces.starter.service.AnneeAcademiqueService;
 import com.github.adminfaces.template.exception.BusinessException;
 
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.List;
@@ -23,7 +24,7 @@ import org.primefaces.event.SelectEvent;
  * @author rmpestano
  */
 @Named
-@ApplicationScoped
+@SessionScoped
 @BeanService(AnneeAcademiqueService.class)//use annotation instead of setter
 public class AnneeAcademiqueBean extends CrudMB<AnneeAcademique> implements Serializable {
 
@@ -37,7 +38,8 @@ public class AnneeAcademiqueBean extends CrudMB<AnneeAcademique> implements Seri
     public void initBean() {
         init();
         anneeEnCours = anneeAcademiqueService.anneeEnCours();
-        log.log(Level.INFO, "Année académique en cours : {0}", anneeEnCours.getAnnee());
+
+        log.log(Level.INFO, "Année académique en cours : {0}", anneeEnCours);
     }
     public void onRowSelect(SelectEvent event) {
         this.entity = this.selection;

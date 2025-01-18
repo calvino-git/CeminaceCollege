@@ -105,11 +105,6 @@
                                                  icon="fa fa-save" styleClass="btn-primary"/>
                             </div>
                             <div class="ui-g-12 ">
-                                <p:commandButton value="Vider" action="#{eleveBean.clear}" process="@this"
-                                                 icon="fa fa-refresh"
-                                                 update="@form" resetValues="true"/>
-                            </div>
-                            <div class="ui-g-12 ">
                                 <p:commandButton id="del" value="Supprimer" action="#{eleveBean.remove}" process="@this"
                                                  disabled="#{eleveBean.isNew()}" update="@form" icon="fa fa-trash"
                                                  styleClass="btn-danger" oncomplete="PF('eleveTable').filter()">

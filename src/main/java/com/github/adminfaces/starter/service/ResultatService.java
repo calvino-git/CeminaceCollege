@@ -6,7 +6,6 @@ package com.github.adminfaces.starter.service;
 
 import com.github.adminfaces.persistence.model.Filter;
 import com.github.adminfaces.persistence.service.CrudService;
-import com.github.adminfaces.starter.model.AnneeAcademique;
 import com.github.adminfaces.starter.model.Classe;
 import com.github.adminfaces.starter.model.Resultat;
 import com.github.adminfaces.starter.model.Resultat_;
@@ -28,6 +27,8 @@ import javax.inject.Inject;
 public class ResultatService extends CrudService<Resultat, Integer> implements Serializable {
     @Inject
     EleveRepository eleveRepository;
+    @Inject
+    ClasseRepository classeRepository;
 
     @Override
     protected Criteria<Resultat, Resultat> configRestrictions(Filter<Resultat> filter) {
@@ -123,8 +124,11 @@ public class ResultatService extends CrudService<Resultat, Integer> implements S
         return resultat;
     }
 
-    public List<Resultat> resultatsAyantEleveSupprime() {
+    public List<Resultat> resultatsAyantEleveOrphelin() {
         return eleveRepository.resultatsAyantEleveSupprime();
     }
 
+    public List<Resultat> resultatsAyantClasseOrphelin() {
+        return classeRepository.resultatsAyantClasseOrphelin();
+    }
 }

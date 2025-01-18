@@ -1,9 +1,6 @@
 package com.github.adminfaces.starter.service;
 
-import com.github.adminfaces.starter.model.AnneeAcademique;
-import com.github.adminfaces.starter.model.Classe;
-import com.github.adminfaces.starter.model.Discipline;
-import com.github.adminfaces.starter.model.Matiere;
+import com.github.adminfaces.starter.model.*;
 import org.apache.deltaspike.data.api.EntityRepository;
 import org.apache.deltaspike.data.api.Query;
 import org.apache.deltaspike.data.api.QueryParam;
@@ -31,4 +28,6 @@ public interface DisciplineRepository extends EntityRepository<Discipline,Intege
     @Query("SELECT d FROM Discipline d where d.anneeAcademique =:annee and (d.matiere.libelle like :query or d.classe.libelle like :query)")
     List<Discipline> disciplinesParMatiereOuClasse(@QueryParam("annee") AnneeAcademique anneeAcademique, @QueryParam("query") String query);
 
+    @Query("SELECT b FROM Bulletin b WHERE b.discipline not in (SELECT d FROM Discipline d)")
+    List<Bulletin> bulletinAyantDisciplineOrphelin();
 }

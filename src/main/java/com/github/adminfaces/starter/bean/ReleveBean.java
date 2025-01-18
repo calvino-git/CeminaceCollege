@@ -45,6 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+//import javax.annotation.Resource;
 import javax.annotation.Resource;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
@@ -121,7 +122,7 @@ public class ReleveBean implements Serializable {
 
     private Integer progress;
 
-    @Resource(lookup = "java:app/ceminace")
+    @Resource(name="java:app/ceminace")
     DataSource dataSource;
     private int sumCoef;
     private int i;
@@ -141,20 +142,31 @@ public class ReleveBean implements Serializable {
          * Une fois ces bulletins, notes et resultats trouvés , on les supprime pour eviter les erreurs lors de la generation des resultats
          */
         List<Bulletin> bulletinsOrphelinEleve = bulletinService.bulletinsAyantEleveSupprime();
+        List<Bulletin> bulletinsDisciplineOrphelin = bulletinService.bulletinAyantDisciplineOrphelin();
         List<Note> notesOrphelinEleve = noteService.notesAyantEleveSupprime();
-        List<Resultat> resultatsOrphelinEleve = resultatService.resultatsAyantEleveSupprime();
+        List<Resultat> resultatsAyantEleveOrphelin = resultatService.resultatsAyantEleveOrphelin();
+        List<Resultat> resultatsAyantClasseOrpheline = resultatService.resultatsAyantClasseOrphelin();
 
-        System.out.println("Bulletins orphelins : " + bulletinsOrphelinEleve.size());
-        System.out.println("Notes orphelines : " + notesOrphelinEleve.size());
-        System.out.println("Resultats orphelins : " + resultatsOrphelinEleve.size());
+        System.out.println("Bulletins ayant eleves orphelin : " + bulletinsOrphelinEleve.size());
+        System.out.println("Bulletins ayant discipline orpheline : " + bulletinsDisciplineOrphelin.size());
+        System.out.println("Notes ayant eleve orphelin : " + notesOrphelinEleve.size());
+        System.out.println("Resultats ayant eleve orphelin : " + resultatsAyantEleveOrphelin.size());
+        System.out.println("Resultats ayant classe orpheline : " + resultatsAyantClasseOrpheline.size());
 
         bulletinService.remove(bulletinsOrphelinEleve);
-        noteService.remove(notesOrphelinEleve);
-        resultatService.remove(resultatsOrphelinEleve);
+        System.out.println(bulletinsOrphelinEleve.size() + " bulletins ayant eleve orphelin");
 
-        System.out.println(bulletinsOrphelinEleve.size() + " bulletins orphelins supprimés");
-        System.out.println(notesOrphelinEleve.size() + " notes orphelines supprimées");
-        System.out.println(resultatsOrphelinEleve.size() + " resultats orphelines supprimées");
+        bulletinService.remove(bulletinsDisciplineOrphelin);
+        System.out.println(bulletinsDisciplineOrphelin.size() + " bulletins ayant discipline orpheline");
+
+        noteService.remove(notesOrphelinEleve);
+        System.out.println(notesOrphelinEleve.size() + " notes ayant eleve orphelin");
+
+        resultatService.remove(resultatsAyantEleveOrphelin);
+        System.out.println(resultatsAyantEleveOrphelin.size() + " resultats ayant eleve orphelin");
+
+        resultatService.remove(resultatsAyantClasseOrpheline);
+        System.out.println(resultatsAyantClasseOrpheline.size() + " Resultats ayant classe orpheline");
 
         registresEval = updateService.updateRegistreCollege(classe, trimestre, "EVALUATION");
         registresCompo = updateService.updateRegistreCollege(classe, trimestre, "COMPOSITION");
@@ -243,7 +255,11 @@ public class ReleveBean implements Serializable {
         consulterResultats();
         bulletins = bulletinService.bulletinsParEleveEtTrimestre(eleve, trimestre);
         Comparator<Bulletin> order = (o1, o2) -> {
-            int d = o1.getDiscipline().getMatiere().getIndex() - o2.getDiscipline().getMatiere().getIndex();
+            int d = o1.getDiscipline()
+                    .getMatiere()
+                    .getIndex() - o2.getDiscipline()
+                    .getMatiere()
+                    .getIndex();
             if (Math.abs(d) > 1) {
                 return d;
             } else {

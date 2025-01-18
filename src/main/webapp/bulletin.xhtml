@@ -68,7 +68,7 @@
                     </p:autoComplete>
 
                     <p:selectOneMenu id="eleve" converter="#{eleveConverter}" value="#{releveBean.eleve}"
-                                     requiredMessage="Le champ matière est requis."
+                                     requiredMessage="Le champ eleve est requis."
                                      required="true" label="Eleve">
                         <f:selectItems value="#{releveBean.elevesParClasse}" var="e" itemLabel="#{e.nom} #{e.prenom}" itemValue="#{e}"/>
                     </p:selectOneMenu>

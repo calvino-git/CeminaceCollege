@@ -130,11 +130,6 @@
                                              icon="fa fa-save" styleClass="btn-primary"/>
                         </div>
                         <div class="ui-g-12" >
-                            <p:commandButton value="Vider" action="#{examenBean.clear}" process="@this" oncomplete="PF('examenTable').filter()"
-                                             icon="fa fa-refresh"
-                                             update="@form" resetValues="true"/>
-                        </div>
-                        <div class="ui-g-12" >
                             <p:commandButton id="del" value="Supprimer" action="#{examenBean.remove}" process="@this"
                                              disabled="#{examenBean.isNew()}" update="@form" icon="fa fa-trash"  oncomplete="PF('examenTable').filter()"
                                              styleClass="btn-danger">
