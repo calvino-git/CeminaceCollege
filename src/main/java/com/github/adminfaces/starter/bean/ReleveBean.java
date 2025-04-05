@@ -169,8 +169,11 @@ public class ReleveBean implements Serializable {
         System.out.println(resultatsAyantClasseOrpheline.size() + " Resultats ayant classe orpheline");
 
         registresEval = updateService.updateRegistreCollege(classe, trimestre, "EVALUATION");
+        System.out.println(registresEval.size() + " registreEval college es update");
         registresCompo = updateService.updateRegistreCollege(classe, trimestre, "COMPOSITION");
+        System.out.println(registresCompo.size() + " registreComp college es update");
         registresTrim = updateService.updateRegistreTrimestreCollege(classe, trimestre);
+        System.out.println(registresTrim.size() + " registreTrim college es update");
     }
 
     public void actualiserBilanAnnuel(Classe c) {
@@ -312,25 +315,25 @@ public class ReleveBean implements Serializable {
                 bulletin.setTrimestre(trimestre);
 
                 Note i1 = noteParEleveExamen(e, "INTERRO 1", matiere, trimestre);
-                Double noteInterro1 = interro1 != null ? interro1.getPresence().equals("MALADE") ? null : interro1.getNote() : null;
+                Double noteInterro1 = interro1 != null ? interro1.isMalade() ? null : interro1.getNote() : null;
                 bulletin.setInterro1(noteInterro1);
 
                 Note i2 = noteParEleveExamen(e, "INTERRO 2", matiere, trimestre);
-                Double noteI2 = i2 != null ? i2.getPresence().equals("MALADE") ? null : i2.getNote() : null;
+                Double noteI2 = i2 != null ? i2.isMalade() ? null : i2.getNote() : null;
                 bulletin.setInterro2(noteI2);
 
                 Double moyI = moyenne(i1, i2);
                 bulletin.setMoyInterro(moyI);
 
                 Note ev = noteParEleveExamen(e, "EVALUATION", matiere, trimestre);
-                Double noteEv = ev != null ? ev.getPresence().equals("MALADE") ? null : ev.getNote() : null;
+                Double noteEv = ev != null ? ev.isMalade() ? null : ev.getNote() : null;
                 bulletin.setEvaluation(noteEv);
 
                 Double moyenneClasse = moyenne2(moyInterro, eval);
                 bulletin.setMoyClasse(moyenneClasse);
 
                 Note composition = noteParEleveExamen(e, "COMPOSITION", matiere, trimestre);
-                Double noteComposition = composition != null ? composition.getPresence().equals("MALADE") ? null : composition.getNote() : null;
+                Double noteComposition = composition != null ? composition.isMalade() ? null : composition.getNote() : null;
                 bulletin.setComposition(noteComposition);
 
                 Double moyenneTrimestre = moyenne2(moyClasse, compo);
@@ -579,9 +582,16 @@ public class ReleveBean implements Serializable {
         exporter.exportReport();
         FacesContext.getCurrentInstance().responseComplete();
     }
+    public void exportTrimestreOrdreAlphabetique() throws JRException, IOException{
+        exportTrimestre("Alphabetique");
+    }
+    public void exportTrimestreOrdreMerite() throws JRException, IOException{
+        this.registresTrim.sort(Comparator.comparingInt(RegistreCollege::getRang));
+        exportTrimestre("Merite");
+    }
 
-    public void exportTrimestre() throws JRException, IOException {
-        JRBeanCollectionDataSource data = new JRBeanCollectionDataSource(registresTrim);
+    public void exportTrimestre(String ordre) throws JRException, IOException {
+        JRBeanCollectionDataSource data = new JRBeanCollectionDataSource(this.registresTrim);
 
         String jasperReportPath = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/resources/report/trimestre.jrxml");
         jasperReportPath = JasperCompileManager.compileReportToFile(jasperReportPath);
@@ -610,16 +620,23 @@ public class ReleveBean implements Serializable {
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
         response.reset();
         response.setContentType("application/pdf");
-        response.setHeader("Content-disposition", "attachment; filename=\"" + "TRIMESTRE_" + classe.getCode() + "_Trim_" + trimestre + "_" + classe.getAnneeAcademique() + ".pdf\"");
+        response.setHeader("Content-disposition", "attachment; filename=\"" + "TRIMESTRE_" + classe.getCode() + "_Trim_" + trimestre + "_" + classe.getAnneeAcademique() + "_Ordre" + ordre + ".pdf\"");
         ServletOutputStream out = response.getOutputStream();
         exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(out));
         exporter.setConfiguration(configuration);
         exporter.exportReport();
         FacesContext.getCurrentInstance().responseComplete();
     }
+    public void exportCompositionOrdreAlphabetique() throws JRException, IOException{
+        exportComposition("Alphabetique");
+    }
+    public void exportCompositionOrdreMerite() throws JRException, IOException{
+        this.registresCompo.sort(Comparator.comparingInt(RegistreCollege::getRang));;
+        exportComposition("Merite");
+    }
 
-    public void exportComposition() throws JRException, IOException {
-        JRBeanCollectionDataSource data = new JRBeanCollectionDataSource(registresCompo);
+    public void exportComposition(String ordre) throws JRException, IOException {
+        JRBeanCollectionDataSource data = new JRBeanCollectionDataSource(this.registresCompo);
 
         String jasperReportPath = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/resources/report/composition.jrxml");
         jasperReportPath = JasperCompileManager.compileReportToFile(jasperReportPath);
@@ -650,7 +667,7 @@ public class ReleveBean implements Serializable {
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
         response.reset();
         response.setContentType("application/pdf");
-        response.setHeader("Content-disposition", "attachment; filename=\"" + "COMPOSITION_" + classe.getCode() + "_Trim_" + trimestre + "_" + classe.getAnneeAcademique() + ".pdf\"");
+        response.setHeader("Content-disposition", "attachment; filename=\"" + "COMPOSITION_" + classe.getCode() + "_Trim_" + trimestre + "_" + classe.getAnneeAcademique()  + "_Ordre" + ordre + ".pdf\"");
         ServletOutputStream out = response.getOutputStream();
         exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(out));
         exporter.setConfiguration(configuration);
@@ -658,8 +675,16 @@ public class ReleveBean implements Serializable {
         FacesContext.getCurrentInstance().responseComplete();
     }
 
-    public void exportEvaluation() throws JRException, IOException {
-        JRBeanCollectionDataSource data = new JRBeanCollectionDataSource(registresEval);
+    public void exportEvaluationOrdreAlphabetique() throws JRException, IOException{
+        exportEvaluation("Alphabetique");
+    }
+    public void exportEvaluationOrdreMerite() throws JRException, IOException{
+        this.registresEval.sort(Comparator.comparingInt(RegistreCollege::getRang));;
+        exportEvaluation("Merite");
+    }
+
+    public void exportEvaluation(String ordre) throws JRException, IOException {
+        JRBeanCollectionDataSource data = new JRBeanCollectionDataSource(this.registresEval);
         String jasperReportPath = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/resources/report/evaluation.jrxml");
         jasperReportPath = JasperCompileManager.compileReportToFile(jasperReportPath);
         Map<String, Object> map = new HashMap<>();
@@ -685,7 +710,7 @@ public class ReleveBean implements Serializable {
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
         response.reset();
         response.setContentType("application/pdf");
-        response.setHeader("Content-disposition", "attachment; filename=\"" + "EVALUATION_" + classe.getCode() + "_Trim_" + trimestre + "_" + classe.getAnneeAcademique() + ".pdf\"");
+        response.setHeader("Content-disposition", "attachment; filename=\"" + "EVALUATION_" + classe.getCode() + "_Trim_" + trimestre + "_" + classe.getAnneeAcademique()  + "_Ordre" + ordre +  ".pdf\"");
         ServletOutputStream out = response.getOutputStream();
         exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(out));
         exporter.setConfiguration(configuration);

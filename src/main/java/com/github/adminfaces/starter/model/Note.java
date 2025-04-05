@@ -91,6 +91,15 @@ public class Note extends BaseEntity implements Serializable,Comparable<Note> {
     public void setId(Integer id) {
         this.id = id;
     }
+    public boolean isMalade(){
+        return presence.equals("MALADE");
+    }
+    public boolean isPresent(){
+        return presence.equals("PRESENT");
+    }
+    public boolean isAbsent(){
+        return presence.equals("ABSENT");
+    }
 
     public String getObservation() {
         return observation;

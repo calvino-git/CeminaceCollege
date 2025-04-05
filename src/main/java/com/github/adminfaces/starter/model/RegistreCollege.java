@@ -317,6 +317,11 @@ public class RegistreCollege {
         this.anglaisCoef = anglaisCoef;
     }
 
-    
-
+    @Override
+    public String toString() {
+        return "RegistreCollege{" +
+                "eleve=" + eleve +
+                ", rang=" + rang +
+                '}';
+    }
 }

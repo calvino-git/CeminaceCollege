@@ -180,7 +180,7 @@
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font size="9" isBold="true"/>
 								</textElement>
-								<textFieldExpression><![CDATA[$F{eleve}]]></textFieldExpression>
+								<textFieldExpression><![CDATA[$F{eleve} + "(" + $F{eleve}.getSexe() + ")" ]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>

@@ -10,18 +10,32 @@
         <f:metadata>
         </f:metadata>
         <style type="text/css">
-            .progress-group .float-right{
-                float: right!important;
+            .progress-group .float-right {
+                float: right !important;
             }
+
+            .float-right {
+                float: right !important;
+            }
+
+            .progress-group .float-left {
+                float: left !important;
+            }
+
+            .float-left {
+                float: left !important;
+            }
+
             body .ui-datatable th.ui-state-default {
-                background: #f4f4f4!important;
+                background: #f4f4f4 !important;
             }
+
             .ui-accordion .ui-accordion-content {
-                padding: 0px!important;
-                ;
+                padding: 0px !important;;
             }
+
             .ui-progressbar .ui-progressbar-label {
-                color:red!important;
+                color: red !important;
             }
 
         </style>
@@ -45,20 +59,22 @@
                     <h:form id="form" prependId="false">
                         <p:focus context="@form"/>
                         <p:panel id="panel" styleClass="box-primary card">
-                            <p:panelGrid id="input" columns="3" columnClasses="ui-grid-col-4,ui-grid-col-4,ui-grid-col-4"
+                            <p:panelGrid id="input" columns="3"
+                                         columnClasses="ui-grid-col-4,ui-grid-col-4,ui-grid-col-4"
                                          layout="grid" styleClass="ui-fluid card">
                                 <p:outputLabel value="Classe" for="classe"/>
                                 <p:outputLabel for="trim" value="Trimestre "/>
                                 <p:outputLabel value=""/>
 
-                                <p:autoComplete id="classe" converter="#{classeConverter}" 
-                                                var="c" itemLabel="#{c.libelle}" itemValue="#{c}" value="#{releveBean.classe}" 
+                                <p:autoComplete id="classe" converter="#{classeConverter}"
+                                                var="c" itemLabel="#{c.libelle}" itemValue="#{c}"
+                                                value="#{releveBean.classe}"
                                                 forceSelection="true" scrollHeight="200" groupBy="#{c.niveau}"
-                                                minQueryLength="2" queryDelay="500" dropdown="true"   
+                                                minQueryLength="2" queryDelay="500" dropdown="true"
                                                 completeMethod="#{classeBean.autoCompletion}"
                                                 requiredMessage="Selectionner la classe"
                                                 required="true"/>
-                                <p:selectOneMenu id="trim" value="#{releveBean.trimestre}" 
+                                <p:selectOneMenu id="trim" value="#{releveBean.trimestre}"
                                                  requiredMessage="Selectionner le trimestre"
                                                  required="true">
                                     <f:selectItem itemLabel="Choisir..."/>
@@ -78,31 +94,33 @@
                         <p:spacer height="5"/>
 
 
-                        <p:accordionPanel rendered="#{not empty releveBean.resultats}" >
+                        <p:accordionPanel rendered="#{not empty releveBean.resultats}">
                             <p:tab>
                                 <f:facet name="title">
-                                    <h:outputText value="RESULTAT : COMPOSITION DU #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}"/>
+                                    <h:outputText
+                                            value="RESULTAT : COMPOSITION DU #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}"/>
                                 </f:facet>
-                                <p:dataTable id="resultatTable" widgetVar="resultatTable" var="r" value="#{releveBean.resultats}" 
+                                <p:dataTable id="resultatTable" widgetVar="resultatTable" var="r"
+                                             value="#{releveBean.resultats}"
                                              resizableColumns="true" reflow="true" rowIndexVar="x"
-                                             sortBy="#{r.eleve}" sortOrder="ascending" sortMode="single" 
+                                             sortBy="#{r.eleve}" sortOrder="ascending" sortMode="single"
                                              rendered="#{not empty releveBean.resultats}">
                                     <p:column headerText="N°" width="5%" styleClass="align-center">
-                                        <h:outputText value="#{x+1}" />
+                                        <h:outputText value="#{x+1}"/>
                                     </p:column>
                                     <p:column headerText="Nom et prenom" width="20%" sortBy="#{r.eleve}">
                                         <h:outputText value="#{r.eleve}"/>
                                     </p:column>
                                     <p:column headerText="Moyenne" styleClass="align-center" sortBy="#{r.moyenne}">
-                                        <h:outputText value="#{r.moyenne}" >
+                                        <h:outputText value="#{r.moyenne}">
                                             <f:convertNumber maxFractionDigits="2" locale="fr"/>
                                         </h:outputText>
                                     </p:column>
                                     <p:column headerText="Rang" styleClass="align-center" sortBy="#{r.rang}">
-                                        <h:outputText value="#{r.rang}" />
+                                        <h:outputText value="#{r.rang}"/>
                                     </p:column>
                                     <p:column headerText="Observation" width="20%" styleClass="align-center">
-                                        <h:outputText value="#{r.observation}" />
+                                        <h:outputText value="#{r.observation}"/>
                                     </p:column>
                                     <f:facet name="footer">
 
@@ -111,31 +129,51 @@
                                 </p:dataTable>
                             </p:tab>
                             <p:tab title="REGISTRE N°II : MOYENNES EVALUATIONS - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
-                                <p:dataTable id="regstreTable" widgetVar="regstreTable" var="r" value="#{releveBean.registresEval}"
+
+                                <p:panel>
+                                    <p:panelGrid columns="2"
+                                                 columnClasses="ui-grid-col-4,ui-grid-col-4"
+                                                 layout="grid" styleClass="ui-fluid card">
+                                        <p:commandButton action="#{releveBean.exportEvaluationOrdreAlphabetique()}"
+                                                         ajax="false"
+                                                         value="Imprimer (Ordre Alphabetique)"
+                                                         icon="fa fa-fw fa-file-pdf-o"
+                                                         styleClass="btn-danger"/>
+                                        <p:commandButton action="#{releveBean.exportEvaluationOrdreMerite()}"
+                                                         ajax="false"
+                                                         value="Imprimer (Ordre de merite)"
+                                                         icon="fa fa-fw fa-file-pdf-o"
+                                                         styleClass="btn-danger"/>
+                                    </p:panelGrid>
+                                </p:panel>
+                                <p:dataTable id="regstreTable" widgetVar="regstreTable" var="r"
+                                             value="#{releveBean.registresEval}"
                                              rowIndexVar="x" sortField="eleve" sortOrder="ascending"
-                                             sortMode="single" reflow="true" 
-                                             rendered="#{not empty releveBean.registresEval}" styleClass="align-center">
-                                    <f:facet name="header">
-                                        <p:commandButton  action="#{releveBean.exportEvaluation}" ajax="false" value="IMPRIMER" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
-                                    </f:facet>
+                                             sortMode="single" reflow="true"
+                                             rendered="#{not empty releveBean.registresEval}"
+                                             styleClass="align-center">
+
                                     <!-- Entete des colonnes  -->
                                     <p:columnGroup type="header">
                                         <p:row>
                                             <p:column rowspan="2" width="2%" headerText="N°"/>
-                                            <p:column rowspan="2" width="12%" headerText="Nom et prenom"/>
+                                            <p:column rowspan="2" width="12%" headerText="Nom et prenom" sortBy="#{r.eleve}"/>
 
                                             <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
-                                                <p:column colspan="2" width="8%" headerText="#{d.matiere.libelle}" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                                <p:column colspan="2" width="8%" headerText="#{d.matiere.libelle}"
+                                                          rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
                                             </p:repeat>
 
                                             <p:column colspan="1" width="4%" headerText="Total"/>
                                             <p:column rowspan="2" width="3%" headerText="Moy."/>
-                                            <p:column rowspan="2" width="3%" headerText="Rang"/>
+                                            <p:column rowspan="2" width="3%" headerText="Rang" sortBy="#{r.rang}"/>
                                         </p:row>
                                         <p:row>
                                             <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
-                                                <p:column headerText="nc" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
-                                                <p:column headerText="x#{d.coefficient}" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                                <p:column headerText="nc"
+                                                          rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                                <p:column headerText="x#{d.coefficient}"
+                                                          rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
                                             </p:repeat>
 
                                             <p:column headerText="#{releveBean.sommeCoef('EVAL')}"/>
@@ -144,66 +182,88 @@
                                     <!-- Fin entete colonnes  -->
                                     <!-- Les données des colonnes  -->
                                     <p:column styleClass="align-center">
-                                        <h:outputText value="#{x+1}" />
+                                        <h:outputText value="#{x+1}"/>
                                     </p:column>
                                     <p:column class="align-left">
                                         <h:outputText value="#{r.eleve}"/>
                                     </p:column>
 
-                                    <c:forEach  items="#{releveBean.classe.disciplineCollection}" var="d">
-                                        <p:column rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
-                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)}" >
-                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                    <c:forEach items="#{releveBean.classe.disciplineCollection}" var="d">
+                                        <p:column
+                                                rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
+                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)}">
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2"
+                                                                 locale="fr"/>
                                             </h:outputText>
                                         </p:column>
-                                        <p:column rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
-                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)*releveBean.dataCoefCollege(r,d.matiere.code)}">
-                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        <p:column
+                                                rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
+                                            <h:outputText
+                                                    value="#{releveBean.dataCollege(r,d.matiere.code)*releveBean.dataCoefCollege(r,d.matiere.code)}">
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2"
+                                                                 locale="fr"/>
                                             </h:outputText>
                                         </p:column>
                                     </c:forEach>>
 
                                     <p:column>
-                                        <h:outputText value="#{r.total}" >
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        <h:outputText value="#{r.total}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2"
+                                                             locale="fr"/>
                                         </h:outputText>
                                     </p:column>
                                     <p:column>
                                         <h:outputText value="#{r.total/releveBean.sommeCoef('EVAL')}">
-                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2"
+                                                             locale="fr"/>
                                         </h:outputText>
                                     </p:column>
                                     <p:column>
-                                        <h:outputText value="#{r.rang}" />
+                                        <h:outputText value="#{r.rang}"/>
                                     </p:column>
                                     <!-- Les données des colonnes  -->
                                 </p:dataTable>
                             </p:tab>
                             <p:tab title="REGISTRE N°II : MOYENNES COMPOSITIONS - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
-                                <p:dataTable id="registreCompoTable" widgetVar="registreCompoTable" var="r" value="#{releveBean.registresCompo}"
+                                <div class="containre-fluid">
+                                    <p:commandButton action="#{releveBean.exportCompositionOrdreAlphabetique()}"
+                                                     ajax="false"
+                                                     value="Imprimer (Ordre Alphabetique)"
+                                                     icon="fa fa-fw fa-file-pdf-o"
+                                                     styleClass="btn-danger"/>
+                                    <p:spacer width="20"/>
+                                    <p:commandButton action="#{releveBean.exportCompositionOrdreMerite()}"
+                                                     ajax="false"
+                                                     value="Imprimer (Ordre de merite)"
+                                                     icon="fa fa-fw fa-file-pdf-o"
+                                                     styleClass="btn-danger"/>
+                                </div>
+                                <p:dataTable id="registreCompoTable" widgetVar="registreCompoTable" var="r"
+                                             value="#{releveBean.registresCompo}"
                                              rowIndexVar="x" sortField="eleve" sortOrder="ascending"
-                                             sortMode="single" reflow="true" 
-                                             rendered="#{not empty releveBean.registresCompo}" styleClass="align-center">
-                                    <f:facet name="header">
-                                        <p:commandButton  action="#{releveBean.exportComposition()}" ajax="false" value="IMPRIMER" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
-                                    </f:facet>
+                                             sortMode="single" reflow="true"
+                                             rendered="#{not empty releveBean.registresCompo}"
+                                             styleClass="align-center">
                                     <p:columnGroup type="header">
                                         <p:row>
                                             <p:column rowspan="2" width="2%" headerText="N°"/>
-                                            <p:column rowspan="2" width="12%" headerText="Nom et prenom"/>
+                                            <p:column rowspan="2" width="12%" headerText="Nom et prenom" sortBy="#{r.eleve}"/>
 
                                             <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
-                                                <p:column colspan="2" width="8%" headerText="#{d.matiere.libelle}" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                                <p:column colspan="2" width="8%" headerText="#{d.matiere.libelle}"
+                                                          rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
                                             </p:repeat>
 
                                             <p:column colspan="1" width="4%" headerText="Total"/>
                                             <p:column rowspan="2" width="3%" headerText="Moy."/>
-                                            <p:column rowspan="2" width="3%" headerText="Rang"/>
+                                            <p:column rowspan="2" width="3%" headerText="Rang" sortBy="#{r.rang}"/>
                                         </p:row>
                                         <p:row>
                                             <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
-                                                <p:column headerText="nc" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
-                                                <p:column headerText="x#{d.coefficient}" rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                                <p:column headerText="nc"
+                                                          rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
+                                                <p:column headerText="x#{d.coefficient}"
+                                                          rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}"/>
                                             </p:repeat>
 
                                             <p:column headerText="#{releveBean.sommeCoef('COMPO')}"/>
@@ -212,53 +272,75 @@
                                     <!-- Fin entete colonnes  -->
                                     <!-- Les données des colonnes  -->
                                     <p:column styleClass="align-center">
-                                        <h:outputText value="#{x+1}" />
+                                        <h:outputText value="#{x+1}"/>
                                     </p:column>
                                     <p:column class="align-left">
                                         <h:outputText value="#{r.eleve}"/>
                                     </p:column>
 
-                                    <c:forEach  items="#{releveBean.classe.disciplineCollection}" var="d">
-                                        <p:column rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
-                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)}" >
-                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                    <c:forEach items="#{releveBean.classe.disciplineCollection}" var="d">
+                                        <p:column
+                                                rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
+                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)}">
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2"
+                                                                 locale="fr"/>
                                             </h:outputText>
                                         </p:column>
-                                        <p:column rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
-                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)*releveBean.dataCoefCollege(r,d.matiere.code)}">
-                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                        <p:column
+                                                rendered="#{not (d.matiere.code.equals('ART') or d.matiere.code.equals('CON'))}">
+                                            <h:outputText
+                                                    value="#{releveBean.dataCollege(r,d.matiere.code)*releveBean.dataCoefCollege(r,d.matiere.code)}">
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2"
+                                                                 locale="fr"/>
                                             </h:outputText>
                                         </p:column>
                                     </c:forEach>>
 
                                     <p:column>
-                                        <h:outputText value="#{r.total-releveBean.dataCollege(r,'ART')*releveBean.dataCoefCollege(r,'ART')-releveBean.dataCollege(r,'CON')*releveBean.dataCoefCollege(r,'CON')}" >
+                                        <h:outputText
+                                                value="#{r.total-releveBean.dataCollege(r,'ART')*releveBean.dataCoefCollege(r,'ART')-releveBean.dataCollege(r,'CON')*releveBean.dataCoefCollege(r,'CON')}">
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
                                         </h:outputText>
                                     </p:column>
                                     <p:column>
-                                        <h:outputText value="#{(r.total-releveBean.dataCollege(r,'ART')*releveBean.dataCoefCollege(r,'ART')-releveBean.dataCollege(r,'CON')*releveBean.dataCoefCollege(r,'CON'))/releveBean.sommeCoef('COMPO')}">
+                                        <h:outputText
+                                                value="#{(r.total-releveBean.dataCollege(r,'ART')*releveBean.dataCoefCollege(r,'ART')-releveBean.dataCollege(r,'CON')*releveBean.dataCoefCollege(r,'CON'))/releveBean.sommeCoef('COMPO')}">
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
                                         </h:outputText>
                                     </p:column>
                                     <p:column>
-                                        <h:outputText value="#{r.rang}" />
+                                        <h:outputText value="#{r.rang}"/>
                                     </p:column>
                                     <!-- Les données des colonnes  -->
                                 </p:dataTable>
                             </p:tab>
                             <p:tab title="REGISTRE N°III : MOYENNES TRIMESTRIELLES - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
-                                <p:dataTable id="registreTrimTable" widgetVar="registreTrimTable" var="r" value="#{releveBean.registresTrim}"
+                                <p:panel>
+                                    <p:panelGrid columns="2"
+                                                 columnClasses="ui-grid-col-4,ui-grid-col-4"
+                                                 layout="grid" styleClass="ui-fluid card">
+                                        <p:commandButton action="#{releveBean.exportTrimestreOrdreAlphabetique()}"
+                                                         ajax="false"
+                                                         value="Imprimer (Ordre Alphabetique)"
+                                                         icon="fa fa-fw fa-file-pdf-o"
+                                                         styleClass="btn-danger"/>
+                                        <p:commandButton action="#{releveBean.exportTrimestreOrdreMerite()}"
+                                                         ajax="false"
+                                                         value="Imprimer (Ordre de merite)"
+                                                         icon="fa fa-fw fa-file-pdf-o"
+                                                         styleClass="btn-danger"/>
+                                    </p:panelGrid>
+                                </p:panel>
+                                <p:dataTable id="registreTrimTable" widgetVar="registreTrimTable" var="r"
+                                             value="#{releveBean.registresTrim}"
                                              rowIndexVar="x" sortField="eleve" sortOrder="ascending"
-                                             sortMode="single" reflow="true" 
+                                             sortMode="single" reflow="true"
                                              rendered="#{not empty releveBean.registresTrim}" styleClass="align-center">
-                                    <f:facet name="header">
-                                        <p:commandButton  action="#{releveBean.exportTrimestre()}" ajax="false" value="IMPRIMER" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
-                                    </f:facet>
+
                                     <p:columnGroup type="header">
                                         <p:row>
                                             <p:column rowspan="2" width="2%" headerText="N°"/>
-                                            <p:column rowspan="2" width="12%" headerText="Nom et prenom"/>
+                                            <p:column rowspan="2" width="12%" headerText="Nom et prenom" sortBy="#{r.eleve}"/>
 
                                             <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
                                                 <p:column colspan="2" width="8%" headerText="#{d.matiere.libelle}"/>
@@ -266,7 +348,7 @@
 
                                             <p:column colspan="1" width="4%" headerText="Total"/>
                                             <p:column rowspan="2" width="3%" headerText="Moy."/>
-                                            <p:column rowspan="2" width="3%" headerText="Rang"/>
+                                            <p:column rowspan="2" width="3%" headerText="Rang" sortBy="#{r.rang}"/>
                                         </p:row>
                                         <p:row>
                                             <p:repeat value="#{releveBean.classe.disciplineCollection}" var="d">
@@ -280,27 +362,30 @@
                                     <!-- Fin entete colonnes  -->
                                     <!-- Les données des colonnes  -->
                                     <p:column styleClass="align-center">
-                                        <h:outputText value="#{x+1}" />
+                                        <h:outputText value="#{x+1}"/>
                                     </p:column>
                                     <p:column class="align-left">
                                         <h:outputText value="#{r.eleve}"/>
                                     </p:column>
 
-                                    <c:forEach  items="#{releveBean.classe.disciplineCollection}" var="d">
+                                    <c:forEach items="#{releveBean.classe.disciplineCollection}" var="d">
                                         <p:column>
-                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)}" >
-                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)}">
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2"
+                                                                 locale="fr"/>
                                             </h:outputText>
                                         </p:column>
                                         <p:column>
-                                            <h:outputText value="#{releveBean.dataCollege(r,d.matiere.code)*releveBean.dataCoefCollege(r,d.matiere.code)}">
-                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
+                                            <h:outputText
+                                                    value="#{releveBean.dataCollege(r,d.matiere.code)*releveBean.dataCoefCollege(r,d.matiere.code)}">
+                                                <f:convertNumber minFractionDigits="0" maxFractionDigits="2"
+                                                                 locale="fr"/>
                                             </h:outputText>
                                         </p:column>
                                     </c:forEach>>
 
                                     <p:column>
-                                        <h:outputText value="#{r.total}" >
+                                        <h:outputText value="#{r.total}">
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="fr"/>
                                         </h:outputText>
                                     </p:column>
@@ -310,25 +395,30 @@
                                         </h:outputText>
                                     </p:column>
                                     <p:column>
-                                        <h:outputText value="#{r.rang}" />
+                                        <h:outputText value="#{r.rang}"/>
                                     </p:column>
                                     <!-- Les données des colonnes  -->
                                 </p:dataTable>
                             </p:tab>
                             <p:tab title="REGISTRE N°IV : BILAN PAR MATIERE ET PAR SPECIALITE - #{releveBean.trimestre}#{releveBean.trimestre==1?'er':'eme'} TRIM. - CLASSE DE #{releveBean.classe}">
-                                <p:commandButton  action="#{releveBean.exportRegistreIV()}" ajax="false" value="EXPORTER" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
+                                <p:commandButton action="#{releveBean.exportRegistreIV()}" ajax="false" value="EXPORTER"
+                                                 icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
                             </p:tab>
                             <p:tab title="BILAN DES MOYENNES TRIMESTRIELLES - CLASSE DE #{releveBean.classe}">
-                                <p:commandButton  action="#{releveBean.exportBilanAnnuel()}" ajax="false" value="EXPORTER BILAN ANNUEL" icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
+                                <p:commandButton action="#{releveBean.exportBilanAnnuel()}" ajax="false"
+                                                 value="EXPORTER BILAN ANNUEL"
+                                                 icon="fa fa-fw fa-file-pdf-o" styleClass="btn-danger"/>
                             </p:tab>
                         </p:accordionPanel>
 
 
-
-                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger box-solid">
-                            <p:commandButton value="Oui" type="button" styleClass="btn-material btn-primary ui-confirmdialog-yes"
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade"
+                                         styleClass="box-danger box-solid">
+                            <p:commandButton value="Oui" type="button"
+                                             styleClass="btn-material btn-primary ui-confirmdialog-yes"
                                              icon="fa fa-check"/>
-                            <p:commandButton value="Non" type="button" styleClass="btn-material btn-danger ui-confirmdialog-no"
+                            <p:commandButton value="Non" type="button"
+                                             styleClass="btn-material btn-danger ui-confirmdialog-no"
                                              icon="fa fa-close"/>
                         </p:confirmDialog>
                     </h:form>

@@ -62,13 +62,13 @@ public class UpdateService implements Serializable {
             registreCollege.setEleve(eleve);
             registreCollege.setAnneeAcademique(classe.getAnneeAcademique());
             registreCollege.setTrimestre(trimestre);
-            System.out.println("Recherche des bulletins de l'eleve :" + eleve + " [ Trim : " + trimestre + "]");
+            //System.out.println("Recherche des bulletins de l'eleve :" + eleve + " [ Trim : " + trimestre + "]");
             List<Bulletin> bulletins = bulletinService.bulletinsParEleveEtTrimestre(eleve, trimestre);
             total = 0.0;
             coef = 0;
             if (!bulletins.isEmpty()) {
                 bulletins.stream().filter(b -> b.getMoyTrimestre() != null).forEach(b -> {
-                    System.out.println(b);
+                    //System.out.println(b);
                     if (b.getDiscipline().getMatiere().getCode().equals("ORTH")) {
                         registreCollege.setOrthographe(b.getMoyTrimestre());
                         registreCollege.setOrthographeCoef(b.getDiscipline().getCoefficient());
@@ -180,138 +180,146 @@ public class UpdateService implements Serializable {
     }
 
     public List<RegistreCollege> updateRegistreCollege(Classe classe, Integer trimestre, String type) {
+
+        System.out.println("Mise a jour des données :");
+        System.out.println("Trim: " + trimestre);
+        System.out.println("Classe:" + classe.getId() + "=" + classe);
+        System.out.println("Type:" + type);
         List<RegistreCollege> registres = new ArrayList<>();
         List<Examen> examens = examenService.listeParClasseType(classe, trimestre, classe.getAnneeAcademique(), type);
+        System.out.println(examens);
         classe.getEleveCollection().forEach(eleve -> {
-            RegistreCollege registre = new RegistreCollege();
-            registre.setEleve(eleve);
-            registre.setAnneeAcademique(classe.getAnneeAcademique());
-            registre.setTrimestre(trimestre);
-//            registre.setType(type);
+            RegistreCollege registreCollege = new RegistreCollege();
+            registreCollege.setEleve(eleve);
+            registreCollege.setAnneeAcademique(classe.getAnneeAcademique());
+            registreCollege.setTrimestre(trimestre);
+//          registreCollege.setType(type);
             total = 0.0;
             coef = 0;
             examens.forEach(e -> {
                 if (e.getDiscipline().getMatiere().getCode().equals("ORTH")) {
-                    Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
+                    Optional<Note> n = e.getNoteCollection()
+                            .stream()
+                            .filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    if (n.isPresent()) {
-                        registre.setOrthographe(n.get().getNote());
-                        registre.setOrthographeCoef(e.getDiscipline().getCoefficient());
-                        total += registre.getOrthographe() * registre.getOrthographeCoef();
-                        coef += registre.getOrthographeCoef();
+                    if (n.isPresent() && n.get().isPresent()) {
+                        registreCollege.setOrthographe(n.get().getNote());
+                        registreCollege.setOrthographeCoef(e.getDiscipline().getCoefficient());
+                        total += registreCollege.getOrthographe() * registreCollege.getOrthographeCoef();
+                        coef += registreCollege.getOrthographeCoef();
                     }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("ANGLAIS")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    if (n.isPresent()) {
-                        registre.setAnglais(n.get().getNote());
-                        registre.setAnglaisCoef(e.getDiscipline().getCoefficient());
-                        total += registre.getAnglais() * registre.getAnglaisCoef();
-                        coef += registre.getAnglaisCoef();
+                    if (n.isPresent() && n.get().isPresent()) {
+                        registreCollege.setAnglais(n.get().getNote());
+                        registreCollege.setAnglaisCoef(e.getDiscipline().getCoefficient());
+                        total += registreCollege.getAnglais() * registreCollege.getAnglaisCoef();
+                        coef += registreCollege.getAnglaisCoef();
                     }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("ESP")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    if (n.isPresent()) {
-                        registre.setEspagnol(n.get().getNote());
-                        registre.setEspagnolCoef(e.getDiscipline().getCoefficient());
-                        total += registre.getEspagnol() * registre.getEspagnolCoef();
-                        coef += registre.getEspagnolCoef();
+                    if (n.isPresent() && n.get().isPresent()) {
+                        registreCollege.setEspagnol(n.get().getNote());
+                        registreCollege.setEspagnolCoef(e.getDiscipline().getCoefficient());
+                        total += registreCollege.getEspagnol() * registreCollege.getEspagnolCoef();
+                        coef += registreCollege.getEspagnolCoef();
                     }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("EXP.ECR.")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    if (n.isPresent()) {
-                        registre.setExpressionEcrite(n.get().getNote());
-                        registre.setExpressionEcriteCoef(e.getDiscipline().getCoefficient());
-                        total += registre.getExpressionEcrite() * registre.getExpressionEcriteCoef();
-                        coef += registre.getExpressionEcriteCoef();
+                    if (n.isPresent() && n.get().isPresent()) {
+                        registreCollege.setExpressionEcrite(n.get().getNote());
+                        registreCollege.setExpressionEcriteCoef(e.getDiscipline().getCoefficient());
+                        total += registreCollege.getExpressionEcrite() * registreCollege.getExpressionEcriteCoef();
+                        coef += registreCollege.getExpressionEcriteCoef();
                     }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("IC")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    if (n.isPresent()) {
-                        registre.setInstructionCivique(n.get().getNote());
-                        registre.setInstructionCiviqueCoef(e.getDiscipline().getCoefficient());
-                        total += registre.getInstructionCivique() * registre.getInstructionCiviqueCoef();
-                        coef += registre.getInstructionCiviqueCoef();
+                    if (n.isPresent() && n.get().isPresent()) {
+                        registreCollege.setInstructionCivique(n.get().getNote());
+                        registreCollege.setInstructionCiviqueCoef(e.getDiscipline().getCoefficient());
+                        total += registreCollege.getInstructionCivique() * registreCollege.getInstructionCiviqueCoef();
+                        coef += registreCollege.getInstructionCiviqueCoef();
                     }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("HG")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    if (n.isPresent()) {
-                        registre.setHistoireGeo(n.get().getNote());
-                        registre.setHistoireGeoCoef(e.getDiscipline().getCoefficient());
-                        total += registre.getHistoireGeo() * registre.getHistoireGeoCoef();
-                        coef += registre.getHistoireGeoCoef();
+                    if (n.isPresent() && n.get().isPresent()) {
+                        registreCollege.setHistoireGeo(n.get().getNote());
+                        registreCollege.setHistoireGeoCoef(e.getDiscipline().getCoefficient());
+                        total += registreCollege.getHistoireGeo() * registreCollege.getHistoireGeoCoef();
+                        coef += registreCollege.getHistoireGeoCoef();
                     }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("MATHS")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    if (n.isPresent()) {
-                        registre.setMaths(n.get().getNote());
-                        registre.setMathsCoef(e.getDiscipline().getCoefficient());
-                        total += registre.getMaths() * registre.getMathsCoef();
-                        coef += registre.getMathsCoef();
+                    if (n.isPresent() && n.get().isPresent()) {
+                        registreCollege.setMaths(n.get().getNote());
+                        registreCollege.setMathsCoef(e.getDiscipline().getCoefficient());
+                        total += registreCollege.getMaths() * registreCollege.getMathsCoef();
+                        coef += registreCollege.getMathsCoef();
                     }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("PC")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    if (n.isPresent()) {
-                        registre.setPhyChimie(n.get().getNote());
-                        registre.setPhyChimieCoef(e.getDiscipline().getCoefficient());
-                        total += registre.getPhyChimie() * registre.getPhyChimieCoef();
-                        coef += registre.getPhyChimieCoef();
+                    if (n.isPresent() && n.get().isPresent()) {
+                        registreCollege.setPhyChimie(n.get().getNote());
+                        registreCollege.setPhyChimieCoef(e.getDiscipline().getCoefficient());
+                        total += registreCollege.getPhyChimie() * registreCollege.getPhyChimieCoef();
+                        coef += registreCollege.getPhyChimieCoef();
                     }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("SVT")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    if (n.isPresent()) {
-                        registre.setSvt(n.get().getNote());
-                        registre.setSvtCoef(e.getDiscipline().getCoefficient());
-                        total += registre.getSvt() * registre.getSvtCoef();
-                        coef += registre.getSvtCoef();
+                    if (n.isPresent() && n.get().isPresent()) {
+                        registreCollege.setSvt(n.get().getNote());
+                        registreCollege.setSvtCoef(e.getDiscipline().getCoefficient());
+                        total += registreCollege.getSvt() * registreCollege.getSvtCoef();
+                        coef += registreCollege.getSvtCoef();
                     }
                 }
                 if (e.getDiscipline().getMatiere().getCode().equals("EPS")) {
                     Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
                             .findFirst();
-                    if (n.isPresent()) {
-                        registre.setEps(n.get().getNote());
-                        registre.setEpsCoef(e.getDiscipline().getCoefficient());
-                        total += registre.getEps() * registre.getEpsCoef();
-                        coef += registre.getEpsCoef();
+                    if (n.isPresent() && n.get().isPresent()) {
+                        registreCollege.setEps(n.get().getNote());
+                        registreCollege.setEpsCoef(e.getDiscipline().getCoefficient());
+                        total += registreCollege.getEps() * registreCollege.getEpsCoef();
+                        coef += registreCollege.getEpsCoef();
                     }
                 }
 
 //                if (e.getDiscipline().getMatiere().getCode().equals("ART")) {
 //                    Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
 //                            .findFirst();
-//                    registre.setArt(n.get().getNote());
-//                    registre.setArtCoef(e.getDiscipline().getCoefficient());
-//                    total += registre.getArt() * registre.getArtCoef();
-//                    coef += registre.getArtCoef();
+//                    registreCollege.setArt(n.get().getNote());
+//                    registreCollege.setArtCoef(e.getDiscipline().getCoefficient());
+//                    total += registreCollege.getArt() * registreCollege.getArtCoef();
+//                    coef += registreCollege.getArtCoef();
 //                }
 //                if (e.getDiscipline().getMatiere().getCode().equals("CON")) {
 //                    Optional<Note> n = e.getNoteCollection().stream().filter(note -> note.getEleve().equals(eleve))
 //                            .findFirst();
-//                    registre.setCon(n.get().getNote());
-//                    registre.setConCoef(e.getDiscipline().getCoefficient());
-//                    total += registre.getCon() * registre.getConCoef();
-//                    coef += registre.getConCoef();
+//                    registreCollege.setCon(n.get().getNote());
+//                    registreCollege.setConCoef(e.getDiscipline().getCoefficient());
+//                    total += registreCollege.getCon() * registreCollege.getConCoef();
+//                    coef += registreCollege.getConCoef();
 //                }
             });
-            registre.setTotal(total);
-            registre.setMoyenne(total / coef);
-            registres.add(registre);
+            registreCollege.setTotal(total);
+            registreCollege.setMoyenne(total / coef);
+            registres.add(registreCollege);
         });
         Comparator<RegistreCollege> comp = (o1, o2) -> {
             Double d = o2.getMoyenne() - o1.getMoyenne();

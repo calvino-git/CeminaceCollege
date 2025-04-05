@@ -144,7 +144,7 @@
                         </h:outputText>
                     </p:column>
                     <p:column headerText="MOY. TRIM. x Coef." sortBy="#{b.moyTrimestreCoef}"  styleClass="align-center">
-                        <h:outputText value="#{b.moyTrimestreCoef}">
+                        <h:outputText value="#{not empty b.moyTrimestreCoef ? b.moyTrimestreCoef:'MALADE'}">
                             <f:convertNumber maxFractionDigits="2" locale="fr"/>
                         </h:outputText>
                     </p:column>
