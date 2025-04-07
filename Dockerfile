@@ -1,14 +1,17 @@
-# Use an official OpenJDK runtime as a parent image
+# Utiliser une image de base avec JDK 8
 FROM openjdk:8-jdk-alpine
 
-# Set the working directory to /app
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY target/ceminace-college-microbundle.jar /app/app.jar
+# Copier le fichier JAR/WAR de l'application
+COPY target/ceminace-college.war /app/ceminace-college.war
 
-# Make port 8080 available to the world outside this container
+# Télécharger et extraire Payara Micro
+RUN wget https://repo1.maven.org/maven2/fish/payara/payara-micro/5.202/payara-micro-5.202.jar -O payara-micro.jar
+
+# Exposer le port sur lequel Payara Micro écoute (par défaut 8080)
 EXPOSE 8080
 
-# Run the jar file when the container launches
-CMD ["java", "-jar", "app.jar"]
+# Commande pour démarrer Payara Micro et déployer l'application
+CMD ["java", "-jar", "payara-micro.jar", "--deploy", "ceminace-college.war", "--port", "8080"]

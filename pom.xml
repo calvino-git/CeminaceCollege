@@ -275,11 +275,18 @@
                 <groupId>fish.payara.maven.plugins</groupId>
                 <artifactId>payara-micro-maven-plugin</artifactId>
                 <configuration>
-                    <payaraVersion>${version.payara}</payaraVersion>
+                    <payaraVersion>5.2022.2</payaraVersion>
                     <deployWar>false</deployWar>
                     <commandLineOptions>
                         <option>
                             <key>--autoBindHttp</key>
+                        </option>
+                        <option>
+                            <key>--interfaces</key>
+                            <value>127.0.0.1</value>
+                        </option>
+                        <option>
+                            <key>--nocluster</key>
                         </option>
                         <option>
                             <key>--deploy</key>
