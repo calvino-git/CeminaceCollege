@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="AdditionalModuleElements">
+    <content url="file://$MODULE_DIR$" dumb="true">
+      <excludeFolder url="file://$MODULE_DIR$/payara-micro/applications" />
+      <excludeFolder url="file://$MODULE_DIR$/payara-micro/autodeploy" />
+      <excludeFolder url="file://$MODULE_DIR$/payara-micro/docroot" />
+      <excludeFolder url="file://$MODULE_DIR$/payara-micro/generated" />
+      <excludeFolder url="file://$MODULE_DIR$/payara-micro/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/payara-micro/runtime" />
+    </content>
+  </component>
+</module>
