@@ -5,21 +5,23 @@
  */
 package com.github.adminfaces.starter.model;
 
-import com.github.adminfaces.persistence.model.BaseEntity;
 import java.io.Serializable;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
@@ -30,7 +32,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "BilanParSpecialiteCultureCollege.findAll", query = "SELECT b FROM BilanParSpecialiteCultureCollege b")})
-public class BilanParSpecialiteCultureCollege extends BaseEntity implements Serializable, Comparable<BilanParSpecialiteCultureCollege> {
+@Getter
+@Setter
+public class BilanParSpecialiteCultureCollege implements Serializable, Comparable<BilanParSpecialiteCultureCollege> {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -70,102 +74,6 @@ public class BilanParSpecialiteCultureCollege extends BaseEntity implements Seri
     @ManyToOne
     private Eleve eleve;
 
-    public BilanParSpecialiteCultureCollege() {
-    }
-
-    public BilanParSpecialiteCultureCollege(Integer id) {
-        this.id = id;
-    }
-
-    @Override
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getTrimestre() {
-        return trimestre;
-    }
-
-    public void setTrimestre(Integer trimestre) {
-        this.trimestre = trimestre;
-    }
-
-    public AnneeAcademique getAnneeAcademique() {
-        return anneeAcademique;
-    }
-
-    public void setAnneeAcademique(AnneeAcademique anneeAcademique) {
-        this.anneeAcademique = anneeAcademique;
-    }
-
-    public String getObservation() {
-        return observation;
-    }
-
-    public void setObservation(String observation) {
-        this.observation = observation;
-    }
-
-    public Double getEps() {
-        return eps;
-    }
-
-    public void setEps(Double eps) {
-        this.eps = eps;
-    }
-
-    public Double getCon() {
-        return con;
-    }
-
-    public void setCon(Double con) {
-        this.con = con;
-    }
-
-    public Double getArt() {
-        return art;
-    }
-
-    public void setArt(Double art) {
-        this.art = art;
-    }
-
-    public Double getTotal() {
-        return total;
-    }
-
-    public void setTotal(Double total) {
-        this.total = total;
-    }
-
-    public Double getMoyenne() {
-        return moyenne;
-    }
-
-    public void setMoyenne(Double moyenne) {
-        this.moyenne = moyenne;
-    }
-
-    public Eleve getEleve() {
-        return eleve;
-    }
-
-    public void setEleve(Eleve eleve) {
-        this.eleve = eleve;
-    }
-
-    public Double getInstructionCivique() {
-        return instructionCivique;
-    }
-
-    public void setInstructionCivique(Double instructionCivique) {
-        this.instructionCivique = instructionCivique;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
@@ -184,14 +92,6 @@ public class BilanParSpecialiteCultureCollege extends BaseEntity implements Seri
             return false;
         }
         return true;
-    }
-
-    public Integer getRang() {
-        return rang;
-    }
-
-    public void setRang(Integer rang) {
-        this.rang = rang;
     }
 
     @Override

@@ -5,26 +5,31 @@
  */
 package com.github.adminfaces.starter.model;
 
-import com.github.adminfaces.persistence.model.BaseEntity;
 import java.io.Serializable;
 import java.util.Collection;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -37,7 +42,11 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Discipline.findAll", query = "SELECT d FROM Discipline d"),
     @NamedQuery(name = "Discipline.findById", query = "SELECT d FROM Discipline d WHERE d.id = :id"),
     @NamedQuery(name = "Discipline.findByCoefficient", query = "SELECT d FROM Discipline d WHERE d.coefficient = :coefficient")})
-public class Discipline extends BaseEntity implements Serializable, Comparable{
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString()
+public class Discipline implements Serializable, Comparable{
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -50,6 +59,9 @@ public class Discipline extends BaseEntity implements Serializable, Comparable{
     @Basic(optional = false)
     @Column(name = "ID")
     private Integer id;
+    @NotNull
+    @Column(name = "CODE")
+    private String code;
     @Basic(optional = false)
     @NotNull
     @Column(name = "COEFFICIENT")
@@ -66,126 +78,17 @@ public class Discipline extends BaseEntity implements Serializable, Comparable{
     @JoinColumn(name = "annee_academique",referencedColumnName = "ID")
     @ManyToOne
     private AnneeAcademique anneeAcademique;
-    
+
+    @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "discipline",fetch = FetchType.LAZY )
     private Collection<Examen> examenCollection;
+
+    @ToString.Exclude
     @OneToMany(mappedBy = "discipline",fetch = FetchType.LAZY )
     private Collection<Bulletin> bulletinCollection;
-
-    public Collection<Bulletin> getBulletinCollection() {
-        return bulletinCollection;
-    }
-
-    public Discipline() {
-    }
-
-    public Discipline(Integer id) {
-        this.id = id;
-    }
-
-    public Discipline(Integer id, int coefficient) {
-        this.id = id;
-        this.coefficient = coefficient;
-    }
-
-    @Override
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getCoefficient() {
-        return coefficient;
-    }
-
-    public void setCoefficient(Integer coefficient) {
-        this.coefficient = coefficient;
-    }
-
-    public Classe getClasse() {
-        return classe;
-    }
-
-    public void setClasse(Classe classe) {
-        this.classe = classe;
-    }
-
-    public String getEnseignant() {
-        return enseignant;
-    }
-
-    public void setEnseignant(String enseignant) {
-        this.enseignant = enseignant;
-    }
-
-    public Matiere getMatiere() {
-        return matiere;
-    }
-
-    public void setMatiere(Matiere matiere) {
-        this.matiere = matiere;
-    }
-
-    @XmlTransient
-    public Collection<Examen> getExamenCollection() {
-        return examenCollection;
-    }
-
-    public void setExamenCollection(Collection<Examen> examenCollection) {
-        this.examenCollection = examenCollection;
-    }
-
-    public AnneeAcademique getAnneeAcademique() {
-        return anneeAcademique;
-    }
-
-    public void setAnneeAcademique(AnneeAcademique anneeAcademique) {
-        this.anneeAcademique = anneeAcademique;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Discipline)) {
-            return false;
-        }
-        Discipline other = (Discipline) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return classe.getCode() + " " + matiere.getLibelle();
-    }
-
-    public boolean hasMatiere() {
-        return matiere != null && matiere.hasCode() && !"".equals(matiere.getCode().trim());
-    }
-
-    public boolean hasEnseignant() {
-        return enseignant != null && !"".equals(enseignant.trim());
-    }
-
-    public boolean hasClasse() {
-return classe != null && classe.hasCode() && !"".equals(classe.getCode().trim());
-    }
 
     @Override
     public int compareTo(Object o) {
         return this.matiere.getIndex().compareTo(((Discipline) o).matiere.getIndex());
     }
-
 }

@@ -1,0 +1,11 @@
+runtime_config:
+  jdk: openjdk8
+  server: jetty9
+env: flex
+
+handlers:
+  - url: /.*
+    script: this field is required, but ignored
+env_variables:
+  JETTY_MODULES_ENABLE: 'gzip'
+  JETTY_ARGS: -Djava.util.logging.config.file=WEB-INF/logging.properties

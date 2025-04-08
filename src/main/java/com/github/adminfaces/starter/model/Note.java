@@ -5,22 +5,29 @@
  */
 package com.github.adminfaces.starter.model;
 
-import com.github.adminfaces.persistence.model.BaseEntity;
 import java.io.Serializable;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  *
@@ -35,7 +42,10 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Note.findByNote", query = "SELECT n FROM Note n WHERE n.note = :note"),
     @NamedQuery(name = "Note.findByObservation", query = "SELECT n FROM Note n WHERE n.observation = :observation"),
     @NamedQuery(name = "Note.findByRang", query = "SELECT n FROM Note n WHERE n.rang = :rang")})
-public class Note extends BaseEntity implements Serializable,Comparable<Note> {
+@Getter
+@Setter
+@NoArgsConstructor
+public class Note implements Serializable,Comparable<Note> {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -71,26 +81,12 @@ public class Note extends BaseEntity implements Serializable,Comparable<Note> {
     @ManyToOne
     private AnneeAcademique anneeAcademique;
 
-    public Note() {
-    }
-
-    public Note(Integer id) {
-        this.id = id;
-    }
-
     public Note(double note, String observation, int rang) {
         this.note = note;
         this.observation = observation;
         this.rang = rang;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
     public boolean isMalade(){
         return presence.equals("MALADE");
     }
@@ -101,93 +97,9 @@ public class Note extends BaseEntity implements Serializable,Comparable<Note> {
         return presence.equals("ABSENT");
     }
 
-    public String getObservation() {
-        return observation;
-    }
-
-    public void setObservation(String observation) {
-        this.observation = observation;
-    }
-
-    public Eleve getEleve() {
-        return eleve;
-    }
-
-    public void setEleve(Eleve eleve) {
-        this.eleve = eleve;
-    }
-
-    public Examen getExamen() {
-        return examen;
-    }
-
-    public void setExamen(Examen examen) {
-        this.examen = examen;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Note)) {
-            return false;
-        }
-        Note other = (Note) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
-
     @Override
     public String toString() {
         return "[Note <b>"+ eleve + "</b> " + examen;
-    }
-
-    public boolean hasEleve() {
-        return eleve != null;
-    }
-
-    public boolean hasExamen() {
-        return examen != null;
-    }
-
-    public Double getNote() {
-        return note;
-    }
-
-    public void setNote(Double note) {
-        this.note = note;
-    }
-
-    public Integer getRang() {
-        return rang;
-    }
-
-    public void setRang(Integer rang) {
-        this.rang = rang;
-    }
-
-    public String getPresence() {
-        return presence;
-    }
-
-    public void setPresence(String presence) {
-        this.presence = presence;
-    }
-
-    public AnneeAcademique getAnneeAcademique() {
-        return anneeAcademique;
-    }
-
-    public void setAnneeAcademique(AnneeAcademique anneeAcademique) {
-        this.anneeAcademique = anneeAcademique;
     }
 
     @Override

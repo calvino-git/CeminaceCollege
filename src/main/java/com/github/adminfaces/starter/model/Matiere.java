@@ -5,25 +5,29 @@
  */
 package com.github.adminfaces.starter.model;
 
-import com.github.adminfaces.persistence.model.BaseEntity;
 import java.io.Serializable;
 import java.util.Collection;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -39,7 +43,11 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Matiere.findByLibelle", query = "SELECT m FROM Matiere m WHERE m.libelle = :libelle"),
     @NamedQuery(name = "Matiere.findByDescription", query = "SELECT m FROM Matiere m WHERE m.description = :description"),
     @NamedQuery(name = "Matiere.findBySpecialite", query = "SELECT m FROM Matiere m WHERE m.specialite = :specialite")})
-public class Matiere extends BaseEntity implements Serializable,Comparable {
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString
+public class Matiere implements Serializable,Comparable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -63,117 +71,6 @@ public class Matiere extends BaseEntity implements Serializable,Comparable {
     private String specialite;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "matiere")
     private Collection<Discipline> disciplineCollection;
-
-    public Matiere() {
-    }
-
-    public Matiere(Integer id) {
-        this.id = id;
-    }
-
-    public Matiere(Integer id, String code, String libelle, String description, String specialite) {
-        this.id = id;
-        this.code = code;
-        this.libelle = libelle;
-        this.description = description;
-        this.specialite = specialite;
-    }
-
-    @Override
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getLibelle() {
-        return libelle;
-    }
-
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getSpecialite() {
-        return specialite;
-    }
-
-    public void setSpecialite(String specialite) {
-        this.specialite = specialite;
-    }
-
-    @XmlTransient
-    public Collection<Discipline> getDisciplineCollection() {
-        return disciplineCollection;
-    }
-
-    public void setDisciplineCollection(Collection<Discipline> disciplineCollection) {
-        this.disciplineCollection = disciplineCollection;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Matiere)) {
-            return false;
-        }
-        Matiere other = (Matiere) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return code;
-    }
-
-    public boolean hasCode() {
-        return code != null && !"".equals(code.trim());
-    }
-
-    public boolean hasLibelle() {
-        return libelle != null && !"".equals(libelle.trim());
-    }
-
-    public boolean hasSpecialite() {
-        return specialite != null && !"".equals(specialite.trim());
-    }
-
-    public Integer getIndex() {
-        return index;
-    }
-
-    public void setIndex(Integer index) {
-        this.index = index;
-    }
-
     @Override
     public int compareTo(Object o) {
         return this.index.compareTo(((Matiere ) o ).index);

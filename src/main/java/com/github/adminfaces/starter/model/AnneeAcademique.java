@@ -5,25 +5,29 @@
  */
 package com.github.adminfaces.starter.model;
 
-import com.github.adminfaces.persistence.model.BaseEntity;
 import java.io.Serializable;
 import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
+import lombok.ToString;
 
 /**
  *
@@ -37,13 +41,18 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "AnneeAcademique.findById", query = "SELECT a FROM AnneeAcademique a WHERE a.id = :id"),
     @NamedQuery(name = "AnneeAcademique.findByAnnee", query = "SELECT a FROM AnneeAcademique a WHERE a.annee = :annee"),
     @NamedQuery(name = "AnneeAcademique.findByStatut", query = "SELECT a FROM AnneeAcademique a WHERE a.statut = :statut")})
-public class AnneeAcademique extends BaseEntity implements Serializable {
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString
+public class AnneeAcademique implements Serializable {
 
     private static final long serialVersionUID = 1L;
-     @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "ID")
+    @ToString.Exclude
     private Integer id;
     @Basic(optional = false)
     @NotNull
@@ -52,118 +61,19 @@ public class AnneeAcademique extends BaseEntity implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Column(name = "STATUT")
+    @ToString.Exclude
     private boolean statut;
     
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Eleve> eleveList;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Bulletin> bulletinList;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Classe> classeList;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "anneeAcademique",fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Discipline> disciplineList;
-
-    public AnneeAcademique() {
-    }
-
-    public AnneeAcademique(Integer id) {
-        this.id = id;
-    }
-
-    public AnneeAcademique(Integer id, String annee, boolean statut) {
-        this.id = id;
-        this.annee = annee;
-        this.statut = statut;
-    }
-
-    @Override
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getAnnee() {
-        return annee;
-    }
-
-    public void setAnnee(String annee) {
-        this.annee = annee;
-    }
-
-    public boolean getStatut() {
-        return statut;
-    }
-
-    public void setStatut(boolean statut) {
-        this.statut = statut;
-    }
-
-    @XmlTransient
-    public List<Eleve> getEleveList() {
-        return eleveList;
-    }
-
-    public void setEleveList(List<Eleve> eleveList) {
-        this.eleveList = eleveList;
-    }
-
-    @XmlTransient
-    public List<Bulletin> getBulletinList() {
-        return bulletinList;
-    }
-
-    public void setBulletinList(List<Bulletin> bulletinList) {
-        this.bulletinList = bulletinList;
-    }
-
-    public List<Classe> getClasseList() {
-        return classeList;
-    }
-
-    public void setClasseList(List<Classe> classeList) {
-        this.classeList = classeList;
-    }
-
-    public List<Discipline> getDisciplineList() {
-        return disciplineList;
-    }
-
-    public void setDisciplineList(List<Discipline> disciplineList) {
-        this.disciplineList = disciplineList;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-    
-    
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof AnneeAcademique)) {
-            return false;
-        }
-        AnneeAcademique other = (AnneeAcademique) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return this.annee;
-    }
-
-    public boolean hasAnnee() {
-        return annee != null && !"".equals(annee.trim());
-    }
-    
 }

@@ -14,38 +14,29 @@ import com.github.adminfaces.starter.model.Note;
 import com.github.adminfaces.starter.model.RegistreCollege;
 import com.github.adminfaces.starter.model.RegistreLycee;
 
-import javax.ejb.Stateless;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.inject.Inject;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Stateless
+@Service
+@Log4j2
 public class UpdateService implements Serializable {
-    @Inject
-    ExamenService examenService;
-    private double total;
-
-    @Inject
-    BulletinService bulletinService;
-
-    @Inject
-    BssService bssService;
-    @Inject
-    BslCollegeService bslCollegeService;
-    @Inject
-    BscCollegeService bscCollegeService;
-    @Inject
-    BslLyceeService bslLyceeService;
-    @Inject
-    BscLyceeService bscLyceeService;
+    private final ExamenService examenService;
+    private final BulletinService bulletinService;
+    private final BssService bssService;
+    private final BslCollegeService bslCollegeService;
+    private final BscCollegeService bscCollegeService;
+    private final BslLyceeService bslLyceeService;
+    private final BscLyceeService bscLyceeService;
+    private final AnneeAcademique currentAnneeAcademique;
 
     private int coef;
-
+    private double total;
     private double totalLettre;
     private double totalScience;
     private double totalCulture;
@@ -54,13 +45,25 @@ public class UpdateService implements Serializable {
     private int p2;
     private int p3;
 
+    public UpdateService(ExamenService examenService, BulletinService bulletinService, BssService bssService, BslCollegeService bslCollegeService, BscCollegeService bscCollegeService, BslLyceeService bslLyceeService, BscLyceeService bscLyceeService, AnneeAcademique currentAnneeAcademique) {
+        this.examenService = examenService;
+        this.bulletinService = bulletinService;
+        this.bssService = bssService;
+        this.bslCollegeService = bslCollegeService;
+        this.bscCollegeService = bscCollegeService;
+        this.bslLyceeService = bslLyceeService;
+        this.bscLyceeService = bscLyceeService;
+        this.currentAnneeAcademique = currentAnneeAcademique;
+    }
+
+
     public List<RegistreCollege> updateRegistreTrimestreCollege(Classe classe, Integer trimestre) {
         List<RegistreCollege> registres = new ArrayList<>();
 
         classe.getEleveCollection().forEach(eleve -> {
             RegistreCollege registreCollege = new RegistreCollege();
             registreCollege.setEleve(eleve);
-            registreCollege.setAnneeAcademique(classe.getAnneeAcademique());
+            registreCollege.setAnneeAcademique(currentAnneeAcademique);
             registreCollege.setTrimestre(trimestre);
             //System.out.println("Recherche des bulletins de l'eleve :" + eleve + " [ Trim : " + trimestre + "]");
             List<Bulletin> bulletins = bulletinService.bulletinsParEleveEtTrimestre(eleve, trimestre);
@@ -180,18 +183,23 @@ public class UpdateService implements Serializable {
     }
 
     public List<RegistreCollege> updateRegistreCollege(Classe classe, Integer trimestre, String type) {
+        log.info("Mise a jour des données :");
+        log.info("Trim: " + trimestre);
+        log.info("Classe:" + classe.getId() + "=" + classe);
+        log.info("Type:" + type);
 
-        System.out.println("Mise a jour des données :");
-        System.out.println("Trim: " + trimestre);
-        System.out.println("Classe:" + classe.getId() + "=" + classe);
-        System.out.println("Type:" + type);
         List<RegistreCollege> registres = new ArrayList<>();
-        List<Examen> examens = examenService.listeParClasseType(classe, trimestre, classe.getAnneeAcademique(), type);
+        List<Examen> examens = classe.getDisciplineCollection()
+                .stream().map(discipline -> {
+                    return examenService.findByDisciplineAndTrimestreAndAnneeAcademiqueAndType(discipline, trimestre, currentAnneeAcademique, type);
+                })
+                .flatMap(List::stream)
+                .toList();
         System.out.println(examens);
         classe.getEleveCollection().forEach(eleve -> {
             RegistreCollege registreCollege = new RegistreCollege();
             registreCollege.setEleve(eleve);
-            registreCollege.setAnneeAcademique(classe.getAnneeAcademique());
+            registreCollege.setAnneeAcademique(currentAnneeAcademique);
             registreCollege.setTrimestre(trimestre);
 //          registreCollege.setType(type);
             total = 0.0;
@@ -344,7 +352,7 @@ public class UpdateService implements Serializable {
     }
 
     public void updateBilanParSpecialiteCollege(Classe classe) {
-        Logger.getGlobal().log(Level.INFO, "Debut preparation des bilans : {0} {1}", new Object[]{classe.getCode(), classe.getAnneeAcademique().getAnnee()});
+        log.info("Debut preparation des bilans : {0} {1}", new Object[]{classe.getCode(), currentAnneeAcademique.getAnnee()});
         for (int trimestre = 1; trimestre < 4; trimestre++) {
             List<BilanParSpecialiteLettreCollege> bsls = new ArrayList<>();
             List<BilanParSpecialiteScience> bsss = new ArrayList<>();
@@ -356,15 +364,15 @@ public class UpdateService implements Serializable {
                 BilanParSpecialiteCultureCollege bsc = new BilanParSpecialiteCultureCollege();
 
                 bsl.setEleve(eleve);
-                bsl.setAnneeAcademique(classe.getAnneeAcademique());
+                bsl.setAnneeAcademique(currentAnneeAcademique);
                 bsl.setTrimestre(trimestre);
 
                 bss.setEleve(eleve);
-                bss.setAnneeAcademique(classe.getAnneeAcademique());
+                bss.setAnneeAcademique(currentAnneeAcademique);
                 bss.setTrimestre(trimestre);
 
                 bsc.setEleve(eleve);
-                bsc.setAnneeAcademique(classe.getAnneeAcademique());
+                bsc.setAnneeAcademique(currentAnneeAcademique);
                 bsc.setTrimestre(trimestre);
                 List<Bulletin> bulletins = bulletinService.bulletinsParEleveEtTrimestre(eleve, trimestre);
                 totalLettre = 0.0;
@@ -503,31 +511,31 @@ public class UpdateService implements Serializable {
             }
 
             bsls.stream().map((t) -> {
-                BilanParSpecialiteLettreCollege bsl = bslCollegeService.exists(t.getEleve(), t.getTrimestre(), t.getAnneeAcademique());
+                BilanParSpecialiteLettreCollege bsl = bslCollegeService.findByEleveAndTrimestreAndAnneeAcademique(t.getEleve(), t.getTrimestre(), currentAnneeAcademique);
                 if (bsl != null) {
                     t.setId(bsl.getId());
                 }
                 return t;
             }).forEachOrdered((t) -> {
-                bslCollegeService.saveOrUpdate(t);
+                bslCollegeService.save(t);
             });
             bsss.stream().map((t) -> {
-                BilanParSpecialiteScience bss = bssService.exists(t.getEleve(), t.getTrimestre(), t.getAnneeAcademique());
+                BilanParSpecialiteScience bss = bssService.findByEleveAndTrimestreAndAnneeAcademique(t.getEleve(), t.getTrimestre(), currentAnneeAcademique);
                 if (bss != null) {
                     t.setId(bss.getId());
                 }
                 return t;
             }).forEachOrdered((t) -> {
-                bssService.saveOrUpdate(t);
+                bssService.save(t);
             });
             bscs.stream().map((t) -> {
-                BilanParSpecialiteCultureCollege bsc = bscCollegeService.exists(t.getEleve(), t.getTrimestre(), t.getAnneeAcademique());
+                BilanParSpecialiteCultureCollege bsc = bscCollegeService.findByEleveAndTrimestreAndAnneeAcademique(t.getEleve(), t.getTrimestre(), currentAnneeAcademique);
                 if (bsc != null) {
                     t.setId(bsc.getId());
                 }
                 return t;
             }).forEachOrdered((t) -> {
-                bscCollegeService.saveOrUpdate(t);
+                bscCollegeService.save(t);
             });
 
 //        HashMap<String, List> map = new HashMap<>();
@@ -536,21 +544,21 @@ public class UpdateService implements Serializable {
 //        map.put("Culture", bscs);
 //        registres.sort((r1, r2) -> r1.getEleve().compareTo(r2.getEleve()));
         }
-        Logger.getGlobal().log(Level.WARNING, "Fin de l'operation des bilans : {0} {1}", new Object[]{classe.getCode(), classe.getAnneeAcademique().getAnnee()});
+        log.info("Fin de l'operation des bilans : {0} {1}", new Object[]{classe.getCode(), currentAnneeAcademique.getAnnee()});
 //        return map;
     }
 
 
-    public List<RegistreLycee> updateRegistreLycee(Classe classe, AnneeAcademique annee, Integer trimestre, String type) {
+    public List<RegistreLycee> updateRegistreLycee(Classe classe, AnneeAcademique anneeAcademique, Integer trimestre, String type) {
         List<RegistreLycee> registres = new ArrayList<>();
 
         classe.getEleveCollection().forEach(eleve -> {
             RegistreLycee registre = new RegistreLycee();
             registre.setEleve(eleve);
-            registre.setAnneeAcademique(annee);
+            registre.setAnneeAcademique(anneeAcademique);
             registre.setTrimestre(trimestre);
             registre.setType(type);
-            List<Bulletin> bulletins = bulletinService.bulletinParEleveEtClasse(eleve, trimestre, annee);
+            List<Bulletin> bulletins = bulletinService.findByEleveAndTrimestreAndAnneeAcademique(eleve, trimestre, anneeAcademique);
             total = 0.0;
             coef = 0;
             if (bulletins != null && !bulletins.isEmpty()) {
@@ -810,13 +818,18 @@ public class UpdateService implements Serializable {
 
     }
 
-    public List<RegistreLycee> updateRegistreLycee2(Classe classe, AnneeAcademique annee, Integer trimestre, String type) {
+    public List<RegistreLycee> updateRegistreLycee2(Classe classe, AnneeAcademique anneeAcademique, Integer trimestre, String type) {
         List<RegistreLycee> registres = new ArrayList<>();
-        List<Examen> examens = examenService.listeParClasseType(classe, trimestre, annee, type);
+        List<Examen> examens = classe.getDisciplineCollection()
+                .stream().map(discipline -> {
+                    return examenService.findByDisciplineAndTrimestreAndAnneeAcademiqueAndType(discipline, trimestre, currentAnneeAcademique, type);
+                })
+                .flatMap(List::stream)
+                .toList();
         classe.getEleveCollection().forEach(eleve -> {
             RegistreLycee registre = new RegistreLycee();
             registre.setEleve(eleve);
-            registre.setAnneeAcademique(annee);
+            registre.setAnneeAcademique(anneeAcademique);
             registre.setTrimestre(trimestre);
             registre.setType(type);
             total = 0.0;
@@ -919,7 +932,7 @@ public class UpdateService implements Serializable {
 
     public void updateBilanParSpecialiteLycee(Classe classe, AnneeAcademique anneeAcademique) {
 
-        Logger.getGlobal().log(Level.INFO, "Debut preparation des bilans : {0} {1}", new Object[]{classe.getCode(), anneeAcademique.getAnnee()});
+        log.info("Debut preparation des bilans : {0} {1}", new Object[]{classe.getCode(), anneeAcademique.getAnnee()});
         for (int trimestre = 1; trimestre < 4; trimestre++) {
             List<BilanParSpecialiteLettreLycee> bsls = new ArrayList<>();
             List<BilanParSpecialiteScience> bsss = new ArrayList<>();
@@ -941,7 +954,7 @@ public class UpdateService implements Serializable {
                 bsc.setEleve(eleve);
                 bsc.setAnneeAcademique(anneeAcademique);
                 bsc.setTrimestre(trimestre);
-                List<Bulletin> bulletins = bulletinService.bulletinParEleveEtClasse(eleve, trimestre, anneeAcademique);
+                List<Bulletin> bulletins = bulletinService.findByEleveAndTrimestreAndAnneeAcademique(eleve, trimestre, anneeAcademique);
                 totalLettre = 0.0;
                 totalScience = 0.0;
                 totalCulture = 0.0;
@@ -1074,31 +1087,31 @@ public class UpdateService implements Serializable {
             }
 
             bsls.stream().map((t) -> {
-                BilanParSpecialiteLettreLycee bsl = bslLyceeService.exists(t.getEleve(), t.getTrimestre(), t.getAnneeAcademique());
+                BilanParSpecialiteLettreLycee bsl = bslLyceeService.findByEleveAndTrimestreAndAnneeAcademique(t.getEleve(), t.getTrimestre(), currentAnneeAcademique);
                 if (bsl != null) {
                     t.setId(bsl.getId());
                 }
                 return t;
             }).forEachOrdered((t) -> {
-                bslLyceeService.saveOrUpdate(t);
+                bslLyceeService.save(t);
             });
             bsss.stream().map((t) -> {
-                BilanParSpecialiteScience bss = bssService.exists(t.getEleve(), t.getTrimestre(), t.getAnneeAcademique());
+                BilanParSpecialiteScience bss = bssService.findByEleveAndTrimestreAndAnneeAcademique(t.getEleve(), t.getTrimestre(), currentAnneeAcademique);
                 if (bss != null) {
                     t.setId(bss.getId());
                 }
                 return t;
             }).forEachOrdered((t) -> {
-                bssService.saveOrUpdate(t);
+                bssService.save(t);
             });
             bscs.stream().map((t) -> {
-                BilanParSpecialiteCultureLycee bsc = bscLyceeService.exists(t.getEleve(), t.getTrimestre(), t.getAnneeAcademique());
+                BilanParSpecialiteCultureLycee bsc = bscLyceeService.findByEleveAndTrimestreAndAnneeAcademique(t.getEleve(), t.getTrimestre(), currentAnneeAcademique);
                 if (bsc != null) {
                     t.setId(bsc.getId());
                 }
                 return t;
             }).forEachOrdered((t) -> {
-                bscLyceeService.saveOrUpdate(t);
+                bscLyceeService.save(t);
             });
 
 //        HashMap<String, List> map = new HashMap<>();
@@ -1107,7 +1120,7 @@ public class UpdateService implements Serializable {
 //        map.put("Culture", bscs);
 //        registres.sort((r1, r2) -> r1.getEleve().compareTo(r2.getEleve()));
         }
-        Logger.getGlobal().log(Level.WARNING, "Fin de l'operation des bilans : {0} {1}", new Object[]{classe.getCode(), anneeAcademique.getAnnee()});
+        log.info("Fin de l'operation des bilans : {0} {1}", new Object[]{classe.getCode(), anneeAcademique.getAnnee()});
 
 //        return map;
     }

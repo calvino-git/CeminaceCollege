@@ -16,13 +16,13 @@ import com.github.adminfaces.starter.service.EleveService;
 import com.github.adminfaces.template.exception.BusinessException;
 import static com.github.adminfaces.template.util.Assert.has;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
 import org.omnifaces.cdi.ViewScoped;
 import org.primefaces.event.SelectEvent;
 

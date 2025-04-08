@@ -15,12 +15,12 @@ import com.github.adminfaces.template.exception.BusinessException;
 import static com.github.adminfaces.template.util.Assert.has;
 import org.omnifaces.cdi.ViewScoped;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
 import org.primefaces.event.SelectEvent;
 
 /**

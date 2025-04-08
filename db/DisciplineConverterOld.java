@@ -11,12 +11,12 @@ import com.github.adminfaces.starter.service.DisciplineService;
 import com.github.adminfaces.starter.service.MatiereService;
 import java.io.Serializable;
 import java.util.List;
-import javax.enterprise.context.SessionScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.convert.Converter;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 /**
  *

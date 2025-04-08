@@ -4,103 +4,104 @@
  */
 package com.github.adminfaces.starter.service;
 
-import com.github.adminfaces.persistence.model.Filter;
-import com.github.adminfaces.persistence.service.CrudService;
 import com.github.adminfaces.starter.model.AnneeAcademique;
 import com.github.adminfaces.starter.model.BilanParSpecialiteScience;
-import com.github.adminfaces.starter.model.BilanParSpecialiteScience_;
 import com.github.adminfaces.starter.model.Eleve;
+import com.github.adminfaces.starter.repository.BssRepository;
 import com.github.adminfaces.template.exception.BusinessException;
-import org.apache.deltaspike.data.api.criteria.Criteria;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import javax.ejb.Stateless;
 import java.io.Serializable;
+import java.util.Optional;
 
 import static com.github.adminfaces.template.util.Assert.has;
 
 /**
  * @author rmpestano
  */
-@Stateless
-public class BssService extends CrudService<BilanParSpecialiteScience, Integer> implements Serializable {
+@Service
+public class BssService{
+    @Autowired
+    BssRepository bssRepository;
 
-    @Override
-    protected Criteria<BilanParSpecialiteScience, BilanParSpecialiteScience> configRestrictions(Filter<BilanParSpecialiteScience> filter) {
-
-        Criteria<BilanParSpecialiteScience, BilanParSpecialiteScience> criteria = criteria();
-
-        //create restrictions based on parameters map
-//        if (filter.hasParam("id")) {
-//            criteria.eq(BilanParSpecialiteScience_.id, filter.getIntParam("id"));
-//        }
-//
-//        if (filter.hasParam("minPrice") && filter.hasParam("maxPrice")) {
-//            criteria.between(BilanParSpecialiteScience_.price, filter.getDoubleParam("minPrice"), filter.getDoubleParam("maxPrice"));
-//        } else if (filter.hasParam("minPrice")) {
-//            criteria.gtOrEq(BilanParSpecialiteScience_.price, filter.getDoubleParam("minPrice"));
-//        } else if (filter.hasParam("maxPrice")) {
-//            criteria.ltOrEq(BilanParSpecialiteScience_.price, filter.getDoubleParam("maxPrice"));
-//        }
-//
-//        //create restrictions based on filter entity
-//        if (has(filter.getEntity())) {
-//            BilanParSpecialiteScience filterEntity = filter.getEntity();
-//            if (has(filterEntity.getModel())) {
-//                criteria.likeIgnoreCase(BilanParSpecialiteScience_.model, "%" + filterEntity.getModel());
-//            }
-//
-//            if (has(filterEntity.getPrice())) {
-//                criteria.eq(BilanParSpecialiteScience_.price, filterEntity.getPrice());
-//            }
-//
-//            if (has(filterEntity.getName())) {
-//                criteria.likeIgnoreCase(BilanParSpecialiteScience_.name, "%" + filterEntity.getName() + "%");
-//            }
-//        }
-        return criteria;
+    public BilanParSpecialiteScience save(BilanParSpecialiteScience bilanParSpecialiteScience) {
+        return bssRepository.save(bilanParSpecialiteScience);
     }
 
-    @Override
-    public void beforeInsert(BilanParSpecialiteScience bss) {
-        validate(bss);
+    public BilanParSpecialiteScience findByEleveAndTrimestreAndAnneeAcademique(Eleve eleve, Integer trimestre, AnneeAcademique anneeAcademique) {
+        Optional<BilanParSpecialiteScience> bss = bssRepository.findBilanParSpecialiteScienceByEleveAndTrimestreAndAnneeAcademique(eleve, trimestre, anneeAcademique);
+        return bss.orElse(null);
     }
 
-    @Override
-    public void beforeUpdate(BilanParSpecialiteScience bss) {
-        validate(bss);
-    }
-
-    public void validate(BilanParSpecialiteScience bss) {
-        BusinessException be = new BusinessException();
-//        if (!bss.hasModel()) {
-//            be.addException(new BusinessException("BilanParSpecialiteScience model cannot be empty"));
-//        }
-//        if (!bss.hasName()) {
-//            be.addException(new BusinessException("BilanParSpecialiteScience name cannot be empty"));
-//        }
+//    @Override
+//    protected Criteria<BilanParSpecialiteScience, BilanParSpecialiteScience> configRestrictions(Filter<BilanParSpecialiteScience> filter) {
 //
-//        if (!has(bss.getPrice())) {
-//            be.addException(new BusinessException("BilanParSpecialiteScience price cannot be empty"));
-//        }
+//        Criteria<BilanParSpecialiteScience, BilanParSpecialiteScience> criteria = criteria();
 //
-//        if (count(criteria()
-//                .eqIgnoreCase(BilanParSpecialiteScience_.name, bss.getName())
-//                .notEq(BilanParSpecialiteScience_.id, bss.getId())) > 0) {
+//        //create restrictions based on parameters map
+////        if (filter.hasParam("id")) {
+////            criteria.eq(BilanParSpecialiteScience_.id, filter.getIntParam("id"));
+////        }
+////
+////        if (filter.hasParam("minPrice") && filter.hasParam("maxPrice")) {
+////            criteria.between(BilanParSpecialiteScience_.price, filter.getDoubleParam("minPrice"), filter.getDoubleParam("maxPrice"));
+////        } else if (filter.hasParam("minPrice")) {
+////            criteria.gtOrEq(BilanParSpecialiteScience_.price, filter.getDoubleParam("minPrice"));
+////        } else if (filter.hasParam("maxPrice")) {
+////            criteria.ltOrEq(BilanParSpecialiteScience_.price, filter.getDoubleParam("maxPrice"));
+////        }
+////
+////        //create restrictions based on filter entity
+////        if (has(filter.getEntity())) {
+////            BilanParSpecialiteScience filterEntity = filter.getEntity();
+////            if (has(filterEntity.getModel())) {
+////                criteria.likeIgnoreCase(BilanParSpecialiteScience_.model, "%" + filterEntity.getModel());
+////            }
+////
+////            if (has(filterEntity.getPrice())) {
+////                criteria.eq(BilanParSpecialiteScience_.price, filterEntity.getPrice());
+////            }
+////
+////            if (has(filterEntity.getName())) {
+////                criteria.likeIgnoreCase(BilanParSpecialiteScience_.name, "%" + filterEntity.getName() + "%");
+////            }
+////        }
+//        return criteria;
+//    }
 //
-//            be.addException(new BusinessException("BilanParSpecialiteScience name must be unique"));
+//    @Override
+//    public void beforeInsert(BilanParSpecialiteScience bss) {
+//        validate(bss);
+//    }
+//
+//    @Override
+//    public void beforeUpdate(BilanParSpecialiteScience bss) {
+//        validate(bss);
+//    }
+//
+//    public void validate(BilanParSpecialiteScience bss) {
+//        BusinessException be = new BusinessException();
+////        if (!bss.hasModel()) {
+////            be.addException(new BusinessException("BilanParSpecialiteScience model cannot be empty"));
+////        }
+////        if (!bss.hasName()) {
+////            be.addException(new BusinessException("BilanParSpecialiteScience name cannot be empty"));
+////        }
+////
+////        if (!has(bss.getPrice())) {
+////            be.addException(new BusinessException("BilanParSpecialiteScience price cannot be empty"));
+////        }
+////
+////        if (count(criteria()
+////                .eqIgnoreCase(BilanParSpecialiteScience_.name, bss.getName())
+////                .notEq(BilanParSpecialiteScience_.id, bss.getId())) > 0) {
+////
+////            be.addException(new BusinessException("BilanParSpecialiteScience name must be unique"));
+////        }
+//
+//        if (has(be.getExceptionList())) {
+//            throw be;
 //        }
-
-        if (has(be.getExceptionList())) {
-            throw be;
-        }
-    }
-    
-    public BilanParSpecialiteScience exists(Eleve eleve, Integer trimestre, AnneeAcademique annee) {
-        BilanParSpecialiteScience bss = criteria()
-                .eq(BilanParSpecialiteScience_.eleve, eleve)
-                .eq(BilanParSpecialiteScience_.trimestre, trimestre)
-                .eq(BilanParSpecialiteScience_.anneeAcademique, annee)
-                .getOptionalResult();
-        return bss ;
-    }
+//    }
 }

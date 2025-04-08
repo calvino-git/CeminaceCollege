@@ -21,15 +21,15 @@ import static com.github.adminfaces.template.util.Assert.has;
 import org.omnifaces.cdi.ViewScoped;
 import org.omnifaces.util.Faces;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
 import org.apache.deltaspike.data.impl.criteria.selection.SingularAttributeSelection;
 import org.primefaces.event.SelectEvent;
 

@@ -1,0 +1,46 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    password: ceminace
+    username: ceminace
+    url: jdbc:mysql://34.35.2.164:3306/ceminace?serverTimezone=UTC
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  data:
+    jdbc:
+      dialect: mysql
+hibernate:
+  transaction:
+    jta:
+      platform: org.hibernate.engine.transaction.jta.platform.internal.AtomikosPlatform
+security:
+  basic:
+    enabled: false
+joinfaces:
+  primefaces:
+    theme: vela
+  faces:
+    project-stage: Production
+    facelets-libraries: /tags/tags.taglib.xml
+tomcat:
+  version: @tomcat.version@
+jetty:
+  version: @jetty.version@
+undertow:
+  version: @undertow.version@
+application-users:
+  users-credentials:
+    - username: admin
+      password: admin
+      authorities: ROLE_ADMIN
+    - username: user
+      password: user
+      authorities: ROLE_USER
+logging:
+  level:
+    com:
+      gargoylesoftware:
+        htmlunit: ERROR

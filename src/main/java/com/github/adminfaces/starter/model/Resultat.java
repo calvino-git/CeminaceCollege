@@ -5,24 +5,31 @@
  */
 package com.github.adminfaces.starter.model;
 
-import com.github.adminfaces.persistence.model.BaseEntity;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  *
@@ -37,7 +44,10 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Resultat.findByTrimestre", query = "SELECT r FROM Resultat r WHERE r.trimestre = :trimestre"),
     @NamedQuery(name = "Resultat.findByMoyenne", query = "SELECT r FROM Resultat r WHERE r.moyenne = :moyenne"),
     @NamedQuery(name = "Resultat.findByRang", query = "SELECT r FROM Resultat r WHERE r.rang = :rang")})
-public class Resultat extends BaseEntity implements Comparable<Object>, Serializable {
+@Getter
+@Setter
+@NoArgsConstructor
+public class Resultat implements Comparable<Object>, Serializable {
 
     @Size(max = 255)
     @Column(name = "observation")
@@ -52,7 +62,7 @@ public class Resultat extends BaseEntity implements Comparable<Object>, Serializ
 //            initialValue = 1, allocationSize = 1)
     @Basic(optional = false)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
     @Column(name = "trimestre")
     private Integer trimestre;
     @JoinColumn(name = "annee_academique", referencedColumnName = "ID")
@@ -73,103 +83,11 @@ public class Resultat extends BaseEntity implements Comparable<Object>, Serializ
     @ManyToOne
     private Eleve eleve;
 
-    public Resultat() {
-    }
-
-    public Resultat(Long id) {
-        this.id = id;
-    }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Integer getTrimestre() {
-        return trimestre;
-    }
-
-    public void setTrimestre(Integer trimestre) {
-        this.trimestre = trimestre;
-    }
-
-    public AnneeAcademique getAnneeAcademique() {
-        return anneeAcademique;
-    }
-
-    public void setAnneeAcademique(AnneeAcademique anneeAcademique) {
-        this.anneeAcademique = anneeAcademique;
-    }
-
-    public Double getMoyenne() {
-        return moyenne == null ? 0.0 : moyenne;
-    }
-
-    public void setMoyenne(Double moyenne) {
-        this.moyenne = moyenne;
-    }
-
-    public Integer getRang() {
-        return rang;
-    }
-
-    public void setRang(Integer rang) {
-        this.rang = rang;
-    }
-
-    public Eleve getEleve() {
-        return eleve;
-    }
-
-    public void setEleve(Eleve eleve) {
-        this.eleve = eleve;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Resultat)) {
-            return false;
-        }
-        Resultat other = (Resultat) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
-
     @Override
     public String toString() {
         NumberFormat nf = DecimalFormat.getInstance(Locale.FRANCE);
         nf.setMaximumFractionDigits(2);
         return "Moyenne: " + nf.format(moyenne) + " Rang : " + rang + (rang == 1 ? "er" : "eme");
-    }
-
-    public Classe getClasse() {
-        return classe;
-    }
-
-    public void setClasse(Classe classe) {
-        this.classe = classe;
-    }
-
-    public String getObservation() {
-        return observation;
-    }
-
-    public void setObservation(String observation) {
-        this.observation = observation;
     }
 
     @Override
