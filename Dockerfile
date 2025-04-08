@@ -5,11 +5,11 @@ FROM openjdk:8-jdk-alpine
 WORKDIR /app
 
 # Copier le fichier JAR/WAR de l'application
-COPY target/ceminace-college.war /app/ceminace-college.war
+COPY ceminace-college.war /app/ceminace-college.war
 
 # Copier le dossier et ke jar de Payara Micro
 COPY payara-micro-5.2022.5.jar /app/payara-micro.jar
-COPY payara-micro /app/payara-micro
+#COPY payara-micro /app/payara-micro
 
 # Télécharger et extraire Payara Micro
 #RUN wget https://repo1.maven.org/maven2/fish/payara/extras/payara-micro/5.2022.5/payara-micro-5.2022.5.jar -O payara-micro.jar
