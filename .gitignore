@@ -23,7 +23,8 @@
 hs_err_pid*
 replay_pid*
 */.DS_Store
-/target/
-/payara-micro/
-/db/
 /.idea/
+/db/
+/odd/
+/payara-micro/
+/target/
