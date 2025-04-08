@@ -286,7 +286,11 @@
                             <value>127.0.0.1</value>
                         </option>
                         <option>
-                            <key>--nocluster</key>
+                            <key>--rootDir</key>
+                            <value>payara-micro</value>
+                        </option>
+                        <option>
+                            <key>--noCluster</key>
                         </option>
                         <option>
                             <key>--deploy</key>
@@ -366,7 +370,7 @@
         <profile>
             <id>swarm</id>
             <properties>
-                <version.wildfly-swarm>2018.3.3</version.wildfly-swarm>
+                <version.wildfly-swarm>2018.5.0</version.wildfly-swarm>
             </properties>
 
             <dependencies>

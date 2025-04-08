@@ -8,7 +8,23 @@
     </authorization-service>
   </security-configurations>
   <system-applications></system-applications>
-  <applications></applications>
+  <applications>
+    <application context-root="/ceminace-college" deployment-time="23725" object-type="user" directory-deployed="true" name="ceminace-college" time-deployed="1744050134531" location="file:/Users/calviniloki/IdeaProjects/CeminaceCollege/target/ceminace-college/" availability-enabled="true">
+      <property name="archiveType" value="war"></property>
+      <property name="cdiDevModeEnabled" value="false"></property>
+      <property name="appLocation" value="file:/Users/calviniloki/IdeaProjects/CeminaceCollege/target/ceminace-college/"></property>
+      <property name="org.glassfish.ejb.container.application_unique_id" value="114298068137934848"></property>
+      <property name="defaultAppName" value="ceminace-college"></property>
+      <module name="ceminace-college">
+        <engine sniffer="cdi"></engine>
+        <engine sniffer="ejb"></engine>
+        <engine sniffer="security"></engine>
+        <engine sniffer="config"></engine>
+        <engine sniffer="jpa"></engine>
+        <engine sniffer="web"></engine>
+      </module>
+    </application>
+  </applications>
   <resources>
     <jdbc-resource pool-name="H2Pool" object-type="system-all" jndi-name="jdbc/__default"></jdbc-resource>
     <jdbc-connection-pool is-isolation-level-guaranteed="false" datasource-classname="org.h2.jdbcx.JdbcDataSource" name="H2Pool" res-type="javax.sql.DataSource">
@@ -21,6 +37,7 @@
   </resources>
   <servers>
     <server config-ref="server-config" name="server">
+      <application-ref ref="ceminace-college" virtual-servers="server"></application-ref>
       <resource-ref ref="jdbc/__default"></resource-ref>
       <resource-ref ref="concurrent/__defaultContextService"></resource-ref>
       <resource-ref ref="concurrent/__defaultManagedExecutorService"></resource-ref>
@@ -122,6 +139,8 @@
       </request-tracing-service-configuration>
       <notification-service-configuration>
         <log-notifier-configuration enabled="true"></log-notifier-configuration>
+        <cdi-eventbus-notifier-configuration></cdi-eventbus-notifier-configuration>
+        <eventbus-notifier-configuration></eventbus-notifier-configuration>
       </notification-service-configuration>
       <batch-runtime-configuration table-prefix="jbatch" data-source-lookup-name="jdbc/__default"></batch-runtime-configuration>
       <availability-service>
@@ -155,6 +174,22 @@
         <thread-pool name="thread-pool-1" min-thread-pool-size="2" max-thread-pool-size="200"></thread-pool>
       </thread-pools>
       <microprofile-config></microprofile-config>
+      <amx-configuration></amx-configuration>
+      <stuck-threads-checker></stuck-threads-checker>
+      <microprofile-healthcheck-configuration></microprofile-healthcheck-configuration>
+      <microprofile-fault-tolerance-configuration></microprofile-fault-tolerance-configuration>
+      <iiop-service></iiop-service>
+      <web-container>
+        <session-config>
+          <session-manager>
+            <store-properties></store-properties>
+            <manager-properties></manager-properties>
+          </session-manager>
+          <session-properties></session-properties>
+        </session-config>
+      </web-container>
+      <microprofile-openapi-configuration></microprofile-openapi-configuration>
+      <jdbc-config-source-configuration></jdbc-config-source-configuration>
       <system-property name="jersey.config.client.readTimeout" value="300000"></system-property>
       <system-property name="jersey.config.client.connectTimeout" value="300000"></system-property>
       <group-management-service>

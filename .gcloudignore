@@ -16,3 +16,4 @@
 # Target directory for maven builds
 target/
 .idea/
+payara-micro
