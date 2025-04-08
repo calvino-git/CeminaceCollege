@@ -24,6 +24,6 @@ hs_err_pid*
 replay_pid*
 */.DS_Store
 /target/
-/odd/
-/db/
-payara-micro
+/odd
+/db
+/payara-micro
