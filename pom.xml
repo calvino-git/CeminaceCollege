@@ -218,6 +218,11 @@
             <artifactId>adminfaces-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.primefaces.extensions</groupId>
+            <artifactId>primefaces-extensions</artifactId>
+            <version>15.0.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.joinfaces</groupId>
             <artifactId>security-spring-boot-starter</artifactId>
         </dependency>
@@ -750,6 +755,12 @@
             <id>repository.spring.milestone</id>
             <name>Spring Milestone Repository</name>
             <url>https://repo.spring.io/milestone</url>
+        </repository>
+        <repository>
+            <id>prime-repo</id>
+            <name>PrimeFaces Maven Repository</name>
+            <url>http://repository.primefaces.org</url>
+            <layout>default</layout>
         </repository>
     </repositories>
 

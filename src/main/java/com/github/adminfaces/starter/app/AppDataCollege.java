@@ -8,12 +8,17 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -25,6 +30,7 @@ import org.springframework.web.context.annotation.ApplicationScope;
 public class AppDataCollege implements Serializable {
     private final EleveService eleveService;
     private final NiveauService niveauService;
+    private BeanFactory beanFactory;
 
     private SimpleDateFormat format;
     @Getter @Setter
@@ -34,11 +40,12 @@ public class AppDataCollege implements Serializable {
     @Getter @Setter
     private Long nombreEleveM;
 
-    private AnneeAcademique annee;
+    private final AnneeAcademique annee;
 
-    public AppDataCollege(NiveauService niveauService, EleveService eleveService) {
+    public AppDataCollege(NiveauService niveauService, EleveService eleveService, AnneeAcademique annee) {
         this.niveauService = niveauService;
         this.eleveService = eleveService;
+        this.annee = annee;
     }
 
     @PostConstruct
@@ -47,9 +54,9 @@ public class AppDataCollege implements Serializable {
 //        update(anneeAcademiqueService.anneeEnCours());
     }
 //
-//    public void update(AnneeAcademique anneeAcademique) {
-//        Logger.getLogger(getClass().getName()).log(Level.INFO, "Debut - INIT ");
-//        format = new SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE);
+    public void update() {
+        Logger.getLogger(getClass().getName()).log(Level.INFO, "Debut - INIT ");
+        format = new SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE);
 //        annee = anneeAcademique;
 //        nombreEleve = eleveService.nombreEleve(anneeAcademique);
 //        nombreEleveF = eleveService.nombreEleveParSexe(anneeAcademique,"F");
@@ -57,8 +64,8 @@ public class AppDataCollege implements Serializable {
 //        Logger.getLogger(getClass().getName()).log(Level.INFO, "TOTAL ELEVE : {0}", nombreEleve);
 //        Logger.getLogger(getClass().getName()).log(Level.INFO, "TOTAL ELEVE(F) : {0}", nombreEleveF);
 //        Logger.getLogger(getClass().getName()).log(Level.INFO, "TOTAL ELEVE(M) : {0}", nombreEleveM);
-//    }
-//
+    }
+
     //SIXIEME
     @Bean("nombreEleveSixieme")
     public Long nombreEleveSixieme() {

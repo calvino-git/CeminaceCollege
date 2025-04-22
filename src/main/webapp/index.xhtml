@@ -6,6 +6,9 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 template="#{layoutMB.template}">
     <ui:define name="metadata">
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{appDataCollege.update()}"/>
+        </f:metadata>
         <style type="text/css">
             .progress-group .float-right{
                 float: right!important;
@@ -46,17 +49,17 @@
                     <div class="small-box bg-aqua">
                         <div class="inner container-fluid" style="height: 170px;">
                             <h3 class="row">
-                                <h:outputText style="font-size: 25px" value="#{appDataCollege.nombreEleve}">
+                                <h:outputText style="font-size: 25px" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText> <span style="font-size: 25px;">Eleves</span>
                             </h3>
                             <h:panelGrid width="70%" border="0" columns="2">
                                 <h:outputText style="font-size: 20px;" value="Garcon   "/>
-                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{appDataCollege.nombreEleveM}">
+                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                                 <h:outputText style="font-size: 20px;" value="Fille   "/>
-                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{appDataCollege.nombreEleveF}">
+                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                             </h:panelGrid>
@@ -79,11 +82,11 @@
                             </h3>
                             <h:panelGrid width="70%" border="0" columns="2">
                                 <h:outputText style="font-size: 20px;" value="Garcon"/>
-                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveSixiemeGarcon}">
+                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                                 <h:outputText style="font-size: 20px;" value="Fille"/>
-                                <h:outputText  style="font-size: 20px;font-weight: bold;text-align: right" value="#{nombreEleveSixiemeFille}">
+                                <h:outputText  style="font-size: 20px;font-weight: bold;text-align: right" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                             </h:panelGrid>
@@ -106,17 +109,17 @@
                     <div class="small-box bg-green">
                         <div class="inner container-fluid" style="height: 170px;">
                             <h3 class="row" >
-                                <h:outputText style="font-size: 25px" value="#{nombreEleveCinquieme}">
+                                <h:outputText style="font-size: 25px" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText> <span style="font-size: 25px">Eleves</span>
                             </h3>
                             <h:panelGrid width="70%" border="0" columns="2">
                                 <h:outputText style="font-size: 20px;" value="Garcon"/>
-                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveCinquiemeGarcon}">
+                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                                 <h:outputText style="font-size: 20px;" value="Fille"/>
-                                <h:outputText  style="font-size: 20px;font-weight: bold" value="#{nombreEleveCinquiemeFille}">
+                                <h:outputText  style="font-size: 20px;font-weight: bold" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                             </h:panelGrid>
@@ -135,17 +138,17 @@
                     <div class="small-box bg-yellow">
                         <div class="inner container-fluid" style="height: 170px;">
                             <h3 class="row" >
-                                <h:outputText style="font-size: 25px" value="#{nombreEleveQuatrieme}">
+                                <h:outputText style="font-size: 25px" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText> <span style="font-size: 25px">Eleves</span>
                             </h3>
                             <h:panelGrid width="70%" border="0" columns="2">
                                 <h:outputText style="font-size: 20px;" value="Garcon"/>
-                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveQuatriemeGarcon}">
+                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                                 <h:outputText style="font-size: 20px;" value="Fille"/>
-                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveQuatriemeFille}">
+                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                             </h:panelGrid>
@@ -164,17 +167,17 @@
                     <div class="small-box bg-primary">
                         <div class="inner container-fluid" style="height: 170px;">
                             <h3 class="row" >
-                                <h:outputText style="font-size: 25px" value="#{nombreEleveTroisieme}">
+                                <h:outputText style="font-size: 25px" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText> <span style="font-size: 25px">Eleves</span>
                             </h3>
                             <h:panelGrid width="70%" border="0" columns="2">
                                 <h:outputText style="font-size: 20px;" value="Garcon"/>
-                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveTroisiemeGarcon}">
+                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                                 <h:outputText style="font-size: 20px;" value="Fille"/>
-                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveTroisiemeFille}">
+                                <h:outputText style="font-size: 20px;font-weight: bold" value="#{nombreEleveSixieme}">
                                     <f:convertNumber locale="fr_FR" pattern="#,##0"/>
                                 </h:outputText>
                             </h:panelGrid>

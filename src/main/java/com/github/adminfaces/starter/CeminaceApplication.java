@@ -43,7 +43,9 @@ public class CeminaceApplication {
      * @param args to run the main application.
      */
     public static void main(String[] args) {
+
         SpringApplication.run(CeminaceApplication.class, args);
+
     }
 
     @Bean("currentAnneeAcademique")

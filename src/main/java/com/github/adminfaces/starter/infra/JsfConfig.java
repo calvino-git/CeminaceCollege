@@ -10,8 +10,9 @@ public class JsfConfig {
     @Bean
     public ServletRegistrationBean<FacesServlet> facesServlet() {
         ServletRegistrationBean<FacesServlet> registration =
-            new ServletRegistrationBean<>(new FacesServlet(), "*.xhtml");
+                new ServletRegistrationBean<>(new FacesServlet(), "*.xhtml");
         registration.setLoadOnStartup(1);
+        System.out.println("FacesServlets Name : " + registration.getServletName());
         return registration;
     }
 }
