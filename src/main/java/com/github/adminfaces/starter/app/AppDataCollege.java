@@ -4,23 +4,18 @@ package com.github.adminfaces.starter.app;
 import com.github.adminfaces.starter.model.AnneeAcademique;
 import com.github.adminfaces.starter.service.EleveService;
 import com.github.adminfaces.starter.service.NiveauService;
-import jakarta.inject.Named;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.ApplicationScope;
 
@@ -34,7 +29,7 @@ public class AppDataCollege implements Serializable {
 
     private SimpleDateFormat format;
     @Getter @Setter
-    private Long nombreEleve;
+    private Long nombreEleveSixieme;
     @Getter @Setter
     private Long nombreEleveF;
     @Getter @Setter
@@ -58,7 +53,7 @@ public class AppDataCollege implements Serializable {
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Debut - INIT ");
         format = new SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE);
 //        annee = anneeAcademique;
-//        nombreEleve = eleveService.nombreEleve(anneeAcademique);
+        nombreEleveSixieme = eleveService.findByAnneeAndNiveau(annee, "6e");
 //        nombreEleveF = eleveService.nombreEleveParSexe(anneeAcademique,"F");
 //        nombreEleveM = eleveService.nombreEleveParSexe(anneeAcademique,"M");
 //        Logger.getLogger(getClass().getName()).log(Level.INFO, "TOTAL ELEVE : {0}", nombreEleve);
@@ -67,18 +62,18 @@ public class AppDataCollege implements Serializable {
     }
 
     //SIXIEME
-    @Bean("nombreEleveSixieme")
-    public Long nombreEleveSixieme() {
-        log.info("Debut - 6e");
-        Long nombre = eleveService.findByAnneeAndNiveau(annee, "6e");
-        log.info("Fin - 6e");
-        return nombre;
-    }
-
-    @Bean("listOfNiveau")
-    public List<String> cycles() {
-        return niveauService.findAllCode();
-    }
+//    @Bean("nombreEleveSixieme")
+//    public Long nombreEleveSixieme() {
+//        log.info("Debut - 6e");
+//        Long nombre = eleveService.findByAnneeAndNiveau(annee, "6e");
+//        log.info("Fin - 6e");
+//        return nombre;
+//    }
+//
+//    @Bean("listOfNiveau")
+//    public List<String> cycles() {
+//        return niveauService.findAllCode();
+//    }
 //
 //    @Bean
 //    @Named("nombreEleveSixiemeFille")
