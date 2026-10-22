@@ -78,7 +78,7 @@
     <data-source>
         <name>java:app/ceminace</name>
         <class-name>com.mysql.cj.jdbc.MysqlDataSource</class-name>
-        <url>jdbc:mysql://34.35.2.164:3306/ceminace?serverTimezone=UTC</url>
+        <url>jdbc:mysql://localhost:3306/ceminace-college?serverTimezone=UTC</url>
         <user>ceminace</user>
         <password>ceminace</password>
         <property>
