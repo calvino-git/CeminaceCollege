@@ -8,6 +8,7 @@
       <excludeFolder url="file://$MODULE_DIR$/payara-micro/generated" />
       <excludeFolder url="file://$MODULE_DIR$/payara-micro/logs" />
       <excludeFolder url="file://$MODULE_DIR$/payara-micro/runtime" />
+      <excludeFolder url="file://$MODULE_DIR$/payara-micro" />
     </content>
   </component>
 </module>

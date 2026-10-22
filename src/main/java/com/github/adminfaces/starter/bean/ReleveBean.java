@@ -56,6 +56,8 @@ import javax.inject.Named;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+
+import com.mysql.cj.jdbc.MysqlDataSource;
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRParameter;
@@ -76,6 +78,8 @@ import org.primefaces.event.SelectEvent;
 @Named
 @SessionScoped
 public class ReleveBean implements Serializable {
+
+    Logger log = Logger.getLogger(ReleveBean.class.getName());
 
     //CDI inject elements
     @Inject
@@ -129,9 +133,24 @@ public class ReleveBean implements Serializable {
     private Integer progressBulletin;
 
     @PostConstruct
-    public void init() {
+    public void init()  {
         eleves = new ArrayList<>();
         bulletins = null;
+        if(dataSource == null) {
+            try {
+                MysqlDataSource ds = new MysqlDataSource();
+                ds.setUrl("jdbc:mysql://127.0.0.1:3306/ceminace-college?serverTimezone=UTC");
+                ds.setUser("ceminace");
+                ds.setPassword("ceminace");
+                ds.setAllowPublicKeyRetrieval(true);
+                ds.setUseSSL(false);
+                dataSource = ds;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                log.info("Datasource : " + dataSource);
+            }
+        }
     }
 
     public void updateRegistre(ActionEvent event) {
@@ -631,7 +650,7 @@ public class ReleveBean implements Serializable {
         exportComposition("Alphabetique");
     }
     public void exportCompositionOrdreMerite() throws JRException, IOException{
-        this.registresCompo.sort(Comparator.comparingInt(RegistreCollege::getRang));;
+        this.registresCompo.sort(Comparator.comparingInt(RegistreCollege::getRang));
         exportComposition("Merite");
     }
 
@@ -679,7 +698,7 @@ public class ReleveBean implements Serializable {
         exportEvaluation("Alphabetique");
     }
     public void exportEvaluationOrdreMerite() throws JRException, IOException{
-        this.registresEval.sort(Comparator.comparingInt(RegistreCollege::getRang));;
+        this.registresEval.sort(Comparator.comparingInt(RegistreCollege::getRang));
         exportEvaluation("Merite");
     }
 
@@ -873,14 +892,15 @@ public class ReleveBean implements Serializable {
             genererBulletin();
         }
         if (object instanceof Resultat) {
-            Resultat r = (Resultat) object;
+            Resultat r;
+            r = (Resultat) object;
             resultatService.remove(resultat);
             consulterResultats();
         }
 
     }
 
-    public void preProcessPDF(Object document) throws IOException, BadElementException, DocumentException {
+    public void preProcessPDF(Object document) {
         Document pdf = (Document) document;
         Rectangle rectangle = new Rectangle(PageSize.A4.getTop(), PageSize.A4.getRight());
         pdf.setPageSize(rectangle);
